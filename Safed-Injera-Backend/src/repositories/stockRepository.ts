@@ -135,7 +135,7 @@ export const updateStock = async (
 
 export const deleteStock = async (id: number): Promise<boolean> => {
   const result = await pool.query(`DELETE FROM stocks WHERE id = $1`, [id]);
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 };
 
 export const adjustStockQuantity = async (

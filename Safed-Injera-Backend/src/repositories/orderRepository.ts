@@ -174,7 +174,7 @@ export const updateOrder = async (
 
 export const deleteOrder = async (id: number): Promise<boolean> => {
   const result = await pool.query(`DELETE FROM orders WHERE id = $1`, [id]);
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 };
 
 export const countOrders = async (): Promise<number> => {

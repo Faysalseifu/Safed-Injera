@@ -7,7 +7,6 @@ import {
   getDailyBreakdown,
   getRevenueSince,
   getRecentOrders,
-  findOrdersForExport,
   countOrders,
   countOrdersByStatus,
   countOrdersSince,
@@ -97,7 +96,9 @@ export const exportData = async (req: Request, res: Response): Promise<void> => 
     if (type === 'stock') {
       data = await getStocks({});
     } else {
-      data = await findOrdersForExport('orders');
+      // Use getOrdersRepo to fetch all orders for export
+      const { rows } = await require('../repositories/orderRepository').getOrders({});
+      data = rows;
     }
     const filename = `safed-injera-${type || 'orders'}-${new Date().toISOString().split('T')[0]}`;
     switch (format) {

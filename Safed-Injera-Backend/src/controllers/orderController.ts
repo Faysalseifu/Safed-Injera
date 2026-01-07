@@ -6,7 +6,7 @@ import {
   createOrder as insertOrder,
   deleteOrder as removeOrder,
   getOrderById,
-  getOrders,
+  getOrders as getOrdersRepo,
   updateOrder as updateOrderRecord,
 } from '../repositories/orderRepository';
 import {
@@ -41,7 +41,7 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
       status: typeof status === 'string' ? status : undefined,
       businessType: typeof businessType === 'string' ? businessType : undefined,
       sort: _sort ? String(_sort) : undefined,
-      order: _order === 'ASC' ? 'ASC' : 'DESC',
+      order: (typeof _order === 'string' && (_order === 'ASC' || _order === 'DESC') ? _order : undefined) as 'ASC' | 'DESC' | undefined,
       _start: typeof parsedStart === 'number' ? parsedStart : undefined,
       _end: typeof parsedEnd === 'number' ? parsedEnd : undefined,
     };
@@ -50,7 +50,7 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
       options.sort = 'orderDate';
     }
 
-    const { rows, total } = await getOrders(options);
+    const { rows, total } = await getOrdersRepo(options);
 
     const startIndex = options._start ?? 0;
     const endIndex = rows.length ? startIndex + rows.length - 1 : startIndex;
