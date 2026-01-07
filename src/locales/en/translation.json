@@ -1,0 +1,147 @@
+{
+  "nav": {
+    "home": "Home",
+    "about": "About",
+    "products": "Products",
+    "process": "Process",
+    "distribution": "Distribution",
+    "clients": "Clients",
+    "gallery": "Gallery",
+    "contact": "Contact",
+    "pricing": "Pricing"
+  },
+  "hero": {
+    "title": "Safed Injera",
+    "subtitle": "Premium Quality Teff Injera",
+    "description": "Mass production of authentic Ethiopian injera made from pure teff. Delivering quality to hotels, supermarkets, and international clients.",
+    "cta1": "Contact Us",
+    "cta2": "View Products"
+  },
+  "about": {
+    "title": "About Safed Injera",
+    "subtitle": "Our Story",
+    "mission": "Mission",
+    "missionText": "To produce and distribute the highest quality injera made from pure teff, preserving Ethiopian culinary heritage while meeting modern mass production standards.",
+    "quality": "Quality Commitment",
+    "qualityText": "We use only pure teff flour, ensuring authentic taste and nutritional value. Our production process combines traditional methods with modern quality control.",
+    "heritage": "Ethiopian Heritage",
+    "heritageText": "Injera is more than food—it's a symbol of Ethiopian culture. We honor this tradition while making it accessible to businesses and international markets."
+  },
+  "products": {
+    "title": "Our Products",
+    "subtitle": "Premium Quality Injera",
+    "pureTeff": "Pure Teff",
+    "pureTeffDesc": "Made exclusively from pure teff flour, ensuring authentic taste and maximum nutritional benefits.",
+    "quality": "Quality Assured",
+    "qualityDesc": "Every batch undergoes strict quality control to meet the highest standards.",
+    "packaging": "Professional Packaging",
+    "packagingDesc": "Carefully packaged to maintain freshness and quality during distribution.",
+    "certifications": "Certified",
+    "certificationsDesc": "Meeting all local and international food safety standards."
+  },
+  "process": {
+    "title": "Our Production Process",
+    "subtitle": "From Teff to Table",
+    "step1": "Step 1: Sourcing",
+    "step1Desc": "We source the finest pure teff flour from trusted Ethiopian suppliers.",
+    "step2": "Step 2: Fermentation",
+    "step2Desc": "Traditional fermentation process ensures authentic flavor and texture.",
+    "step3": "Step 3: Cooking",
+    "step3Desc": "Expert preparation using traditional techniques combined with modern equipment.",
+    "step4": "Step 4: Quality Control",
+    "step4Desc": "Rigorous quality checks at every stage to ensure consistency.",
+    "step5": "Step 5: Packaging",
+    "step5Desc": "Professional packaging that preserves freshness and quality.",
+    "step6": "Step 6: Distribution",
+    "step6Desc": "Efficient distribution network ensuring timely delivery to all clients."
+  },
+  "distribution": {
+    "title": "Distribution & Services",
+    "subtitle": "Mass Distribution Capabilities",
+    "massProduction": "Mass Production",
+    "massProductionDesc": "Our facility is equipped to handle large-scale production to meet the demands of hotels, supermarkets, and international clients.",
+    "delivery": "Delivery Services",
+    "deliveryDesc": "Reliable delivery network covering local businesses and prepared for international shipping.",
+    "packaging": "Packaging Solutions",
+    "packagingDesc": "Custom packaging options to meet your specific business needs.",
+    "scalability": "Scalable Operations",
+    "scalabilityDesc": "We can scale production to match your requirements, from small orders to bulk distribution."
+  },
+  "clients": {
+    "title": "Our Clients",
+    "subtitle": "Serving Businesses Across Ethiopia and Beyond",
+    "hotels": "Hotels & Restaurants",
+    "hotelsDesc": "Providing consistent quality injera for hotels and restaurants serving authentic Ethiopian cuisine.",
+    "supermarkets": "Supermarkets",
+    "supermarketsDesc": "Mass distribution to supermarkets for retail customers seeking quality injera.",
+    "b2b": "B2B Services",
+    "b2bDesc": "Bulk orders for businesses requiring regular supply of high-quality injera.",
+    "international": "International Clients",
+    "internationalDesc": "We welcome international clients and are equipped to handle export requirements and international shipping."
+  },
+  "gallery": {
+    "title": "Gallery",
+    "subtitle": "See Our Quality",
+    "viewImage": "View Image"
+  },
+  "contact": {
+    "title": "Contact Us",
+    "subtitle": "Get in Touch",
+    "name": "Name",
+    "email": "Email",
+    "businessType": "Business Type",
+    "businessTypePlaceholder": "Select your business type",
+    "hotel": "Hotel/Restaurant",
+    "supermarket": "Supermarket",
+    "retailer": "Retailer",
+    "international": "International Client",
+    "other": "Other",
+    "message": "Message",
+    "messagePlaceholder": "Tell us about your needs...",
+    "submit": "Send Message",
+    "submitting": "Sending...",
+    "success": "Thank you! We'll get back to you soon.",
+    "error": "Something went wrong. Please try again.",
+    "location": "Location",
+    "locationText": "Ethiopia",
+    "phone": "Phone",
+    "emailLabel": "Email"
+  },
+  "pricing": {
+    "title": "Pricing & Packages",
+    "subtitle": "Flexible Pricing for Every Business Need",
+    "contactForQuote": "Contact us for custom pricing",
+    "bulkDiscounts": "Bulk Order Discounts Available",
+    "packages": {
+      "starter": {
+        "name": "Starter Package",
+        "description": "Perfect for small restaurants and cafes",
+        "quantity": "50-200 pieces",
+        "price": "Contact for pricing",
+        "features": ["Fresh daily delivery", "Standard packaging", "Weekly orders"]
+      },
+      "business": {
+        "name": "Business Package",
+        "description": "Ideal for hotels and medium businesses",
+        "quantity": "200-1000 pieces",
+        "price": "Contact for pricing",
+        "features": ["Priority delivery", "Custom packaging", "Flexible scheduling", "Bulk discounts"]
+      },
+      "enterprise": {
+        "name": "Enterprise Package",
+        "description": "For supermarkets and large distributors",
+        "quantity": "1000+ pieces",
+        "price": "Contact for pricing",
+        "features": ["Dedicated account manager", "Custom packaging solutions", "Volume discounts", "International shipping available"]
+      }
+    },
+    "note": "All prices are negotiable based on volume and contract terms. Contact us for a personalized quote."
+  },
+  "footer": {
+    "description": "Safed Injera - Premium quality injera made from pure teff. Mass production and distribution for businesses in Ethiopia and beyond.",
+    "quickLinks": "Quick Links",
+    "contact": "Contact",
+    "rights": "All rights reserved."
+  }
+}
+

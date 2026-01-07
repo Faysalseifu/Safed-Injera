@@ -1,0 +1,139 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-sefed-sand/20;
+  }
+  
+  body {
+    @apply bg-cloud-white text-ethiopian-earth antialiased;
+    font-family: 'Poppins', system-ui, sans-serif;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@layer components {
+  /* Glassmorphism utilities */
+  .glass {
+    @apply bg-white/10 backdrop-blur-md border border-white/20;
+  }
+
+  .glass-dark {
+    @apply bg-ethiopian-earth/10 backdrop-blur-md border border-ethiopian-earth/20;
+  }
+
+  .glass-card {
+    @apply bg-white/90 backdrop-blur-xl border border-white/40 shadow-2xl;
+  }
+
+  .glass-card-dark {
+    @apply bg-ethiopian-earth/90 backdrop-blur-xl border border-ethiopian-earth/40 shadow-2xl;
+  }
+
+  /* Buttons - Modern style inspired by image */
+  .btn-primary {
+    @apply bg-ethiopian-earth text-cloud-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-ethiopian-earth/90 hover:shadow-2xl hover:scale-105 active:scale-100 text-sm sm:text-base;
+    box-shadow: 0 10px 30px rgba(78, 24, 21, 0.3);
+  }
+
+  .btn-secondary {
+    @apply bg-sefed-sand text-cloud-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-sefed-sand/90 hover:shadow-2xl hover:scale-105 active:scale-100 text-sm sm:text-base;
+    box-shadow: 0 10px 30px rgba(168, 150, 136, 0.3);
+  }
+
+  .btn-outline {
+    @apply border-2 border-cloud-white text-cloud-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-cloud-white hover:text-ethiopian-earth hover:shadow-2xl hover:scale-105 active:scale-100 text-sm sm:text-base;
+    backdrop-filter: blur(10px);
+  }
+
+  .btn-glass {
+    @apply glass text-cloud-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-white/30 hover:shadow-2xl hover:scale-105 active:scale-100 text-sm sm:text-base;
+  }
+
+  /* Section containers - Mobile first */
+  .section-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20;
+  }
+
+  .section-title {
+    @apply text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-ethiopian-earth mb-3 sm:mb-4;
+  }
+
+  .section-subtitle {
+    @apply text-base sm:text-lg md:text-xl text-sefed-sand mb-6 sm:mb-8;
+  }
+
+  .pattern-overlay {
+    background-image: 
+      repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(168, 150, 136, 0.03) 10px, rgba(168, 150, 136, 0.03) 20px);
+  }
+
+  /* Card styles - Modern 3D effect inspired by image */
+  .card-glass {
+    @apply glass-card rounded-2xl p-4 sm:p-6 md:p-8 hover:shadow-2xl transition-all duration-500 hover:-translate-y-2;
+    box-shadow: 0 20px 60px rgba(78, 24, 21, 0.1);
+  }
+
+  .card-modern {
+    @apply bg-gradient-to-br from-cloud-white to-cloud-white/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-sefed-sand/20 shadow-2xl transition-all duration-500 hover:shadow-[0_30px_80px_rgba(78,24,21,0.15)] hover:-translate-y-3;
+  }
+
+  /* Gradient backgrounds - Inspired by image's sophisticated gradients */
+  .gradient-primary {
+    background: linear-gradient(135deg, #4E1815 0%, #6B2A25 25%, #4E1815 50%, #3A120F 75%, #4E1815 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  .gradient-light {
+    @apply bg-gradient-to-b from-cloud-white via-cloud-white to-sefed-sand/5;
+  }
+
+  .gradient-hero {
+    background: linear-gradient(180deg, #4E1815 0%, #5D1F1A 30%, #6B2A25 60%, #4E1815 100%);
+  }
+
+  @keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  /* Modern text effects */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #4E1815 0%, #A89688 100%);
+  }
+
+  /* 3D transform utilities */
+  .transform-3d {
+    transform-style: preserve-3d;
+    perspective: 1000px;
+  }
+
+  /* Radial gradient utility */
+  .bg-gradient-radial {
+    background: radial-gradient(circle, var(--tw-gradient-stops));
+  }
+
+  /* Animation delays */
+  .delay-1000 {
+    animation-delay: 1s;
+  }
+
+  /* Enhanced section titles */
+  .section-title {
+    letter-spacing: -0.02em;
+  }
+
+  /* Smooth transitions */
+  * {
+    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
