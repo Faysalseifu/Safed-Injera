@@ -113,17 +113,32 @@ export const updateStock = async (
 
   Object.entries(updates).forEach(([key, value]) => {
     if (value !== undefined) {
-      values.push(value);
-      setClauses.push(`${key} = $${values.length}`);
+      // Prevent duplicate assignment to last_updated or updated_at
+      if (key !== 'last_updated' && key !== 'updated_at') {
+        values.push(value);
+        setClauses.push(`${key} = $${values.length}`);
+      }
     }
   });
 
   if (setClauses.length === 0) {
-    return findStockById(id);
+    // Only update timestamps if no other fields are updated
+    setClauses.push(`last_updated = now()`);
+    setClauses.push(`updated_at = now()`);
+    values.push(id);
+    const setClause = setClauses.join(', ');
+    const { rows } = await pool.query<StockRecord>(
+      `UPDATE stocks SET ${setClause} WHERE id = $${values.length} RETURNING *`,
+      values
+    );
+    return rows[0] ?? null;
   }
 
+  // Always update timestamps
+  setClauses.push(`last_updated = now()`);
+  setClauses.push(`updated_at = now()`);
   values.push(id);
-  const setClause = `${setClauses.join(', ')}, last_updated = now(), updated_at = now()`;
+  const setClause = setClauses.join(', ');
 
   const { rows } = await pool.query<StockRecord>(
     `UPDATE stocks SET ${setClause} WHERE id = $${values.length} RETURNING *`,
