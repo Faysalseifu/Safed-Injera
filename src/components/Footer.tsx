@@ -20,7 +20,7 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-ethiopian-earth text-cloud-white">
+    <footer className="bg-ethiopian-earth text-cloud-white night-mode:bg-injera-maroon night-mode:text-injera-white transition-colors duration-300">
       <div className="section-container py-12">
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {/* Company Info */}
@@ -30,7 +30,7 @@ const Footer = () => {
               alt="Safed Injera Logo"
               className="h-12 sm:h-16 md:h-20 w-auto mb-3 sm:mb-4"
             />
-            <p className="text-cloud-white/80 leading-relaxed text-sm sm:text-base">
+            <p className="text-cloud-white/80 night-mode:text-injera-white/80 leading-relaxed text-sm sm:text-base transition-colors duration-300">
               {t('footer.description')}
             </p>
           </div>
@@ -44,14 +44,14 @@ const Footer = () => {
                   {link.path ? (
                     <Link
                       to={link.path}
-                      className="text-cloud-white/80 hover:text-cloud-white transition-colors text-sm sm:text-base"
+                      className="text-cloud-white/80 night-mode:text-injera-white/80 hover:text-cloud-white night-mode:hover:text-amber-glow transition-colors text-sm sm:text-base"
                     >
                       {t(`nav.${link.key}`)}
                     </Link>
                   ) : (
                     <button
                       onClick={() => scrollToSection(link.id!)}
-                      className="text-cloud-white/80 hover:text-cloud-white transition-colors text-sm sm:text-base"
+                      className="text-cloud-white/80 night-mode:text-injera-white/80 hover:text-cloud-white night-mode:hover:text-amber-glow transition-colors text-sm sm:text-base"
                     >
                       {t(`nav.${link.key}`)}
                     </button>
@@ -64,16 +64,16 @@ const Footer = () => {
           {/* Contact */}
           <div>
             <h4 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4">{t('footer.contact')}</h4>
-            <ul className="space-y-2 text-cloud-white/80 text-sm sm:text-base">
+            <ul className="space-y-2 text-cloud-white/80 night-mode:text-injera-white/80 text-sm sm:text-base transition-colors duration-300">
               <li>📍 {t('contact.locationText')}</li>
               <li>📧 info@safedinjera.com</li>
-              <li>📞 <a href="tel:+251922212161" className="hover:text-sefed-sand transition-colors">+251 92 221 2161</a></li>
-              <li>📞 <a href="tel:+251953866041" className="hover:text-sefed-sand transition-colors">+251 95 386 6041</a></li>
+              <li>📞 <a href="tel:+251922212161" className="hover:text-sefed-sand night-mode:hover:text-amber-glow transition-colors">+251 92 221 2161</a></li>
+              <li>📞 <a href="tel:+251953866041" className="hover:text-sefed-sand night-mode:hover:text-amber-glow transition-colors">+251 95 386 6041</a></li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-cloud-white/20 pt-8 text-center text-cloud-white/60">
+        <div className="border-t border-cloud-white/20 night-mode:border-injera-white/20 pt-8 text-center text-cloud-white/60 night-mode:text-injera-white/60 transition-colors duration-300">
           <p>&copy; {new Date().getFullYear()} Safed Injera. {t('footer.rights')}</p>
         </div>
       </div>

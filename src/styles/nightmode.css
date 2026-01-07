@@ -1,0 +1,76 @@
+/* Night mode styles for Sefed Injera brand */
+.night-mode {
+  background: radial-gradient(1200px 600px at 20% 10%, rgba(181, 106, 58, 0.15), transparent 60%),
+              radial-gradient(1000px 500px at 80% 80%, rgba(90, 15, 18, 0.25), transparent 60%),
+              linear-gradient(135deg, #4A2A1F 0%, #5A0F12 50%, #4A2A1F 100%);
+  color: #F9F9F7 !important;
+  transition: background 0.8s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
+  position: relative;
+}
+
+.night-mode::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 30% 20%, rgba(181,106,58,0.15), transparent 40%),
+              radial-gradient(circle at 70% 80%, rgba(255,255,255,0.04), transparent 45%);
+  pointer-events: none;
+  animation: nmFloat 12s ease-in-out infinite;
+}
+
+@keyframes nmFloat {
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-10px); opacity: 0.9; }
+}
+.night-mode .bg-injera-white {
+  background-color: #1a1412 !important;
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
+}
+.night-mode .text-injera-maroon {
+  color: #F9F9F7 !important;
+  transition: color 0.5s cubic-bezier(.4,0,.2,1);
+}
+.night-mode .bg-injera-maroon {
+  background-color: #5A0F12 !important;
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
+}
+.night-mode .text-coffee-brown {
+  color: #CFCFCF !important;
+  transition: color 0.5s cubic-bezier(.4,0,.2,1);
+}
+.night-mode .bg-accent-gray {
+  background-color: #222 !important;
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
+}
+.night-mode .card-modern {
+  background-color: #3b221b !important;
+  color: #F9F9F7 !important;
+  border-color: rgba(181, 106, 58, 0.35) !important;
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1), border-color 0.5s cubic-bezier(.4,0,.2,1);
+}
+.night-mode .section-title, .night-mode .section-subtitle {
+  color: #F9F9F7 !important;
+  transition: color 0.5s cubic-bezier(.4,0,.2,1);
+}
+.night-mode .shadow-amber-glow {
+  box-shadow: 0 0 24px 0 #B56A3A !important;
+  transition: box-shadow 0.5s cubic-bezier(.4,0,.2,1);
+}
+.night-mode .btn-primary {
+  background-color: #5A0F12 !important;
+  color: #F9F9F7 !important;
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
+}
+.night-mode .btn-outline {
+  border-color: #B56A3A !important;
+  color: #B56A3A !important;
+  transition: border-color 0.5s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+/* Header glass variants in night mode */
+.night-mode .glass { background-color: rgba(58, 18, 15, 0.5) !important; border-color: rgba(181,106,58,0.25) !important; }
+.night-mode .glass-card { background-color: rgba(58, 18, 15, 0.9) !important; border-color: rgba(181,106,58,0.35) !important; }
+
+/* Footer base */
+.night-mode footer { background: linear-gradient(180deg, #4A2A1F 0%, #5A0F12 100%) !important; color: #F9F9F7 !important; }
+.night-mode footer a:hover { color: #B56A3A !important; }

@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --injera-maroon: #5A0F12;
+    --coffee-brown: #4A2A1F;
+    --injera-white: #F9F9F7;
+    --accent-gray: #CFCFCF;
+    --amber-glow: #B56A3A;
+  }
   * {
     @apply border-sefed-sand/20;
   }
@@ -18,6 +25,15 @@
 }
 
 @layer components {
+  /* Brand utility classes */
+  .bg-injera-white { background-color: var(--injera-white); }
+  .text-injera-maroon { color: var(--injera-maroon); }
+  .bg-injera-maroon { background-color: var(--injera-maroon); }
+  .text-injera-white { color: var(--injera-white); }
+  .text-coffee-brown { color: var(--coffee-brown); }
+  .bg-accent-gray { background-color: var(--accent-gray); }
+  .border-accent-gray { border-color: var(--accent-gray); }
+  .shadow-amber-glow { box-shadow: 0 0 24px 0 var(--amber-glow); }
   /* Glassmorphism utilities */
   .glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20;
@@ -135,5 +151,14 @@
     transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
+
+  /* Link hovers brand tone */
+  a:hover { color: var(--amber-glow); }
+
+  /* Utility for subtle glow */
+  .brand-glow { box-shadow: 0 12px 40px rgba(181,106,58,0.25); }
+
+  /* Ensure body covers entire viewport nicely */
+  body, #root { min-height: 100vh; }
 }
 

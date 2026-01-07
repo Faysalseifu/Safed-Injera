@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
+import AISection from './components/AISection';
 import About from './components/About';
 import Products from './components/Products';
 import Process from './components/Process';
@@ -14,11 +15,30 @@ import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
 import PricingPage from './pages/PricingPage';
 import './styles/globals.css';
+import './styles/nightmode.css';
+
+import { useEffect, useState } from 'react';
 
 function App() {
+  // Detect night mode from localStorage
+  const [nightMode, setNightMode] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('sefedinjera-night-mode') === 'true';
+    }
+    return false;
+  });
+
+  useEffect(() => {
+    const handler = () => {
+      setNightMode(localStorage.getItem('sefedinjera-night-mode') === 'true');
+    };
+    window.addEventListener('storage', handler);
+    return () => window.removeEventListener('storage', handler);
+  }, []);
+
   return (
     <Router>
-      <div className="min-h-screen flex flex-col">
+      <div className={`min-h-screen flex flex-col transition-colors duration-500 ${nightMode ? 'night-mode' : ''}`}>
         <Header />
         <main className="flex-grow">
           <Routes>
@@ -27,6 +47,7 @@ function App() {
               element={
                 <>
                   <Hero />
+                  <AISection />
                   <About />
                   <Products />
                   <Process />

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import useNightMode from './useNightMode';
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -8,6 +9,7 @@ const Header = () => {
   const { t } = useTranslation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [nightMode, setNightMode] = useNightMode();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -58,6 +60,30 @@ const Header = () => {
               className="h-10 sm:h-12 md:h-14 lg:h-16 w-auto"
             />
           </Link>
+          {/* Night mode toggle switch at right end */}
+          <div className="flex-1 flex justify-end items-center">
+            <label className="relative inline-flex items-center cursor-pointer">
+              <input
+                type="checkbox"
+                checked={nightMode}
+                onChange={() => setNightMode(!nightMode)}
+                className="sr-only peer"
+                aria-label={nightMode ? 'Switch to Day Mode' : 'Switch to Night Mode'}
+              />
+              <div className="w-16 h-8 bg-accent-gray/60 backdrop-blur-sm border border-accent-gray/60 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-amber-glow rounded-full transition-colors duration-300">
+                <div
+                  className={`absolute left-1 top-1 w-6 h-6 rounded-full transition-all duration-300 ${nightMode ? 'translate-x-8 bg-injera-maroon' : 'translate-x-0 bg-injera-white'} shadow-lg flex items-center justify-center`}
+                  style={{ boxShadow: nightMode ? '0 0 14px #B56A3A' : '0 0 10px #CFCFCF' }}
+                >
+                  {nightMode ? (
+                    <span className="text-amber-glow text-lg">🌙</span>
+                  ) : (
+                    <span className="text-coffee-brown text-lg">☀️</span>
+                  )}
+                </div>
+              </div>
+            </label>
+          </div>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-4 lg:gap-6">
