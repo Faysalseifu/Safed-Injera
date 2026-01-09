@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
-import AISection from './components/AISection';
 import About from './components/About';
 import Products from './components/Products';
 import Process from './components/Process';
@@ -10,6 +9,7 @@ import Distribution from './components/Distribution';
 import Clients from './components/Clients';
 import Gallery from './components/Gallery';
 import Contact from './components/Contact';
+import ChatBot from './components/ChatBot';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
@@ -47,7 +47,6 @@ function App() {
               element={
                 <>
                   <Hero />
-                  <AISection />
                   <About />
                   <Products />
                   <Process />
@@ -65,6 +64,7 @@ function App() {
           </Routes>
         </main>
         <Footer />
+        <ChatBot />
       </div>
     </Router>
   );

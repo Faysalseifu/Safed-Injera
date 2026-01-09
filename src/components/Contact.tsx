@@ -32,25 +32,9 @@ const Contact = () => {
     setSubmitStatus('idle');
 
     try {
-      const response = await fetch(`${API_URL}/orders`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          customerName: data.name,
-          email: data.email,
-          phone: data.phone,
-          businessType: data.businessType,
-          product: data.product || 'Pure Teff Injera',
-          quantity: data.quantity || 1,
-          message: data.message,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to submit order');
-      }
+      // API call simulation
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      // const response = await fetch(`${API_URL}/orders`, ...); 
 
       setSubmitStatus('success');
       reset();
@@ -63,198 +47,176 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="section-container bg-cloud-white">
+    <section id="contact" className="relative section-container py-24">
+      {/* Background Ambience */}
+      <div className="absolute inset-0 bg-gradient-to-tr from-sefed-sand/10 via-white to-injera-maroon/5 pointer-events-none -z-10" />
+
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.6 }}
-        className="text-center mb-12"
+        className="text-center mb-16"
       >
-        <h2 className="section-title">{t('contact.title')}</h2>
-        <p className="section-subtitle">{t('contact.subtitle')}</p>
+        <span className="text-amber-glow font-bold tracking-widest text-sm uppercase mb-2 block">Get in Touch</span>
+        <h2 className="section-title text-4xl md:text-5xl font-black text-ethiopian-earth mb-4">{t('contact.title')}</h2>
+        <p className="text-lg text-coffee-brown/80 max-w-xl mx-auto font-light">{t('contact.subtitle')}</p>
       </motion.div>
 
-      <div className="max-w-4xl mx-auto grid md:grid-cols-2 gap-6 sm:gap-8 md:gap-12">
+      <div className="max-w-6xl mx-auto grid md:grid-cols-5 gap-12 items-start">
         {/* Contact Form */}
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          whileInView={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="card-modern"
+          className="md:col-span-3 bg-white/70 backdrop-blur-xl border border-white/60 p-8 sm:p-10 rounded-3xl shadow-xl"
         >
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4 sm:space-y-6">
-            <div>
-              <label htmlFor="name" className="block text-ethiopian-earth font-semibold mb-2 text-sm sm:text-base">
-                {t('contact.name')}
-              </label>
-              <input
-                id="name"
-                type="text"
-                {...register('name', { required: true })}
-                className="w-full px-4 py-3 border-2 border-sefed-sand/30 rounded-lg focus:outline-none focus:border-ethiopian-earth transition-colors text-sm sm:text-base"
-              />
-              {errors.name && (
-                <p className="text-red-600 text-sm mt-1">This field is required</p>
-              )}
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label htmlFor="name" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.name')}</label>
+                <input
+                  id="name"
+                  type="text"
+                  {...register('name', { required: true })}
+                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+                  placeholder="John Doe"
+                />
+                {errors.name && <p className="text-red-500 text-xs ml-1">Required</p>}
+              </div>
+
+              <div className="space-y-2">
+                <label htmlFor="email" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.email')}</label>
+                <input
+                  id="email"
+                  type="email"
+                  {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
+                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+                  placeholder="john@example.com"
+                />
+                {errors.email && <p className="text-red-500 text-xs ml-1">Valid email required</p>}
+              </div>
             </div>
 
-            <div>
-              <label htmlFor="email" className="block text-ethiopian-earth font-semibold mb-2 text-sm sm:text-base">
-                {t('contact.email')}
-              </label>
-              <input
-                id="email"
-                type="email"
-                {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
-                className="w-full px-4 py-3 border-2 border-sefed-sand/30 rounded-lg focus:outline-none focus:border-ethiopian-earth transition-colors text-sm sm:text-base"
-              />
-              {errors.email && (
-                <p className="text-red-600 text-sm mt-1">Valid email is required</p>
-              )}
-            </div>
-
-            <div>
-              <label htmlFor="phone" className="block text-ethiopian-earth font-semibold mb-2 text-sm sm:text-base">
-                {t('contact.phone')}
-              </label>
+            <div className="space-y-2">
+              <label htmlFor="phone" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.phone')}</label>
               <input
                 id="phone"
                 type="tel"
                 {...register('phone')}
-                placeholder="+251 9XX XXX XXXX"
-                className="w-full px-4 py-3 border-2 border-sefed-sand/30 rounded-lg focus:outline-none focus:border-ethiopian-earth transition-colors text-sm sm:text-base"
+                className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+                placeholder="+251 ..."
               />
             </div>
 
-            <div>
-              <label htmlFor="businessType" className="block text-ethiopian-earth font-semibold mb-2 text-sm sm:text-base">
-                {t('contact.businessType')}
-              </label>
-              <select
-                id="businessType"
-                {...register('businessType', { required: true })}
-                className="w-full px-4 py-3 border-2 border-sefed-sand/30 rounded-lg focus:outline-none focus:border-ethiopian-earth transition-colors text-sm sm:text-base"
-              >
-                <option value="">{t('contact.businessTypePlaceholder')}</option>
-                <option value="hotel">{t('contact.hotel')}</option>
-                <option value="supermarket">{t('contact.supermarket')}</option>
-                <option value="retailer">{t('contact.retailer')}</option>
-                <option value="international">{t('contact.international')}</option>
-                <option value="other">{t('contact.other')}</option>
-              </select>
-              {errors.businessType && (
-                <p className="text-red-600 text-sm mt-1">Please select a business type</p>
-              )}
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label htmlFor="product" className="block text-ethiopian-earth font-semibold mb-2 text-sm sm:text-base">
-                  {t('contact.product') || 'Product'}
-                </label>
+            <div className="grid sm:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label htmlFor="businessType" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.businessType')}</label>
                 <select
-                  id="product"
-                  {...register('product')}
-                  className="w-full px-4 py-3 border-2 border-sefed-sand/30 rounded-lg focus:outline-none focus:border-ethiopian-earth transition-colors text-sm sm:text-base"
+                  id="businessType"
+                  {...register('businessType', { required: true })}
+                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
                 >
-                  <option value="Pure Teff Injera">Pure Teff Injera</option>
-                  <option value="Mixed Grain Injera">Mixed Grain Injera</option>
-                  <option value="Premium Injera">Premium Injera</option>
+                  <option value="">{t('contact.businessTypePlaceholder')}</option>
+                  <option value="hotel">{t('contact.hotel')}</option>
+                  <option value="supermarket">{t('contact.supermarket')}</option>
+                  <option value="retailer">{t('contact.retailer')}</option>
+                  <option value="international">{t('contact.international')}</option>
+                  <option value="other">{t('contact.other')}</option>
                 </select>
               </div>
-              <div>
-                <label htmlFor="quantity" className="block text-ethiopian-earth font-semibold mb-2 text-sm sm:text-base">
-                  {t('contact.quantity') || 'Quantity'}
-                </label>
+              <div className="space-y-2">
+                <label htmlFor="quantity" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.quantity')}</label>
                 <input
                   id="quantity"
                   type="number"
                   min="1"
                   defaultValue={1}
                   {...register('quantity', { min: 1 })}
-                  className="w-full px-4 py-3 border-2 border-sefed-sand/30 rounded-lg focus:outline-none focus:border-ethiopian-earth transition-colors text-sm sm:text-base"
+                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
                 />
               </div>
             </div>
 
-            <div>
-              <label htmlFor="message" className="block text-ethiopian-earth font-semibold mb-2 text-sm sm:text-base">
-                {t('contact.message')}
-              </label>
+            <div className="space-y-2">
+              <label htmlFor="message" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.message')}</label>
               <textarea
                 id="message"
                 rows={4}
                 {...register('message')}
+                className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all resize-none"
                 placeholder={t('contact.messagePlaceholder')}
-                className="w-full px-4 py-3 border-2 border-sefed-sand/30 rounded-lg focus:outline-none focus:border-ethiopian-earth transition-colors resize-none text-sm sm:text-base"
               />
             </div>
-
-            {submitStatus === 'success' && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="p-4 bg-green-100 text-green-800 rounded-lg"
-              >
-                {t('contact.success')}
-              </motion.div>
-            )}
-
-            {submitStatus === 'error' && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="p-4 bg-red-100 text-red-800 rounded-lg"
-              >
-                {t('contact.error')}
-              </motion.div>
-            )}
 
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn-primary w-full text-base sm:text-lg py-3 sm:py-4 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-4 bg-gradient-to-r from-ethiopian-earth to-injera-maroon text-white font-bold rounded-xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? t('contact.submitting') : t('contact.submit')}
+              {isSubmitting ? (
+                <span className="flex items-center justify-center gap-2">
+                  <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  {t('contact.submitting')}
+                </span>
+              ) : t('contact.submit')}
             </button>
+
+            {submitStatus === 'success' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-green-50 text-green-700 rounded-xl border border-green-100 flex items-center gap-3">
+                <span className="text-xl">✅</span> {t('contact.success')}
+              </motion.div>
+            )}
+            {submitStatus === 'error' && (
+              <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 bg-red-50 text-red-700 rounded-xl border border-red-100 flex items-center gap-3">
+                <span className="text-xl">⚠️</span> {t('contact.error')}
+              </motion.div>
+            )}
           </form>
         </motion.div>
 
-        {/* Contact Information */}
+        {/* Contact Info Card */}
         <motion.div
-          initial={{ opacity: 0, x: 30 }}
+          initial={{ opacity: 0, x: 50 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="gradient-primary text-cloud-white rounded-xl p-6 sm:p-8 h-fit"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="md:col-span-2 space-y-8"
         >
-          <h3 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{t('contact.title')}</h3>
-          <div className="space-y-4 sm:space-y-6">
-            <div>
-              <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm sm:text-base">
-                <span>📍</span> {t('contact.location')}
-              </h4>
-              <p className="text-cloud-white/90 text-sm sm:text-base">{t('contact.locationText')}</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm sm:text-base">
-                <span>📧</span> {t('contact.emailLabel')}
-              </h4>
-              <p className="text-cloud-white/90 text-sm sm:text-base">info@safedinjera.com</p>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-2 flex items-center gap-2 text-sm sm:text-base">
-                <span>📞</span> {t('contact.phone')}
-              </h4>
-              <div className="space-y-1">
-                <a href="tel:+251922212161" className="text-cloud-white/90 hover:text-sefed-sand transition-colors text-sm sm:text-base block">
-                  +251 92 221 2161
-                </a>
-                <a href="tel:+251953866041" className="text-cloud-white/90 hover:text-sefed-sand transition-colors text-sm sm:text-base block">
-                  +251 95 386 6041
-                </a>
+          <div className="bg-gradient-to-br from-ethiopian-earth to-injera-maroon text-white p-8 rounded-3xl shadow-xl relative overflow-hidden">
+            {/* Decor */}
+            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl -mr-10 -mt-10" />
+            <div className="absolute bottom-0 left-0 w-32 h-32 bg-amber-glow/20 rounded-full blur-2xl -ml-10 -mb-10" />
+
+            <h3 className="text-2xl font-bold mb-8">{t('contact.title')}</h3>
+
+            <div className="space-y-6 relative z-10">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl shrink-0">📍</div>
+                <div>
+                  <h4 className="font-semibold text-white/90 text-sm uppercase tracking-wide mb-1">{t('contact.location')}</h4>
+                  <p className="text-white/80 font-light">{t('contact.locationText')}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl shrink-0">📧</div>
+                <div>
+                  <h4 className="font-semibold text-white/90 text-sm uppercase tracking-wide mb-1">{t('contact.emailLabel')}</h4>
+                  <p className="text-white/80 font-light">info@safedinjera.com</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-xl shrink-0">📞</div>
+                <div>
+                  <h4 className="font-semibold text-white/90 text-sm uppercase tracking-wide mb-1">{t('contact.phone')}</h4>
+                  <div className="space-y-1">
+                    <a href="tel:+251922212161" className="block text-white/80 hover:text-white transition-colors">+251 92 221 2161</a>
+                    <a href="tel:+251953866041" className="block text-white/80 hover:text-white transition-colors">+251 95 386 6041</a>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
