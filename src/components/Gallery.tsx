@@ -19,7 +19,7 @@ const Gallery = () => {
   ];
 
   return (
-    <section id="gallery" className="section-container bg-gradient-to-b from-cloud-white to-sefed-sand/10">
+    <section id="gallery" className="section-container bg-gradient-to-b from-cloud-white to-sefed-sand/10 night-mode:from-transparent night-mode:to-transparent transition-colors duration-800">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}

@@ -14,11 +14,11 @@ const Process = () => {
   ];
 
   return (
-    <section id="process" className="relative section-container py-24 overflow-hidden">
+    <section id="process" className="relative section-container py-24 overflow-hidden transition-colors duration-800">
       {/* Background Decor */}
-      <div className="absolute inset-0 pointer-events-none -z-10">
-        <div className="absolute top-1/4 left-0 w-[600px] h-[600px] bg-sefed-sand/5 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-0 w-[600px] h-[600px] bg-injera-maroon/5 rounded-full blur-3xl" />
+      <div className="absolute inset-0 pointer-events-none -z-10 transition-colors duration-800">
+        <div className="absolute top-1/4 left-0 w-[600px] h-[600px] bg-sefed-sand/5 night-mode:bg-amber-glow/10 rounded-full blur-3xl transition-colors duration-800" />
+        <div className="absolute bottom-1/4 right-0 w-[600px] h-[600px] bg-injera-maroon/5 night-mode:bg-injera-maroon/15 rounded-full blur-3xl transition-colors duration-800" />
       </div>
 
       <motion.div
@@ -75,7 +75,7 @@ const Process = () => {
               >
                 <motion.div
                   whileHover={{ y: -5 }}
-                  className="bg-white/80 backdrop-blur-xl border border-white/50 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:border-amber-glow/30 transition-all duration-300"
+                  className="bg-white/80 night-mode:bg-white/10 backdrop-blur-xl border border-white/50 night-mode:border-white/20 rounded-2xl p-8 shadow-lg hover:shadow-2xl hover:border-amber-glow/30 transition-all duration-300"
                 >
                   <div className={`flex items-center gap-4 mb-4 ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'}`}>
                     <span className="text-4xl font-black text-ethiopian-earth/10">0{index + 1}</span>

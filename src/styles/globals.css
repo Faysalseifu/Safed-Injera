@@ -9,14 +9,21 @@
     --injera-white: #F9F9F7;
     --accent-gray: #CFCFCF;
     --amber-glow: #B56A3A;
+
+    /* Dark mode color variables */
+    --dark-bg-primary: #3A120F;
+    --dark-bg-secondary: #4A2A1F;
+    --dark-bg-tertiary: #5A0F12;
   }
+
   * {
     @apply border-sefed-sand/20;
   }
-  
+
   body {
     @apply bg-cloud-white text-ethiopian-earth antialiased;
     font-family: 'Poppins', system-ui, sans-serif;
+    transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
   html {
@@ -25,15 +32,40 @@
 }
 
 @layer components {
+
   /* Brand utility classes */
-  .bg-injera-white { background-color: var(--injera-white); }
-  .text-injera-maroon { color: var(--injera-maroon); }
-  .bg-injera-maroon { background-color: var(--injera-maroon); }
-  .text-injera-white { color: var(--injera-white); }
-  .text-coffee-brown { color: var(--coffee-brown); }
-  .bg-accent-gray { background-color: var(--accent-gray); }
-  .border-accent-gray { border-color: var(--accent-gray); }
-  .shadow-amber-glow { box-shadow: 0 0 24px 0 var(--amber-glow); }
+  .bg-injera-white {
+    background-color: var(--injera-white);
+  }
+
+  .text-injera-maroon {
+    color: var(--injera-maroon);
+  }
+
+  .bg-injera-maroon {
+    background-color: var(--injera-maroon);
+  }
+
+  .text-injera-white {
+    color: var(--injera-white);
+  }
+
+  .text-coffee-brown {
+    color: var(--coffee-brown);
+  }
+
+  .bg-accent-gray {
+    background-color: var(--accent-gray);
+  }
+
+  .border-accent-gray {
+    border-color: var(--accent-gray);
+  }
+
+  .shadow-amber-glow {
+    box-shadow: 0 0 24px 0 var(--amber-glow);
+  }
+
   /* Glassmorphism utilities */
   .glass {
     @apply bg-white/10 backdrop-blur-md border border-white/20;
@@ -85,7 +117,7 @@
   }
 
   .pattern-overlay {
-    background-image: 
+    background-image:
       repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(168, 150, 136, 0.03) 10px, rgba(168, 150, 136, 0.03) 20px);
   }
 
@@ -96,7 +128,7 @@
   }
 
   .card-modern {
-    @apply bg-gradient-to-br from-cloud-white to-cloud-white/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-sefed-sand/20 shadow-2xl transition-all duration-500 hover:shadow-[0_30px_80px_rgba(78,24,21,0.15)] hover:-translate-y-3;
+    @apply bg-gradient-to-br from-cloud-white to-cloud-white/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-sefed-sand/20 shadow-2xl transition-all duration-500 hover:shadow-[0_30px_80px_rgba(78, 24, 21, 0.15)] hover:-translate-y-3;
   }
 
   /* Gradient backgrounds - Inspired by image's sophisticated gradients */
@@ -115,8 +147,15 @@
   }
 
   @keyframes gradientShift {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
+    50% {
+      background-position: 100% 50%;
+    }
   }
 
   /* Modern text effects */
@@ -153,12 +192,115 @@
   }
 
   /* Link hovers brand tone */
-  a:hover { color: var(--amber-glow); }
+  a:hover {
+    color: var(--amber-glow);
+  }
 
   /* Utility for subtle glow */
-  .brand-glow { box-shadow: 0 12px 40px rgba(181,106,58,0.25); }
+  .brand-glow {
+    box-shadow: 0 12px 40px rgba(181, 106, 58, 0.25);
+  }
 
   /* Ensure body covers entire viewport nicely */
-  body, #root { min-height: 100vh; }
-}
+  body,
+  #root {
+    min-height: 100vh;
+  }
 
+  /* ========================================
+     DARK MODE GRADIENT UTILITIES
+     ======================================== */
+
+  /* Dark gradient backgrounds for sections */
+  .gradient-dark-primary {
+    background: linear-gradient(135deg, var(--dark-bg-primary) 0%, var(--dark-bg-secondary) 50%, var(--dark-bg-primary) 100%);
+    background-size: 200% 200%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  .gradient-dark-radial {
+    background: radial-gradient(ellipse at top, rgba(181, 106, 58, 0.15), transparent 50%),
+      radial-gradient(ellipse at bottom, rgba(90, 15, 18, 0.20), transparent 50%),
+      linear-gradient(180deg, var(--dark-bg-secondary) 0%, var(--dark-bg-tertiary) 100%);
+  }
+
+  .gradient-dark-hero {
+    background: linear-gradient(180deg, #3A120F 0%, #4A2A1F 30%, #5A0F12 60%, #3A120F 100%);
+  }
+
+  /* Enhanced pattern overlay for dark mode */
+  .pattern-overlay-dark {
+    background-image:
+      repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(181, 106, 58, 0.05) 10px, rgba(181, 106, 58, 0.05) 20px);
+  }
+
+  /* Ambient glow backgrounds */
+  .bg-ambient-dark {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(181, 106, 58, 0.08), transparent 40%),
+      radial-gradient(circle at 80% 80%, rgba(249, 249, 247, 0.03), transparent 40%),
+      var(--dark-bg-primary);
+  }
+
+  /* Mesh gradient for premium feel */
+  .bg-mesh-dark {
+    background:
+      radial-gradient(at 0% 0%, rgba(90, 15, 18, 0.3) 0px, transparent 50%),
+      radial-gradient(at 50% 50%, rgba(181, 106, 58, 0.2) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(74, 42, 31, 0.25) 0px, transparent 50%),
+      linear-gradient(135deg, var(--dark-bg-primary), var(--dark-bg-secondary));
+  }
+
+  /* Frosted glass effect for dark mode */
+  .glass-frosted-dark {
+    background: rgba(58, 18, 15, 0.60);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(181, 106, 58, 0.25);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  }
+
+  /* Subtle shine effect */
+  .shine-effect {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shine-effect::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .shine-effect:hover::after {
+    left: 100%;
+  }
+
+  /* Background blur utility */
+  .bg-blur-dark {
+    background: rgba(26, 20, 18, 0.85);
+    backdrop-filter: blur(12px) saturate(150%);
+  }
+
+  /* Animated gradient border */
+  .border-gradient-animated {
+    position: relative;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+
+  .border-gradient-animated::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, #B56A3A, #5A0F12, #B56A3A);
+    background-size: 200% 200%;
+    border-radius: inherit;
+    z-index: -1;
+    animation: gradientShift 3s ease infinite;
+  }
+}

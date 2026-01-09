@@ -1,0 +1,354 @@
+/* ========================================
+   SAFED INJERA ADMIN - GLOBAL STYLES
+   ======================================== */
+
+/* CSS Variables */
+:root {
+    --ethiopian-earth: #4E1815;
+    --injera-maroon: #5A0F12;
+    --coffee-brown: #4A2A1F;
+    --sefed-sand: #A89688;
+    --amber-glow: #B56A3A;
+    --injera-white: #F9F9F7;
+
+    /* Dark mode backgrounds */
+    --dark-bg-primary: #3A120F;
+    --dark-bg-secondary: #4A2A1F;
+    --dark-bg-tertiary: #5A0F12;
+}
+
+/* Global Resets */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease;
+}
+
+/* ========================================
+   GLASSMORPHISM UTILITIES
+   ======================================== */
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(78, 24, 21, 0.1);
+}
+
+.glass-card-dark {
+    background: rgba(58, 18, 15, 0.85);
+    backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(181, 106, 58, 0.2);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.4);
+}
+
+.glass-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+/* ========================================
+   GRADIENT BACKGROUNDS
+   ======================================== */
+
+.gradient-primary {
+    background: linear-gradient(135deg, #4E1815 0%, #6B2A25 50%, #4E1815 100%);
+}
+
+.gradient-dark {
+    background: linear-gradient(135deg, #3A120F 0%, #4A2A1F 50%, #5A0F12 100%);
+}
+
+.gradient-accent {
+    background: linear-gradient(135deg, #B56A3A 0%, #A89688 100%);
+}
+
+/* Animated gradient */
+@keyframes gradientShift {
+
+    0%,
+    100% {
+        background-position: 0% 50%;
+    }
+
+    50% {
+        background-position: 100% 50%;
+    }
+}
+
+.gradient-animated {
+    background-size: 200% 200%;
+    animation: gradientShift 8s ease infinite;
+}
+
+/* ========================================
+   ANIMATIONS
+   ======================================== */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-20px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.8;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.4s ease-out;
+}
+
+.slide-in {
+    animation: slideIn 0.3s ease-out;
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+
+.smooth-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.hover-scale:hover {
+    transform: scale(1.02);
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(78, 24, 21, 0.15);
+}
+
+.brand-shadow {
+    box-shadow: 0 4px 20px rgba(78, 24, 21, 0.1);
+}
+
+.brand-shadow-lg {
+    box-shadow: 0 8px 32px rgba(78, 24, 21, 0.15);
+}
+
+.glow-accent {
+    box-shadow: 0 0 20px rgba(181, 106, 58, 0.3);
+}
+
+/* ========================================
+   SCROLLBAR STYLING
+   ======================================== */
+
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: rgba(168, 150, 136, 0.1);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(78, 24, 21, 0.3);
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(78, 24, 21, 0.5);
+}
+
+/* ========================================
+   RESPONSIVE HELPERS
+   ======================================== */
+
+@media (max-width: 768px) {
+
+    .glass-card,
+    .glass-card-dark {
+        backdrop-filter: blur(15px);
+    }
+}
+
+/* ========================================
+   PRINT STYLES
+   ======================================== */
+
+@media print {
+
+    .glass-card,
+    .glass-card-dark,
+    .glass-light {
+        background: white;
+        backdrop-filter: none;
+        border: 1px solid #ddd;
+    }
+}
+
+/* ========================================
+   RESPONSIVE UTILITIES (MOBILE-FIRST)
+   ======================================== */
+
+/* Visibility classes */
+.mobile-only {
+    display: block;
+}
+
+.tablet-up {
+    display: none;
+}
+
+.desktop-up {
+    display: none;
+}
+
+@media (min-width: 768px) {
+    .mobile-only {
+        display: none;
+    }
+
+    .tablet-up {
+        display: block;
+    }
+}
+
+@media (min-width: 1024px) {
+    .desktop-up {
+        display: block;
+    }
+}
+
+/* Mobile-first spacing */
+.mobile-padding {
+    padding: 16px;
+}
+
+.mobile-margin {
+    margin: 16px;
+}
+
+@media (min-width: 768px) {
+    .mobile-padding {
+        padding: 24px;
+    }
+
+    .mobile-margin {
+        margin: 24px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-padding {
+        padding: 32px;
+    }
+
+    .mobile-margin {
+        margin: 32px;
+    }
+}
+
+/* Touch targets */
+.touch-target {
+    min-height: 44px;
+    min-width: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Safe area insets (for mobile notches) */
+.safe-area-top {
+    padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-left {
+    padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-right {
+    padding-right: env(safe-area-inset-right);
+}
+
+/* Mobile container */
+.mobile-container {
+    width: 100%;
+    max-width: 100%;
+    padding-left: 16px;
+    padding-right: 16px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@media (min-width: 768px) {
+    .mobile-container {
+        max-width: 720px;
+        padding-left: 24px;
+        padding-right: 24px;
+    }
+}
+
+@media (min-width: 1024px) {
+    .mobile-container {
+        max-width: 960px;
+        padding-left: 32px;
+        padding-right: 32px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .mobile-container {
+        max-width: 1200px;
+    }
+}
+
+/* Overflow scroll with momentum (iOS) */
+.smooth-scroll {
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Hide scrollbar but keep functionality */
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}

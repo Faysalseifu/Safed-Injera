@@ -32,7 +32,7 @@ const Distribution = () => {
   ];
 
   return (
-    <section id="distribution" className="section-container relative py-24 overflow-hidden bg-ethiopian-earth/5">
+    <section id="distribution" className="section-container relative py-24 overflow-hidden bg-ethiopian-earth/5 night-mode:bg-transparent transition-colors duration-800">
       {/* World Map Background Simulation */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg')] bg-center bg-no-repeat bg-cover -z-10 mix-blend-multiply" />
 
@@ -57,7 +57,7 @@ const Distribution = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             whileHover={{ y: -10 }}
-            className="group relative bg-white rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden"
+            className="group relative bg-white night-mode:bg-white/10 night-mode:backdrop-blur-xl rounded-3xl p-8 shadow-xl hover:shadow-2xl transition-all duration-300 overflow-hidden night-mode:border night-mode:border-white/10"
           >
             {/* Top Border Gradient */}
             <div className={`absolute top-0 left-0 w-full h-2 bg-gradient-to-r ${service.color}`} />

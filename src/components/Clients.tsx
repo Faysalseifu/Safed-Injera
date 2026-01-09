@@ -32,7 +32,7 @@ const Clients = () => {
   ];
 
   return (
-    <section id="clients" className="section-container bg-cloud-white">
+    <section id="clients" className="section-container bg-cloud-white night-mode:bg-transparent transition-colors duration-800">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}

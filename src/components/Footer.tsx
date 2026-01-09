@@ -49,11 +49,11 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-injera-maroon text-injera-white overflow-hidden pt-20 pb-10">
+    <footer className="relative bg-ethiopian-earth night-mode:bg-injera-maroon text-cloud-white night-mode:text-injera-white overflow-hidden pt-20 pb-10 transition-all duration-800">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-gradient-to-br from-amber-glow/10 to-transparent rounded-full blur-[120px]" />
-        <div className="absolute bottom-[0%] right-[0%] w-[40%] h-[40%] bg-gradient-to-tl from-coffee-brown/40 to-transparent rounded-full blur-[100px]" />
+        <div className="absolute bottom-[0%] right-[0%] w-[40%] h-[40%] bg-gradient-to-tl from-coffee-brown/40 night-mode:from-coffee-brown/60 to-transparent rounded-full blur-[100px]" />
       </div>
 
       <div className="section-container relative z-10">

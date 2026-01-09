@@ -24,7 +24,7 @@ const About = () => {
   ];
 
   return (
-    <section id="about" className="section-container bg-injera-white">
+    <section id="about" className="section-container bg-injera-white night-mode:bg-transparent transition-colors duration-800">
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}

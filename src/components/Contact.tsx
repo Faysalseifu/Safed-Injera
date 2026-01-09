@@ -49,7 +49,7 @@ const Contact = () => {
   return (
     <section id="contact" className="relative section-container py-24">
       {/* Background Ambience */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-sefed-sand/10 via-white to-injera-maroon/5 pointer-events-none -z-10" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-sefed-sand/10 via-white to-injera-maroon/5 night-mode:from-transparent night-mode:via-transparent night-mode:to-transparent pointer-events-none -z-10 transition-colors duration-800" />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}

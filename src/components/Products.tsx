@@ -32,11 +32,11 @@ const Products = () => {
   ];
 
   return (
-    <section id="products" className="relative section-container py-20 overflow-hidden">
+    <section id="products" className="relative section-container py-20 overflow-hidden transition-colors duration-800">
       {/* Background Decor */}
-      <div className="absolute inset-0 bg-injera-white pointer-events-none -z-20" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-sefed-sand/5 rounded-full blur-3xl -z-10" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-injera-maroon/5 rounded-full blur-3xl -z-10" />
+      <div className="absolute inset-0 bg-injera-white night-mode:bg-transparent pointer-events-none -z-20 transition-colors duration-800" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-sefed-sand/5 night-mode:bg-amber-glow/10 rounded-full blur-3xl -z-10 transition-colors duration-800" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-injera-maroon/5 night-mode:bg-injera-maroon/15 rounded-full blur-3xl -z-10 transition-colors duration-800" />
 
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -63,7 +63,7 @@ const Products = () => {
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: index * 0.1 }}
             whileHover={{ y: -10 }}
-            className="group relative bg-white rounded-[2rem] p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-transparent hover:border-amber-glow/20 overflow-hidden"
+            className="group relative bg-white night-mode:bg-white/10 night-mode:backdrop-blur-xl rounded-[2rem] p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-transparent night-mode:border-white/10 hover:border-amber-glow/20 overflow-hidden"
           >
             {/* Hover Gradient Background */}
             <div className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />
