@@ -42,4 +42,3 @@ const CustomLayout = (props: LayoutProps) => (
 );
 
 export default CustomLayout;
-```
