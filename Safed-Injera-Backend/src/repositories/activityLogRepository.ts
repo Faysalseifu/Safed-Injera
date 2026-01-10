@@ -136,3 +136,14 @@ export const getActivityLogsByEntity = async (
   );
   return rows;
 };
+
+export const getActivityLogById = async (id: number): Promise<ActivityLogRecord | null> => {
+  const { rows } = await pool.query<ActivityLogRecord>(
+    `SELECT al.*, u.username as user_username
+     FROM activity_logs al
+     LEFT JOIN users u ON al.user_id = u.id
+     WHERE al.id = $1`,
+    [id]
+  );
+  return rows[0] || null;
+};

@@ -311,61 +311,67 @@ const StatusHistoryViewer = ({ record }: any) => {
 };
 
 export const OrderList = (props: any) => (
-  <List
-    {...props}
-    filters={<OrderFilter />}
-    sort={{ field: 'orderDate', order: 'DESC' }}
-    sx={{
-      '& .RaList-content': {
-        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
-        borderRadius: '20px',
-        boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
-        border: '1px solid rgba(63, 79, 81, 0.06)',
-        overflow: 'hidden',
-        position: 'relative',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '200px',
-          height: '200px',
-          background: 'radial-gradient(circle, rgba(156, 39, 176, 0.05) 0%, transparent 70%)',
-          borderRadius: '50%',
-          transform: 'translate(-30%, -30%)',
-          pointerEvents: 'none',
+  <Box sx={{ width: '100%' }}>
+    <List
+      {...props}
+      filters={<OrderFilter />}
+      sort={{ field: 'orderDate', order: 'DESC' }}
+      sx={{
+        width: '100%',
+        '& .RaList-content': {
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
+          borderRadius: { xs: '16px', sm: '20px' },
+          boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
+          border: '1px solid rgba(63, 79, 81, 0.06)',
+          overflow: 'hidden',
+          position: 'relative',
+          width: '100%',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: { xs: '150px', sm: '200px' },
+            height: { xs: '150px', sm: '200px' },
+            background: 'radial-gradient(circle, rgba(156, 39, 176, 0.05) 0%, transparent 70%)',
+            borderRadius: '50%',
+            transform: 'translate(-30%, -30%)',
+            pointerEvents: 'none',
+          },
         },
-      },
-      '& .MuiTableCell-head': {
-        fontWeight: 600,
-        color: colors.textSecondary,
-        bgcolor: 'rgba(63, 79, 81, 0.02)',
-        borderBottom: `1px solid rgba(63, 79, 81, 0.08)`,
-        textTransform: 'uppercase',
-        fontSize: '0.75rem',
-        letterSpacing: '0.05em',
-      },
-      '& .MuiTableCell-body': {
-        borderBottom: `1px solid rgba(63, 79, 81, 0.06)`,
-        color: colors.textPrimary,
-      },
-      '& .MuiTableRow-root:hover': {
-        background: 'linear-gradient(90deg, rgba(156, 39, 176, 0.08) 0%, rgba(156, 39, 176, 0.02) 100%)',
-        transform: 'scale(1.01)',
-        transition: 'all 0.2s ease',
-      },
-      '& .RaDatagrid-clickableRow:hover': {
-        background: 'linear-gradient(90deg, rgba(156, 39, 176, 0.08) 0%, rgba(156, 39, 176, 0.02) 100%)',
-      },
-      '& .MuiToolbar-root': {
-        padding: '16px 24px',
-        gap: 2,
-      },
-      '& .RaFilterFormInput-spacer': {
-        display: 'none',
-      },
-    }}
-  >
+        '& .MuiTableCell-head': {
+          fontWeight: 600,
+          color: colors.textSecondary,
+          bgcolor: 'rgba(63, 79, 81, 0.02)',
+          borderBottom: `1px solid rgba(63, 79, 81, 0.08)`,
+          textTransform: 'uppercase',
+          fontSize: { xs: '0.688rem', sm: '0.75rem' },
+          letterSpacing: '0.05em',
+          padding: { xs: '8px 4px', sm: '12px 8px' },
+        },
+        '& .MuiTableCell-body': {
+          borderBottom: `1px solid rgba(63, 79, 81, 0.06)`,
+          color: colors.textPrimary,
+          padding: { xs: '12px 4px', sm: '16px 8px' },
+          fontSize: { xs: '0.813rem', sm: '0.875rem' },
+        },
+        '& .MuiTableRow-root:hover': {
+          background: 'linear-gradient(90deg, rgba(156, 39, 176, 0.08) 0%, rgba(156, 39, 176, 0.02) 100%)',
+          transition: 'all 0.2s ease',
+        },
+        '& .RaDatagrid-clickableRow:hover': {
+          background: 'linear-gradient(90deg, rgba(156, 39, 176, 0.08) 0%, rgba(156, 39, 176, 0.02) 100%)',
+        },
+        '& .MuiToolbar-root': {
+          padding: { xs: '12px 16px', sm: '16px 24px' },
+          gap: { xs: 1, sm: 2 },
+          flexWrap: 'wrap',
+        },
+        '& .RaFilterFormInput-spacer': {
+          display: 'none',
+        },
+      }}
+    >
     <Datagrid
       rowClick="edit"
       sx={{
@@ -408,7 +414,8 @@ export const OrderList = (props: any) => (
         }}
       />
     </Datagrid>
-  </List>
+    </List>
+  </Box>
 );
 
 export const OrderEdit = (props: any) => (

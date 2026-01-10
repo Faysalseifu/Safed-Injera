@@ -75,28 +75,36 @@ const StockFilter = (props: any) => (
   </Filter>
 );
 
-// Custom list wrapper with new styling
+// Custom list wrapper with mobile-first styling
 const ListWrapper = ({ children }: { children: React.ReactNode }) => (
   <Box
     sx={{
       bgcolor: colors.cream,
       minHeight: '100vh',
-      p: { xs: 2, md: 3 },
+      p: { xs: 1, sm: 1.5, md: 2, lg: 3 },
+      width: '100%',
     }}
   >
-    <Box sx={{ maxWidth: '1600px', margin: '0 auto' }}>
-      <Box sx={{ mb: 3 }}>
+    <Box sx={{ maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
+      <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 } }}>
         <Typography
           variant="h4"
           sx={{
             fontWeight: 700,
             color: colors.textPrimary,
             mb: 0.5,
+            fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
           }}
         >
           Stock Inventory
         </Typography>
-        <Typography variant="body2" sx={{ color: colors.textSecondary }}>
+        <Typography 
+          variant="body2" 
+          sx={{ 
+            color: colors.textSecondary,
+            fontSize: { xs: '0.813rem', sm: '0.875rem' },
+          }}
+        >
           Manage your product inventory and track stock levels.
         </Typography>
       </Box>
@@ -370,69 +378,81 @@ const TransactionHistoryButton = ({ record }: any) => {
 };
 
 export const StockList = (props: any) => (
-  <List
-    {...props}
-    filters={<StockFilter />}
-    sort={{ field: 'createdAt', order: 'DESC' }}
-    sx={{
-      '& .RaList-content': {
-        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
-        borderRadius: '20px',
-        boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
-        border: '1px solid rgba(63, 79, 81, 0.06)',
-        overflow: 'hidden',
-        position: 'relative',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          width: '200px',
-          height: '200px',
-          background: 'radial-gradient(circle, rgba(33, 150, 243, 0.05) 0%, transparent 70%)',
-          borderRadius: '50%',
-          transform: 'translate(30%, -30%)',
-          pointerEvents: 'none',
-        },
-      },
-      '& .MuiTableCell-head': {
-        fontWeight: 600,
-        color: colors.textSecondary,
-        bgcolor: 'rgba(63, 79, 81, 0.02)',
-        borderBottom: `1px solid rgba(63, 79, 81, 0.08)`,
-        textTransform: 'uppercase',
-        fontSize: '0.75rem',
-        letterSpacing: '0.05em',
-      },
-      '& .MuiTableCell-body': {
-        borderBottom: `1px solid rgba(63, 79, 81, 0.06)`,
-        color: colors.textPrimary,
-      },
-      '& .MuiTableRow-root:hover': {
-        background: 'linear-gradient(90deg, rgba(230, 181, 77, 0.08) 0%, rgba(230, 181, 77, 0.02) 100%)',
-        transform: 'scale(1.01)',
-        transition: 'all 0.2s ease',
-      },
-      '& .RaDatagrid-clickableRow:hover': {
-        background: 'linear-gradient(90deg, rgba(230, 181, 77, 0.08) 0%, rgba(230, 181, 77, 0.02) 100%)',
-      },
-      '& .MuiToolbar-root': {
-        padding: '16px 24px',
-        gap: 2,
-      },
-      '& .RaFilterFormInput-spacer': {
-        display: 'none',
-      },
-    }}
-  >
-    <Datagrid
-      rowClick="edit"
+  <Box sx={{ width: '100%' }}>
+    <List
+      {...props}
+      filters={<StockFilter />}
+      sort={{ field: 'createdAt', order: 'DESC' }}
       sx={{
-        '& .RaDatagrid-headerCell': {
+        width: '100%',
+        '& .RaList-content': {
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
+          borderRadius: { xs: '16px', sm: '20px' },
+          boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
+          border: '1px solid rgba(63, 79, 81, 0.06)',
+          overflow: 'hidden',
+          position: 'relative',
+          width: '100%',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            top: 0,
+            right: 0,
+            width: { xs: '150px', sm: '200px' },
+            height: { xs: '150px', sm: '200px' },
+            background: 'radial-gradient(circle, rgba(33, 150, 243, 0.05) 0%, transparent 70%)',
+            borderRadius: '50%',
+            transform: 'translate(30%, -30%)',
+            pointerEvents: 'none',
+          },
+        },
+        '& .MuiTableCell-head': {
           fontWeight: 600,
+          color: colors.textSecondary,
+          bgcolor: 'rgba(63, 79, 81, 0.02)',
+          borderBottom: `1px solid rgba(63, 79, 81, 0.08)`,
+          textTransform: 'uppercase',
+          fontSize: { xs: '0.688rem', sm: '0.75rem' },
+          letterSpacing: '0.05em',
+          padding: { xs: '8px 4px', sm: '12px 8px' },
+        },
+        '& .MuiTableCell-body': {
+          borderBottom: `1px solid rgba(63, 79, 81, 0.06)`,
+          color: colors.textPrimary,
+          padding: { xs: '12px 4px', sm: '16px 8px' },
+          fontSize: { xs: '0.813rem', sm: '0.875rem' },
+        },
+        '& .MuiTableRow-root:hover': {
+          background: 'linear-gradient(90deg, rgba(230, 181, 77, 0.08) 0%, rgba(230, 181, 77, 0.02) 100%)',
+          transition: 'all 0.2s ease',
+        },
+        '& .RaDatagrid-clickableRow:hover': {
+          background: 'linear-gradient(90deg, rgba(230, 181, 77, 0.08) 0%, rgba(230, 181, 77, 0.02) 100%)',
+        },
+        '& .MuiToolbar-root': {
+          padding: { xs: '12px 16px', sm: '16px 24px' },
+          gap: { xs: 1, sm: 2 },
+          flexWrap: 'wrap',
+        },
+        '& .RaFilterFormInput-spacer': {
+          display: 'none',
         },
       }}
     >
+      <Datagrid
+        rowClick="edit"
+        sx={{
+          width: '100%',
+          '& .RaDatagrid-headerCell': {
+            fontWeight: 600,
+          },
+          '& .RaDatagrid-row': {
+            '&:hover': {
+              cursor: 'pointer',
+            },
+          },
+        }}
+      >
       <TextField source="productName" label="Product Name" />
       <TextField source="category" />
       <DeficiencyIndicatorField label="Status" />
@@ -463,8 +483,9 @@ export const StockList = (props: any) => (
           },
         }}
       />
-    </Datagrid>
-  </List>
+      </Datagrid>
+    </List>
+  </Box>
 );
 
 export const StockCreate = (props: any) => (

@@ -20,19 +20,39 @@ const dataProvider: DataProvider = {
     const { page, perPage } = params.pagination || { page: 1, perPage: 10 };
     const { field, order } = params.sort || { field: 'id', order: 'ASC' };
     
-    const query = {
-      _start: (page - 1) * perPage,
-      _end: page * perPage,
-      _sort: field,
-      _order: order,
-      ...params.filter,
+    // Handle activity-logs resource name conversion
+    const resourcePath = resource === 'activity-logs' ? 'activity-logs' : resource;
+    
+    // Convert filter params to query params
+    const query: Record<string, any> = {
+      limit: perPage,
+      offset: (page - 1) * perPage,
     };
+    
+    // Add filters
+    if (params.filter) {
+      Object.entries(params.filter).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          // Map react-admin filter keys to API query params
+          if (key === 'q') {
+            // Search query - backend should handle this
+            query.search = value;
+          } else if (key === 'entityType') {
+            query.entityType = value;
+          } else if (key === 'actionType') {
+            query.actionType = value;
+          } else {
+            query[key] = value;
+          }
+        }
+      });
+    }
     
     const queryString = Object.entries(query)
       .map(([key, value]) => `${key}=${encodeURIComponent(String(value))}`)
       .join('&');
     
-    const url = `${API_URL}/${resource}?${queryString}`;
+    const url = `${API_URL}/${resourcePath}?${queryString}`;
     const { json, headers } = await httpClient(url);
     
     const contentRange = headers.get('Content-Range');
@@ -41,14 +61,24 @@ const dataProvider: DataProvider = {
       : json.length;
     
     return {
-      data: json.map((item: any) => ({ ...item, id: item._id || item.id })),
+      data: json.map((item: any) => ({ 
+        ...item, 
+        id: item.id || item._id,
+        createdAt: item.created_at || item.createdAt,
+        userUsername: item.user_username || item.userUsername,
+        entityType: item.entity_type || item.entityType,
+        entityId: item.entity_id || item.entityId,
+        actionType: item.action_type || item.actionType,
+      })),
       total,
     };
   },
 
   getOne: async (resource, params) => {
-    const { json } = await httpClient(`${API_URL}/${resource}/${params.id}`);
-    return { data: { ...json, id: json._id || json.id } };
+    // Handle activity-logs resource name conversion
+    const resourcePath = resource === 'activity-logs' ? 'activity-logs' : resource;
+    const { json } = await httpClient(`${API_URL}/${resourcePath}/${params.id}`);
+    return { data: { ...json, id: json._id || json.id || json.id } };
   },
 
   getMany: async (resource, params) => {

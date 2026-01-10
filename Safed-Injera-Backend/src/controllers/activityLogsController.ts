@@ -3,6 +3,7 @@ import logger from '../utils/logger';
 import {
   getActivityLogs,
   getActivityLogsByEntity,
+  getActivityLogById,
 } from '../repositories/activityLogRepository';
 
 export const getActivityLogsHandler = async (req: Request, res: Response): Promise<void> => {
@@ -72,6 +73,28 @@ export const getActivityLogsByOrderHandler = async (req: Request, res: Response)
     res.json(logs);
   } catch (error) {
     logger.error('Get activity logs by order error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getActivityLogByIdHandler = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const id = Number(req.params.id);
+
+    if (isNaN(id)) {
+      res.status(400).json({ message: 'Invalid activity log id' });
+      return;
+    }
+
+    const log = await getActivityLogById(id);
+    if (!log) {
+      res.status(404).json({ message: 'Activity log not found' });
+      return;
+    }
+
+    res.json(log);
+  } catch (error) {
+    logger.error('Get activity log by id error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

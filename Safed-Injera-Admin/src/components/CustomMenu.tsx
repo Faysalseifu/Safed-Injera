@@ -1,6 +1,17 @@
-import { useContext } from 'react';
-import { Menu, MenuItemLink, useSidebarState } from 'react-admin';
-import { Box, Typography, Avatar, Divider } from '@mui/material';
+import { useContext, useState } from 'react';
+import { Menu, MenuItemLink, useSidebarState, useLogout } from 'react-admin';
+import { 
+  Box, 
+  Typography, 
+  Avatar, 
+  Divider, 
+  IconButton, 
+  Tooltip, 
+  Menu as MuiMenu, 
+  MenuItem,
+  InputBase,
+  Badge,
+} from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import BarChartIcon from '@mui/icons-material/BarChart';
@@ -8,9 +19,12 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HistoryIcon from '@mui/icons-material/History';
 import LogoutIcon from '@mui/icons-material/Logout';
-import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
+import SearchIcon from '@mui/icons-material/Search';
+import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
+import Brightness7Icon from '@mui/icons-material/Brightness7';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { DarkModeContext } from '../App';
-import { useLogout } from 'react-admin';
 
 const menuItemStyles = {
   '& .RaMenuItemLink-active': {
@@ -57,6 +71,23 @@ const activeUsers = [
 const CustomMenu = () => {
   const [open] = useSidebarState();
   const logout = useLogout();
+  const { darkMode, toggleDarkMode } = useContext(DarkModeContext);
+  const [userMenuAnchor, setUserMenuAnchor] = useState<null | HTMLElement>(null);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+
+  const handleUserMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setUserMenuAnchor(event.currentTarget);
+  };
+
+  const handleUserMenuClose = () => {
+    setUserMenuAnchor(null);
+  };
+
+  const handleLogout = () => {
+    handleUserMenuClose();
+    logout();
+  };
 
   return (
     <Box
@@ -70,7 +101,7 @@ const CustomMenu = () => {
       {/* Profile Section */}
       <Box
         sx={{
-          p: 3,
+          p: { xs: 2, sm: 3 },
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -80,36 +111,168 @@ const CustomMenu = () => {
       >
         <Avatar
           sx={{
-            width: 72,
-            height: 72,
-            bgcolor: '#E6B54D',
-            fontSize: '1.5rem',
+            width: { xs: 56, sm: 72 },
+            height: { xs: 56, sm: 72 },
+            background: 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)',
+            fontSize: { xs: '1.25rem', sm: '1.5rem' },
             fontWeight: 700,
             border: '3px solid rgba(255, 255, 255, 0.2)',
             boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            cursor: 'pointer',
+            '&:hover': {
+              transform: 'scale(1.05)',
+              transition: 'transform 0.2s ease',
+            },
           }}
+          onClick={handleUserMenuOpen}
         >
-          SA
+          {user.username ? user.username.charAt(0).toUpperCase() : 'SA'}
         </Avatar>
-        <Box sx={{ textAlign: 'center' }}>
+        <Box sx={{ textAlign: 'center', width: '100%' }}>
           <Typography
             sx={{
               color: '#FFFFFF',
               fontWeight: 600,
-              fontSize: '1rem',
+              fontSize: { xs: '0.875rem', sm: '1rem' },
             }}
           >
-            Safed Admin
+            {user.username || 'Safed Admin'}
           </Typography>
           <Typography
             sx={{
               color: 'rgba(255, 255, 255, 0.6)',
-              fontSize: '0.813rem',
+              fontSize: { xs: '0.75rem', sm: '0.813rem' },
             }}
           >
-            admin@safedinjera.com
+            {user.email || 'admin@safedinjera.com'}
           </Typography>
         </Box>
+
+        {/* User Menu */}
+        <MuiMenu
+          anchorEl={userMenuAnchor}
+          open={Boolean(userMenuAnchor)}
+          onClose={handleUserMenuClose}
+          PaperProps={{
+            sx: {
+              mt: 1.5,
+              minWidth: 200,
+              borderRadius: '12px',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.15)',
+              border: '1px solid rgba(0, 0, 0, 0.08)',
+            },
+          }}
+          transformOrigin={{ horizontal: 'center', vertical: 'top' }}
+          anchorOrigin={{ horizontal: 'center', vertical: 'bottom' }}
+        >
+          <Box sx={{ px: 2, py: 1.5 }}>
+            <Typography variant="body2" sx={{ fontWeight: 600, color: '#2D3739' }}>
+              {user.username || 'Admin'}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#6B7B7D' }}>
+              {user.email || 'admin@safedinjera.com'}
+            </Typography>
+          </Box>
+          <Divider />
+          <MenuItem onClick={handleUserMenuClose} sx={{ py: 1.5 }}>
+            <AccountCircleIcon sx={{ mr: 1.5, fontSize: 20, color: '#6B7B7D' }} />
+            <Typography variant="body2">Profile</Typography>
+          </MenuItem>
+          <MenuItem onClick={handleLogout} sx={{ py: 1.5, color: '#F44336' }}>
+            <LogoutIcon sx={{ mr: 1.5, fontSize: 20 }} />
+            <Typography variant="body2">Logout</Typography>
+          </MenuItem>
+        </MuiMenu>
+      </Box>
+
+      {/* Search Bar */}
+      <Box
+        sx={{
+          p: { xs: 1.5, sm: 2 },
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            bgcolor: 'rgba(255, 255, 255, 0.08)',
+            borderRadius: '12px',
+            px: { xs: 1.5, sm: 2 },
+            py: { xs: 1, sm: 1.25 },
+            transition: 'all 0.2s ease',
+            '&:focus-within': {
+              bgcolor: 'rgba(255, 255, 255, 0.12)',
+              border: '1px solid rgba(230, 181, 77, 0.3)',
+            },
+          }}
+        >
+          <SearchIcon sx={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: { xs: 18, sm: 20 }, mr: 1 }} />
+          <InputBase
+            placeholder="Search..."
+            sx={{
+              flex: 1,
+              color: 'rgba(255, 255, 255, 0.8)',
+              fontSize: { xs: '0.875rem', sm: '0.938rem' },
+              '&::placeholder': {
+                color: 'rgba(255, 255, 255, 0.4)',
+              },
+            }}
+          />
+        </Box>
+      </Box>
+
+      {/* Quick Actions */}
+      <Box
+        sx={{
+          p: { xs: 1.5, sm: 2 },
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+          display: 'flex',
+          gap: 1,
+          justifyContent: 'space-between',
+        }}
+      >
+        <Tooltip title="Notifications">
+          <IconButton
+            sx={{
+              flex: 1,
+              color: 'rgba(255, 255, 255, 0.7)',
+              bgcolor: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '10px',
+              py: { xs: 1, sm: 1.25 },
+              '&:hover': {
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                color: '#E6B54D',
+              },
+            }}
+          >
+            <Badge badgeContent={3} color="error">
+              <NotificationsNoneIcon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+            </Badge>
+          </IconButton>
+        </Tooltip>
+        <Tooltip title={darkMode ? 'Light Mode' : 'Dark Mode'}>
+          <IconButton
+            onClick={toggleDarkMode}
+            sx={{
+              flex: 1,
+              color: 'rgba(255, 255, 255, 0.7)',
+              bgcolor: 'rgba(255, 255, 255, 0.05)',
+              borderRadius: '10px',
+              py: { xs: 1, sm: 1.25 },
+              '&:hover': {
+                bgcolor: 'rgba(255, 255, 255, 0.1)',
+                color: '#E6B54D',
+              },
+            }}
+          >
+            {darkMode ? (
+              <Brightness7Icon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+            ) : (
+              <Brightness4Icon sx={{ fontSize: { xs: 18, sm: 20 } }} />
+            )}
+          </IconButton>
+        </Tooltip>
       </Box>
 
       {/* Navigation Menu */}

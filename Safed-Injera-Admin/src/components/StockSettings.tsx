@@ -88,38 +88,66 @@ export const StockSettings = () => {
       sx={{
         bgcolor: colors.cream,
         minHeight: '100vh',
-        p: { xs: 2, md: 3 },
+        p: { xs: 1, sm: 1.5, md: 2, lg: 3 },
+        width: '100%',
       }}
     >
-      <Box sx={{ maxWidth: '1200px', margin: '0 auto' }}>
-        <Box sx={{ mb: 3, display: 'flex', alignItems: 'center', gap: 2 }}>
-          <SettingsIcon sx={{ fontSize: 32, color: colors.gold }} />
+      <Box sx={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
+        <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 }, display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, flexWrap: 'wrap' }}>
+          <SettingsIcon sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: colors.gold }} />
           <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, color: colors.textPrimary }}>
+            <Typography 
+              variant="h4" 
+              sx={{ 
+                fontWeight: 700, 
+                color: colors.textPrimary,
+                fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+              }}
+            >
               Stock Settings
             </Typography>
-            <Typography variant="body2" sx={{ color: colors.textSecondary }}>
+            <Typography 
+              variant="body2" 
+              sx={{ 
+                color: colors.textSecondary,
+                fontSize: { xs: '0.813rem', sm: '0.875rem' },
+              }}
+            >
               Configure minimum thresholds for each stock category
             </Typography>
           </Box>
         </Box>
 
-        <Grid container spacing={3}>
+        <Grid container spacing={{ xs: 2, sm: 2.5, md: 3 }}>
           {settings.map((setting) => (
-            <Grid item xs={12} md={6} key={setting.id}>
+            <Grid item xs={12} sm={6} md={6} key={setting.id}>
               <Card
                 sx={{
-                  borderRadius: '20px',
-                  boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
-                  border: '1px solid rgba(63, 79, 81, 0.04)',
+                  borderRadius: { xs: '16px', sm: '20px' },
+                  boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
+                  border: '1px solid rgba(63, 79, 81, 0.06)',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
+                  transition: 'all 0.2s ease',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: '0 6px 24px rgba(63, 79, 81, 0.12)',
+                  },
                 }}
               >
-                <CardContent>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: colors.textPrimary }}>
+                <CardContent sx={{ p: { xs: 2, sm: 2.5, md: 3 } }}>
+                  <Typography 
+                    variant="h6" 
+                    sx={{ 
+                      fontWeight: 600, 
+                      mb: { xs: 1.5, sm: 2 }, 
+                      color: colors.textPrimary,
+                      fontSize: { xs: '1rem', sm: '1.125rem' },
+                    }}
+                  >
                     {setting.category}
                   </Typography>
                   {editingCategory === setting.category ? (
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: { xs: 1.5, sm: 2 } }}>
                       <TextField
                         type="number"
                         label="Minimum Threshold"
@@ -127,14 +155,25 @@ export const StockSettings = () => {
                         onChange={(e: any) => setThresholdValue(Number(e.target.value))}
                         fullWidth
                         inputProps={{ min: 0 }}
+                        sx={{
+                          '& .MuiOutlinedInput-root': {
+                            borderRadius: '12px',
+                          },
+                        }}
                       />
-                      <Box sx={{ display: 'flex', gap: 1 }}>
+                      <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
                         <Button
                           variant="contained"
                           onClick={() => handleUpdate(setting.category)}
                           sx={{
-                            bgcolor: colors.gold,
-                            '&:hover': { bgcolor: colors.goldDark },
+                            background: 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)',
+                            color: '#FFFFFF',
+                            flex: { xs: '1 1 100%', sm: '1 1 auto' },
+                            '&:hover': { 
+                              background: 'linear-gradient(135deg, #C99B39 0%, #B88A2E 100%)',
+                              transform: 'translateY(-1px)',
+                            },
+                            transition: 'all 0.2s ease',
                           }}
                         >
                           Save
@@ -145,6 +184,10 @@ export const StockSettings = () => {
                             setEditingCategory(null);
                             setThresholdValue(setting.minimum_threshold);
                           }}
+                          sx={{
+                            flex: { xs: '1 1 100%', sm: '1 1 auto' },
+                            borderRadius: '12px',
+                          }}
                         >
                           Cancel
                         </Button>
@@ -152,10 +195,25 @@ export const StockSettings = () => {
                     </Box>
                   ) : (
                     <Box>
-                      <Typography variant="body1" sx={{ fontWeight: 600, mb: 1 }}>
-                        Current Threshold: {setting.minimum_threshold}
+                      <Typography 
+                        variant="body1" 
+                        sx={{ 
+                          fontWeight: 600, 
+                          mb: 1,
+                          fontSize: { xs: '0.938rem', sm: '1rem' },
+                        }}
+                      >
+                        Current Threshold: <strong style={{ color: colors.gold }}>{setting.minimum_threshold}</strong>
                       </Typography>
-                      <Typography variant="caption" sx={{ color: colors.textSecondary, display: 'block', mb: 2 }}>
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          color: colors.textSecondary, 
+                          display: 'block', 
+                          mb: { xs: 1.5, sm: 2 },
+                          fontSize: { xs: '0.75rem', sm: '0.813rem' },
+                        }}
+                      >
                         Updated: {new Date(setting.updated_at).toLocaleDateString()}
                       </Typography>
                       <Button
@@ -167,7 +225,14 @@ export const StockSettings = () => {
                         sx={{
                           borderColor: colors.gold,
                           color: colors.gold,
-                          '&:hover': { borderColor: colors.goldDark, bgcolor: 'rgba(230, 181, 77, 0.1)' },
+                          borderRadius: '12px',
+                          width: { xs: '100%', sm: 'auto' },
+                          '&:hover': { 
+                            borderColor: colors.goldDark, 
+                            background: 'linear-gradient(135deg, rgba(230, 181, 77, 0.1) 0%, rgba(201, 155, 57, 0.05) 100%)',
+                            transform: 'translateY(-1px)',
+                          },
+                          transition: 'all 0.2s ease',
                         }}
                       >
                         Edit
