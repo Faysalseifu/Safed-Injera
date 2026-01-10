@@ -5,6 +5,8 @@ import authRoutes from './routes/authRoutes';
 import stockRoutes from './routes/stockRoutes';
 import orderRoutes from './routes/orderRoutes';
 import analyticsRoutes from './routes/analyticsRoutes';
+import stockSettingsRoutes from './routes/stockSettingsRoutes';
+import activityLogsRoutes from './routes/activityLogsRoutes';
 import logger from './utils/logger';
 
 dotenv.config();
@@ -43,6 +45,8 @@ app.use('/api/auth', authRoutes);
 app.use('/api/stocks', stockRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/analytics', analyticsRoutes);
+app.use('/api/stock-settings', stockSettingsRoutes);
+app.use('/api/activity-logs', activityLogsRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

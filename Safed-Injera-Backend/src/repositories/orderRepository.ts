@@ -13,6 +13,8 @@ export interface OrderRecord {
   total_price: number | null;
   order_date: Date;
   notes: string | null;
+  updated_by: string | null;
+  status_history: any[] | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -141,6 +143,8 @@ export interface UpdateOrderInput {
   status?: string;
   total_price?: number;
   notes?: string;
+  updated_by?: string;
+  status_history?: any[];
 }
 
 export const updateOrder = async (
@@ -148,12 +152,18 @@ export const updateOrder = async (
   updates: UpdateOrderInput
 ): Promise<OrderRecord | null> => {
   const setClauses: string[] = [];
-  const values: (string | number)[] = [];
+  const values: any[] = [];
+  let paramIndex = 1;
 
   Object.entries(updates).forEach(([key, value]) => {
     if (value !== undefined) {
-      values.push(value);
-      setClauses.push(`${key} = $${values.length}`);
+      if (key === 'status_history') {
+        values.push(JSON.stringify(value));
+        setClauses.push(`${key} = $${paramIndex++}::jsonb`);
+      } else {
+        values.push(value);
+        setClauses.push(`${key} = $${paramIndex++}`);
+      }
     }
   });
 
@@ -161,12 +171,12 @@ export const updateOrder = async (
     return getOrderById(id);
   }
 
-  const finalValues = [...values, id];
+  values.push(id);
   const setClause = `${setClauses.join(', ')}, updated_at = now()`;
 
   const { rows } = await pool.query<OrderRecord>(
-    `UPDATE orders SET ${setClause} WHERE id = $${finalValues.length} RETURNING *`,
-    finalValues
+    `UPDATE orders SET ${setClause} WHERE id = $${paramIndex} RETURNING *`,
+    values
   );
 
   return rows[0] ?? null;

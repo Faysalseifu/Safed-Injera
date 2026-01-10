@@ -5,6 +5,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
+import SettingsIcon from '@mui/icons-material/Settings';
+import HistoryIcon from '@mui/icons-material/History';
 import authProvider from './providers/authProvider';
 import dataProvider from './providers/dataProvider';
 import Dashboard from './components/Dashboard';
@@ -12,6 +14,8 @@ import CustomLayout from './components/CustomLayout';
 import { StockList, StockCreate, StockEdit } from './components/StockList';
 import { OrderList, OrderEdit } from './components/OrderList';
 import Analytics from './components/Analytics';
+import { StockSettings } from './components/StockSettings';
+import { ActivityLogs } from './components/ActivityLogs';
 import { lightTheme, darkTheme } from './theme';
 import './styles/globals.css';
 
@@ -65,6 +69,8 @@ function App() {
           />
           <CustomRoutes>
             <Route path="/analytics" element={<Analytics />} />
+            <Route path="/stock-settings" element={<StockSettings />} />
+            <Route path="/activity-logs" element={<ActivityLogs />} />
           </CustomRoutes>
         </Admin>
       </ThemeProvider>

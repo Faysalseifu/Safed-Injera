@@ -35,13 +35,32 @@ const designTokens = {
         error: '#F44336',
         info: '#2196F3',
     },
-    // Chart colors
+    // Chart colors with gradients inspired by modern dashboards
     charts: {
         primary: '#3F4F51',
         secondary: '#E6B54D',
         tertiary: '#5DB5A4',
         quaternary: '#F5A623',
         quinary: '#7B68EE',
+        purple: '#9C27B0',
+        blue: '#2196F3',
+        pink: '#E91E63',
+        teal: '#00BCD4',
+    },
+    // Gradient definitions for modern UI
+    gradients: {
+        purple: 'linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%)',
+        blue: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)',
+        pink: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
+        teal: 'linear-gradient(135deg, #00BCD4 0%, #0097A7 100%)',
+        gold: 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)',
+        dark: 'linear-gradient(135deg, #3F4F51 0%, #2D3739 100%)',
+    },
+    // Injera-inspired colors
+    injera: {
+        brown: '#4A2A1F',
+        maroon: '#5B1214',
+        cream: '#EDEAE6',
     },
 };
 

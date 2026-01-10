@@ -6,6 +6,9 @@ import {
   updateStock,
   deleteStock,
   updateStockQuantity,
+  quickAdjustStock,
+  getStockTransactionsHandler,
+  getLowStockItemsHandler,
 } from '../controllers/stockController';
 import { protect, adminOnly } from '../middleware/authMiddleware';
 
@@ -18,12 +21,16 @@ router.route('/')
   .get(getStocks)
   .post(createStock);
 
+router.get('/low-stock', getLowStockItemsHandler);
+
 router.route('/:id')
   .get(getStock)
   .put(updateStock)
   .delete(adminOnly, deleteStock);
 
 router.patch('/:id/quantity', updateStockQuantity);
+router.post('/:id/quick-adjust', quickAdjustStock);
+router.get('/:id/transactions', getStockTransactionsHandler);
 
 export default router;
 

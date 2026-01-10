@@ -13,9 +13,11 @@ import {
   adjustStockQuantity,
   findStockByName,
 } from '../repositories/stockRepository';
+import { createActivityLog } from '../repositories/activityLogRepository';
 import { sendOrderNotification } from '../utils/email';
 import logger from '../utils/logger';
 import { transformOrder, transformOrderInput } from '../utils/transform';
+import { AuthRequest } from '../middleware/authMiddleware';
 
 const parseOrderId = (idParam: string): number | null => {
   const parsed = Number(idParam);
@@ -146,7 +148,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-export const updateOrder = async (req: Request, res: Response): Promise<void> => {
+export const updateOrder = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const orderId = parseOrderId(req.params.id);
     if (!orderId) {
@@ -154,15 +156,62 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
+    // Get current order to track status changes
+    const currentOrder = await getOrderById(orderId);
+    if (!currentOrder) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
     // Transform input from camelCase to snake_case for database
     const dbInput = transformOrderInput(req.body);
+    
+    // Track status changes
+    const userId = req.user?.id;
+    if (userId) {
+      dbInput.updated_by = userId;
+    }
+
+    // Handle status change tracking
+    if (req.body.status && req.body.status !== currentOrder.status) {
+      const statusHistory = Array.isArray(currentOrder.status_history) 
+        ? [...currentOrder.status_history] 
+        : [];
+      
+      statusHistory.push({
+        from: currentOrder.status,
+        to: req.body.status,
+        changed_by: userId,
+        changed_at: new Date().toISOString(),
+      });
+
+      dbInput.status_history = statusHistory;
+
+      // Log activity
+      try {
+        await createActivityLog({
+          user_id: userId,
+          action_type: 'order_status_changed',
+          entity_type: 'order',
+          entity_id: orderId,
+          details: {
+            from: currentOrder.status,
+            to: req.body.status,
+            order_id: orderId,
+          },
+        });
+      } catch (logError) {
+        logger.warn('Failed to create activity log:', logError);
+      }
+    }
+
     const updated = await updateOrderRecord(orderId, dbInput);
     if (!updated) {
       res.status(404).json({ message: 'Order not found' });
       return;
     }
 
-    logger.info(`Order ${orderId} updated: ${req.body.status ?? 'status unchanged'}`);
+    logger.info(`Order ${orderId} updated: ${req.body.status ?? 'status unchanged'} by ${userId ?? 'unknown'}`);
     res.json(transformOrder(updated));
   } catch (error) {
     logger.error('Update order error:', error);
@@ -199,6 +248,9 @@ export const getOrderStats = async (req: Request, res: Response): Promise<void> 
     const confirmedOrders = await countOrdersByStatus('confirmed');
     const shippedOrders = await countOrdersByStatus('shipped');
     const deliveredOrders = await countOrdersByStatus('delivered');
+    const sentOrders = await countOrdersByStatus('sent');
+    const checkedOrders = await countOrdersByStatus('checked');
+    const declinedOrders = await countOrdersByStatus('declined');
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -214,6 +266,9 @@ export const getOrderStats = async (req: Request, res: Response): Promise<void> 
       confirmedOrders,
       shippedOrders,
       deliveredOrders,
+      sentOrders,
+      checkedOrders,
+      declinedOrders,
       todayOrders,
       weekOrders,
     });

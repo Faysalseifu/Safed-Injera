@@ -6,8 +6,11 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
+import HistoryIcon from '@mui/icons-material/History';
+import LogoutIcon from '@mui/icons-material/Logout';
 import PeopleOutlineIcon from '@mui/icons-material/PeopleOutline';
 import { DarkModeContext } from '../App';
+import { useLogout } from 'react-admin';
 
 const menuItemStyles = {
   '& .RaMenuItemLink-active': {
@@ -53,6 +56,7 @@ const activeUsers = [
 
 const CustomMenu = () => {
   const [open] = useSidebarState();
+  const logout = useLogout();
 
   return (
     <Box
@@ -134,10 +138,52 @@ const CustomMenu = () => {
           leftIcon={<BarChartIcon />}
           sidebarIsOpen={open}
         />
+        <MenuItemLink
+          to="/stock-settings"
+          primaryText="Stock Settings"
+          leftIcon={<SettingsIcon />}
+          sidebarIsOpen={open}
+        />
+        <MenuItemLink
+          to="/activity-logs"
+          primaryText="Activity Logs"
+          leftIcon={<HistoryIcon />}
+          sidebarIsOpen={open}
+        />
       </Menu>
 
-      {/* Bottom Section - Active Users */}
+      {/* Logout Section */}
       <Box sx={{ mt: 'auto', p: 2, borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
+        <Box
+          onClick={() => logout()}
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: 2,
+            p: 1.5,
+            borderRadius: '12px',
+            cursor: 'pointer',
+            transition: 'all 0.2s ease',
+            color: 'rgba(255, 255, 255, 0.7)',
+            '&:hover': {
+              bgcolor: 'rgba(244, 67, 54, 0.15)',
+              color: '#F44336',
+              transform: 'translateX(4px)',
+              '& .MuiSvgIcon-root': {
+                transform: 'scale(1.1)',
+              },
+            },
+          }}
+        >
+          <LogoutIcon sx={{ fontSize: 20, transition: 'transform 0.2s ease' }} />
+          <Typography sx={{ fontWeight: 500, fontSize: '0.875rem' }}>
+            Logout
+          </Typography>
+        </Box>
+      </Box>
+
+      {/* Bottom Section - Active Users */}
+      <Box sx={{ p: 2, borderTop: '1px solid rgba(255, 255, 255, 0.08)' }}>
         <Typography
           sx={{
             fontSize: '0.75rem',
@@ -159,7 +205,11 @@ const CustomMenu = () => {
                 height: 32,
                 fontSize: '0.75rem',
                 fontWeight: 600,
-                bgcolor: index === 0 ? '#E6B54D' : index === 1 ? '#5DB5A4' : '#7B68EE',
+                background: index === 0 
+                  ? 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)'
+                  : index === 1 
+                    ? 'linear-gradient(135deg, #5DB5A4 0%, #409F8E 100%)'
+                    : 'linear-gradient(135deg, #7B68EE 0%, #6A5ACD 100%)',
                 border: '2px solid #3F4F51',
                 marginLeft: index > 0 ? '-8px' : 0,
                 zIndex: activeUsers.length - index,

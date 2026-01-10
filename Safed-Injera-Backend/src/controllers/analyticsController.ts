@@ -11,7 +11,8 @@ import {
   countOrdersByStatus,
   countOrdersSince,
 } from '../repositories/orderRepository';
-import { getStocks, findStockById } from '../repositories/stockRepository';
+import { getStocks, findStockById, getLowStockItems } from '../repositories/stockRepository';
+import { transformStock } from '../utils/transform';
 
 // @desc    Get sales analysis
 // @route   GET /api/analytics/sales
@@ -63,8 +64,7 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const weekOrders = await countOrdersSince(weekAgo);
-    const stocks = await getStocks({ isActive: true });
-    const lowStockItems = stocks.filter(s => s.quantity < 50);
+    const lowStockItems = await getLowStockItems();
     const revenue = await getRevenueSince(['confirmed', 'processing', 'shipped', 'delivered']);
     const recentOrders = await getRecentOrders();
     res.json({
@@ -77,7 +77,11 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
       },
       revenue,
       lowStockAlerts: lowStockItems.length,
-      lowStockItems,
+      lowStockItems: lowStockItems.map(item => ({
+        productName: item.product_name,
+        quantity: item.quantity,
+        minimumThreshold: item.minimum_threshold,
+      })),
       recentOrders,
     });
   } catch (error) {

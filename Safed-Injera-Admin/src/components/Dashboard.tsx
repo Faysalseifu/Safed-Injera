@@ -45,7 +45,7 @@ ChartJS.register(
 
 const API_URL = 'http://localhost:5000/api';
 
-// Design tokens matching the new theme
+// Design tokens with modern gradients
 const colors = {
   sidebar: '#3F4F51',
   cream: '#F5F3EE',
@@ -58,6 +58,22 @@ const colors = {
   success: '#4CAF50',
   warning: '#FF9800',
   error: '#F44336',
+  purple: '#9C27B0',
+  blue: '#2196F3',
+  pink: '#E91E63',
+  darkBg: '#1a1f21',
+  darkCard: '#242a2c',
+};
+
+// Gradient definitions
+const gradients = {
+  purple: 'linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%)',
+  blue: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)',
+  pink: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
+  teal: 'linear-gradient(135deg, #00BCD4 0%, #0097A7 100%)',
+  gold: 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)',
+  dark: 'linear-gradient(135deg, #3F4F51 0%, #2D3739 100%)',
+  darkCard: 'linear-gradient(135deg, #242a2c 0%, #1a1f21 100%)',
 };
 
 interface DashboardData {
@@ -104,11 +120,17 @@ const MetricCard = ({
   const getBackground = () => {
     switch (variant) {
       case 'gold':
-        return `linear-gradient(135deg, ${colors.gold} 0%, ${colors.goldDark} 100%)`;
+        return gradients.gold;
       case 'dark':
-        return `linear-gradient(135deg, ${colors.sidebar} 0%, #2D3739 100%)`;
+        return gradients.dark;
       case 'teal':
-        return `linear-gradient(135deg, ${colors.teal} 0%, #409F8E 100%)`;
+        return gradients.teal;
+      case 'purple':
+        return gradients.purple;
+      case 'blue':
+        return gradients.blue;
+      case 'pink':
+        return gradients.pink;
       default:
         return colors.paper;
     }
@@ -226,15 +248,28 @@ const RecentOrdersCard = ({
   return (
     <Box
       sx={{
-        bgcolor: colors.paper,
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
         borderRadius: '20px',
         p: { xs: 2, md: 3 },
-        boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
-        border: '1px solid rgba(63, 79, 81, 0.04)',
+        boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
+        border: '1px solid rgba(63, 79, 81, 0.06)',
         height: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: '150px',
+          height: '150px',
+          background: 'radial-gradient(circle, rgba(33, 150, 243, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          transform: 'translate(30%, -30%)',
+        },
       }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3, position: 'relative', zIndex: 1 }}>
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 600, color: colors.textPrimary }}>
             Last Orders
@@ -284,9 +319,10 @@ const RecentOrdersCard = ({
                     sx={{
                       width: 36,
                       height: 36,
-                      bgcolor: colors.gold,
+                      background: gradients.gold,
                       fontSize: '0.875rem',
                       fontWeight: 600,
+                      boxShadow: '0 2px 8px rgba(230, 181, 77, 0.3)',
                     }}
                   >
                     {order.customerName?.charAt(0) || 'U'}
@@ -308,10 +344,11 @@ const RecentOrdersCard = ({
                   size="small"
                   label={order.quantity}
                   sx={{
-                    bgcolor: 'rgba(230, 181, 77, 0.15)',
+                    background: 'linear-gradient(135deg, rgba(230, 181, 77, 0.2) 0%, rgba(201, 155, 57, 0.15) 100%)',
                     color: colors.goldDark,
                     fontWeight: 600,
                     minWidth: '40px',
+                    border: '1px solid rgba(230, 181, 77, 0.3)',
                   }}
                 />
               </td>
@@ -363,16 +400,17 @@ const StatisticsChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
         label: 'Orders',
         data: data?.slice(-7).map((d) => d.orderCount) || [4, 6, 5, 8, 7, 9, 6],
         backgroundColor: [
-          colors.sidebar,
-          colors.gold,
-          colors.teal,
-          colors.goldDark,
-          colors.sidebar,
-          colors.gold,
-          colors.sidebar,
+          'rgba(156, 39, 176, 0.8)',
+          'rgba(33, 150, 243, 0.8)',
+          'rgba(233, 30, 99, 0.8)',
+          'rgba(0, 188, 212, 0.8)',
+          'rgba(230, 181, 77, 0.8)',
+          'rgba(156, 39, 176, 0.8)',
+          'rgba(33, 150, 243, 0.8)',
         ],
-        borderRadius: 6,
-        barThickness: 24,
+        borderRadius: 8,
+        barThickness: 28,
+        borderSkipped: false,
       },
     ],
   };
@@ -419,15 +457,28 @@ const StatisticsChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
   return (
     <Box
       sx={{
-        bgcolor: colors.paper,
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
         borderRadius: '20px',
         p: { xs: 2, md: 3 },
-        boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
-        border: '1px solid rgba(63, 79, 81, 0.04)',
+        boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
+        border: '1px solid rgba(63, 79, 81, 0.06)',
         height: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '120px',
+          height: '120px',
+          background: 'radial-gradient(circle, rgba(156, 39, 176, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          transform: 'translate(-30%, -30%)',
+        },
       }}
     >
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: colors.textPrimary }}>
           Statistics
         </Typography>
@@ -446,7 +497,13 @@ const SalesShareChart = ({ data }: { data: SalesData['productSales'] }) => {
     datasets: [
       {
         data: data?.map((p) => p.totalQuantity) || [30, 45, 25],
-        backgroundColor: [colors.sidebar, colors.gold, colors.teal, '#F5A623', '#7B68EE'],
+        backgroundColor: [
+          'rgba(156, 39, 176, 0.8)',
+          'rgba(33, 150, 243, 0.8)',
+          'rgba(233, 30, 99, 0.8)',
+          'rgba(0, 188, 212, 0.8)',
+          'rgba(230, 181, 77, 0.8)',
+        ],
         borderWidth: 0,
         cutout: '70%',
       },
@@ -479,15 +536,28 @@ const SalesShareChart = ({ data }: { data: SalesData['productSales'] }) => {
   return (
     <Box
       sx={{
-        bgcolor: colors.paper,
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
         borderRadius: '20px',
         p: { xs: 2, md: 3 },
-        boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
-        border: '1px solid rgba(63, 79, 81, 0.04)',
+        boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
+        border: '1px solid rgba(63, 79, 81, 0.06)',
         height: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          bottom: 0,
+          right: 0,
+          width: '100px',
+          height: '100px',
+          background: 'radial-gradient(circle, rgba(233, 30, 99, 0.1) 0%, transparent 70%)',
+          borderRadius: '50%',
+          transform: 'translate(30%, 30%)',
+        },
       }}
     >
-      <Box sx={{ mb: 3 }}>
+      <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: colors.textPrimary }}>
           Sales Share
         </Typography>
@@ -513,15 +583,16 @@ const TrendChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
       {
         label: 'Sales Trend',
         data: data?.slice(-30).map((d) => d.totalQuantity) || Array.from({ length: 30 }, () => Math.floor(Math.random() * 100) + 50),
-        borderColor: colors.gold,
-        backgroundColor: 'rgba(230, 181, 77, 0.1)',
+        borderColor: '#E91E63',
+        backgroundColor: 'rgba(233, 30, 99, 0.1)',
         fill: true,
         tension: 0.4,
         pointRadius: 0,
         pointHoverRadius: 6,
-        pointHoverBackgroundColor: colors.gold,
+        pointHoverBackgroundColor: '#E91E63',
         pointHoverBorderColor: colors.paper,
         pointHoverBorderWidth: 2,
+        borderWidth: 2,
       },
     ],
   };
@@ -571,16 +642,28 @@ const TrendChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
   return (
     <Box
       sx={{
-        bgcolor: colors.paper,
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
         borderRadius: '20px',
         p: { xs: 2, md: 3 },
-        boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
-        border: '1px solid rgba(63, 79, 81, 0.04)',
+        boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
+        border: '1px solid rgba(63, 79, 81, 0.06)',
         height: '100%',
         position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '200px',
+          height: '200px',
+          background: 'radial-gradient(circle, rgba(233, 30, 99, 0.08) 0%, transparent 70%)',
+          borderRadius: '50%',
+          transform: 'translate(-20%, -20%)',
+        },
       }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3 }}>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 3, position: 'relative', zIndex: 1 }}>
         <Typography variant="h6" sx={{ fontWeight: 600, color: colors.textPrimary }}>
           Sales Schedule
         </Typography>
@@ -589,13 +672,14 @@ const TrendChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
             display: 'flex',
             alignItems: 'center',
             gap: 1,
-            bgcolor: 'rgba(230, 181, 77, 0.1)',
+            background: 'linear-gradient(135deg, rgba(233, 30, 99, 0.15) 0%, rgba(156, 39, 176, 0.1) 100%)',
             px: 2,
             py: 0.75,
             borderRadius: '12px',
+            border: '1px solid rgba(233, 30, 99, 0.2)',
           }}
         >
-          <Typography variant="h6" sx={{ fontWeight: 700, color: colors.goldDark }}>
+          <Typography variant="h6" sx={{ fontWeight: 700, background: 'linear-gradient(135deg, #E91E63 0%, #9C27B0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
             {data?.reduce((sum, d) => sum + d.totalQuantity, 0).toLocaleString() || '3500'}
           </Typography>
           <Typography variant="caption" sx={{ color: colors.textSecondary }}>
@@ -615,22 +699,46 @@ const LowStockCard = ({ items }: { items: DashboardData['lowStockItems'] }) => {
   return (
     <Box
       sx={{
-        bgcolor: colors.paper,
+        background: items && items.length > 0 
+          ? 'linear-gradient(135deg, rgba(233, 30, 99, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%)'
+          : 'linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(0, 188, 212, 0.05) 100%)',
         borderRadius: '20px',
         p: { xs: 2, md: 3 },
-        boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
-        border: '1px solid rgba(63, 79, 81, 0.04)',
+        boxShadow: items && items.length > 0
+          ? '0 4px 20px rgba(233, 30, 99, 0.15)'
+          : '0 2px 12px rgba(63, 79, 81, 0.06)',
+        border: items && items.length > 0
+          ? '1px solid rgba(233, 30, 99, 0.2)'
+          : '1px solid rgba(63, 79, 81, 0.04)',
         height: '100%',
+        position: 'relative',
+        overflow: 'hidden',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: '100px',
+          height: '100px',
+          background: items && items.length > 0
+            ? 'radial-gradient(circle, rgba(233, 30, 99, 0.2) 0%, transparent 70%)'
+            : 'radial-gradient(circle, rgba(33, 150, 243, 0.2) 0%, transparent 70%)',
+          borderRadius: '50%',
+          transform: 'translate(30%, -30%)',
+        },
       }}
     >
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 3, position: 'relative', zIndex: 1 }}>
         <Box
           sx={{
-            p: 1,
-            borderRadius: '10px',
-            bgcolor: 'rgba(244, 67, 54, 0.1)',
-            color: colors.error,
+            p: 1.5,
+            borderRadius: '12px',
+            background: items && items.length > 0
+              ? 'linear-gradient(135deg, rgba(233, 30, 99, 0.2) 0%, rgba(244, 67, 54, 0.15) 100%)'
+              : 'linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(0, 188, 212, 0.15) 100%)',
+            color: items && items.length > 0 ? colors.error : colors.success,
             display: 'flex',
+            boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
           }}
         >
           <WarningAmberIcon fontSize="small" />
@@ -640,31 +748,42 @@ const LowStockCard = ({ items }: { items: DashboardData['lowStockItems'] }) => {
         </Typography>
       </Box>
 
-      {items?.map((item, index) => (
-        <Box
-          key={index}
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            py: 1.5,
-            borderBottom: index < items.length - 1 ? '1px solid rgba(63, 79, 81, 0.08)' : 'none',
-          }}
-        >
-          <Typography variant="body2" sx={{ fontWeight: 500, color: colors.textPrimary }}>
-            {item.productName}
-          </Typography>
-          <Chip
-            size="small"
-            label={`${item.quantity} left`}
+      <Box sx={{ position: 'relative', zIndex: 1 }}>
+        {items?.map((item, index) => (
+          <Box
+            key={index}
             sx={{
-              bgcolor: 'rgba(244, 67, 54, 0.1)',
-              color: colors.error,
-              fontWeight: 600,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              py: 1.5,
+              px: 1,
+              borderRadius: '8px',
+              mb: 1,
+              borderBottom: index < items.length - 1 ? '1px solid rgba(63, 79, 81, 0.08)' : 'none',
+              transition: 'all 0.2s ease',
+              '&:hover': {
+                bgcolor: 'rgba(255, 255, 255, 0.5)',
+                transform: 'translateX(4px)',
+              },
             }}
-          />
-        </Box>
-      ))}
+          >
+            <Typography variant="body2" sx={{ fontWeight: 500, color: colors.textPrimary }}>
+              {item.productName}
+            </Typography>
+            <Chip
+              size="small"
+              label={`${item.quantity} left`}
+              sx={{
+                background: 'linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(233, 30, 99, 0.1) 100%)',
+                color: colors.error,
+                fontWeight: 600,
+                border: '1px solid rgba(244, 67, 54, 0.3)',
+              }}
+            />
+          </Box>
+        ))}
+      </Box>
 
       {(!items || items.length === 0) && (
         <Box sx={{ textAlign: 'center', py: 3 }}>
@@ -695,9 +814,10 @@ const Dashboard = () => {
       };
 
       try {
-        const [dashboardRes, salesRes] = await Promise.all([
+        const [dashboardRes, salesRes, lowStockRes] = await Promise.all([
           fetch(`${API_URL}/analytics/dashboard`, { headers }),
           fetch(`${API_URL}/analytics/sales?period=monthly`, { headers }),
+          fetch(`${API_URL}/stocks/low-stock`, { headers }),
         ]);
 
         if (!dashboardRes.ok || !salesRes.ok) {
@@ -706,6 +826,17 @@ const Dashboard = () => {
 
         const dashboard = await dashboardRes.json();
         const sales = await salesRes.json();
+        const lowStockItems = lowStockRes.ok ? await lowStockRes.json() : [];
+
+        // Enhance dashboard data with low stock items
+        if (lowStockItems && lowStockItems.length > 0) {
+          dashboard.lowStockItems = lowStockItems.map((item: any) => ({
+            productName: item.productName,
+            quantity: item.quantity,
+            minimumThreshold: item.minimumThreshold,
+          }));
+          dashboard.lowStockAlerts = lowStockItems.length;
+        }
 
         setDashboardData(dashboard);
         setSalesData(sales);
@@ -762,16 +893,31 @@ const Dashboard = () => {
         margin: '0 auto',
         bgcolor: colors.cream,
         minHeight: '100vh',
+        background: 'linear-gradient(135deg, #F5F3EE 0%, #EDEAE6 100%)',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: '300px',
+          background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.03) 0%, rgba(33, 150, 243, 0.03) 50%, rgba(233, 30, 99, 0.03) 100%)',
+          pointerEvents: 'none',
+          zIndex: 0,
+        },
       }}
       className="fade-in"
     >
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
+      <Box sx={{ mb: 4, position: 'relative', zIndex: 1 }}>
         <Typography
           variant="h4"
           sx={{
             fontWeight: 700,
-            color: colors.textPrimary,
+            background: 'linear-gradient(135deg, #2D3739 0%, #3F4F51 100%)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
             mb: 0.5,
           }}
         >
@@ -783,7 +929,7 @@ const Dashboard = () => {
       </Box>
 
       {/* Metric Cards Row */}
-      <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 3 }}>
+      <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
         <Grid item xs={12} sm={6} lg={3}>
           <MetricCard
             title="Total Orders"
@@ -814,14 +960,14 @@ const Dashboard = () => {
             title="Low Stock Alerts"
             value={dashboardData?.lowStockAlerts || 0}
             icon={<InventoryIcon />}
-            variant={dashboardData?.lowStockAlerts ? 'default' : 'default'}
-            subtitle={dashboardData?.lowStockAlerts ? 'Items need attention' : 'All items stocked'}
+            variant={dashboardData?.lowStockAlerts && dashboardData.lowStockAlerts > 0 ? 'pink' : 'blue'}
+            subtitle={dashboardData?.lowStockAlerts && dashboardData.lowStockAlerts > 0 ? 'Items need attention' : 'All items stocked'}
           />
         </Grid>
       </Grid>
 
       {/* Charts and Activity Row */}
-      <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 3 }}>
+      <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
         <Grid item xs={12} lg={7}>
           <RecentOrdersCard orders={dashboardData?.recentOrders || []} />
         </Grid>
@@ -831,7 +977,7 @@ const Dashboard = () => {
       </Grid>
 
       {/* Bottom Row */}
-      <Grid container spacing={{ xs: 2, md: 3 }}>
+      <Grid container spacing={{ xs: 2, md: 3 }} sx={{ position: 'relative', zIndex: 1 }}>
         <Grid item xs={12} md={4}>
           <SalesShareChart data={salesData?.productSales || []} />
         </Grid>
