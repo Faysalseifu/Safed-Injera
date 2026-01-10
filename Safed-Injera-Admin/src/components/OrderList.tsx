@@ -15,6 +15,23 @@ import {
   Filter,
   SelectField,
 } from 'react-admin';
+import { Box, Typography, Chip } from '@mui/material';
+
+// Design tokens
+const colors = {
+  sidebar: '#3F4F51',
+  cream: '#F5F3EE',
+  paper: '#FFFFFF',
+  gold: '#E6B54D',
+  goldDark: '#C99B39',
+  teal: '#5DB5A4',
+  textPrimary: '#2D3739',
+  textSecondary: '#6B7B7D',
+  success: '#4CAF50',
+  warning: '#FF9800',
+  error: '#F44336',
+  info: '#2196F3',
+};
 
 const statusChoices = [
   { id: 'pending', name: 'Pending' },
@@ -35,61 +52,171 @@ const businessTypeChoices = [
 
 const OrderFilter = (props: any) => (
   <Filter {...props}>
-    <TextInput label="Search Customer" source="customerName" alwaysOn />
-    <SelectInput source="status" choices={statusChoices} />
-    <SelectInput source="businessType" choices={businessTypeChoices} />
+    <TextInput
+      label="Search Customer"
+      source="customerName"
+      alwaysOn
+      sx={{
+        '& .MuiOutlinedInput-root': {
+          borderRadius: '12px',
+          bgcolor: colors.paper,
+        },
+      }}
+    />
+    <SelectInput
+      source="status"
+      choices={statusChoices}
+      sx={{
+        '& .MuiOutlinedInput-root': {
+          borderRadius: '12px',
+        },
+      }}
+    />
+    <SelectInput
+      source="businessType"
+      choices={businessTypeChoices}
+      sx={{
+        '& .MuiOutlinedInput-root': {
+          borderRadius: '12px',
+        },
+      }}
+    />
   </Filter>
 );
 
 const StatusField = (props: any) => {
-  const colors: Record<string, string> = {
-    pending: '#ff9800',
-    confirmed: '#2196f3',
-    processing: '#9c27b0',
-    shipped: '#00bcd4',
-    delivered: '#4caf50',
-    cancelled: '#f44336',
+  const statusColors: Record<string, { bg: string; color: string }> = {
+    pending: { bg: 'rgba(255, 152, 0, 0.1)', color: colors.warning },
+    confirmed: { bg: 'rgba(33, 150, 243, 0.1)', color: colors.info },
+    processing: { bg: 'rgba(156, 39, 176, 0.1)', color: '#9c27b0' },
+    shipped: { bg: 'rgba(0, 188, 212, 0.1)', color: '#00bcd4' },
+    delivered: { bg: 'rgba(76, 175, 80, 0.1)', color: colors.success },
+    cancelled: { bg: 'rgba(244, 67, 54, 0.1)', color: colors.error },
   };
 
+  const status = props.record?.status || 'pending';
+  const style = statusColors[status] || statusColors.pending;
+
   return (
-    <SelectField
-      {...props}
-      choices={statusChoices}
+    <Chip
+      label={statusChoices.find((s) => s.id === status)?.name || status}
+      size="small"
       sx={{
-        '& .MuiTypography-root': {
-          color: colors[props.record?.status] || '#666',
-          fontWeight: 'bold',
-        },
+        bgcolor: style.bg,
+        color: style.color,
+        fontWeight: 600,
+        fontSize: '0.75rem',
+        textTransform: 'capitalize',
+        borderRadius: '8px',
       }}
     />
   );
 };
 
 export const OrderList = (props: any) => (
-  <List {...props} filters={<OrderFilter />} sort={{ field: 'orderDate', order: 'DESC' }}>
-    <Datagrid rowClick="edit">
+  <List
+    {...props}
+    filters={<OrderFilter />}
+    sort={{ field: 'orderDate', order: 'DESC' }}
+    sx={{
+      '& .RaList-content': {
+        bgcolor: colors.paper,
+        borderRadius: '20px',
+        boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
+        border: '1px solid rgba(63, 79, 81, 0.04)',
+        overflow: 'hidden',
+      },
+      '& .MuiTableCell-head': {
+        fontWeight: 600,
+        color: colors.textSecondary,
+        bgcolor: 'rgba(63, 79, 81, 0.02)',
+        borderBottom: `1px solid rgba(63, 79, 81, 0.08)`,
+        textTransform: 'uppercase',
+        fontSize: '0.75rem',
+        letterSpacing: '0.05em',
+      },
+      '& .MuiTableCell-body': {
+        borderBottom: `1px solid rgba(63, 79, 81, 0.06)`,
+        color: colors.textPrimary,
+      },
+      '& .MuiTableRow-root:hover': {
+        bgcolor: 'rgba(230, 181, 77, 0.04)',
+      },
+      '& .RaDatagrid-clickableRow:hover': {
+        bgcolor: 'rgba(230, 181, 77, 0.04)',
+      },
+      '& .MuiToolbar-root': {
+        padding: '16px 24px',
+        gap: 2,
+      },
+      '& .RaFilterFormInput-spacer': {
+        display: 'none',
+      },
+    }}
+  >
+    <Datagrid
+      rowClick="edit"
+      sx={{
+        '& .RaDatagrid-headerCell': {
+          fontWeight: 600,
+        },
+      }}
+    >
       <TextField source="customerName" label="Customer" />
       <EmailField source="email" />
       <TextField source="phone" />
       <SelectField source="businessType" choices={businessTypeChoices} label="Business Type" />
       <TextField source="product" />
       <NumberField source="quantity" />
-      <NumberField 
-        source="totalPrice" 
+      <NumberField
+        source="totalPrice"
         options={{ style: 'currency', currency: 'ETB' }}
         label="Total (ETB)"
       />
-      <StatusField source="status" />
+      <StatusField source="status" label="Status" />
       <DateField source="orderDate" label="Order Date" showTime />
-      <EditButton />
-      <DeleteButton />
+      <EditButton
+        sx={{
+          color: colors.gold,
+          '&:hover': { bgcolor: 'rgba(230, 181, 77, 0.1)' },
+        }}
+      />
+      <DeleteButton
+        sx={{
+          color: colors.error,
+          '&:hover': { bgcolor: 'rgba(244, 67, 54, 0.1)' },
+        }}
+      />
     </Datagrid>
   </List>
 );
 
 export const OrderEdit = (props: any) => (
-  <Edit {...props}>
-    <SimpleForm>
+  <Edit
+    {...props}
+    sx={{
+      '& .RaEdit-main': {
+        bgcolor: colors.paper,
+        borderRadius: '20px',
+        boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
+        mt: 2,
+      },
+    }}
+  >
+    <SimpleForm
+      sx={{
+        p: { xs: 2, md: 3 },
+        '& .MuiOutlinedInput-root': {
+          borderRadius: '12px',
+          '&.Mui-focused fieldset': {
+            borderColor: colors.gold,
+          },
+        },
+        '& .MuiInputLabel-root.Mui-focused': {
+          color: colors.gold,
+        },
+      }}
+    >
       <TextInput source="customerName" disabled fullWidth />
       <TextInput source="email" disabled fullWidth />
       <TextInput source="phone" disabled />
@@ -103,5 +230,3 @@ export const OrderEdit = (props: any) => (
     </SimpleForm>
   </Edit>
 );
-
-

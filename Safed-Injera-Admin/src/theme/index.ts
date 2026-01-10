@@ -1,27 +1,54 @@
 import { createTheme, ThemeOptions } from '@mui/material/styles';
 
-// Brand colors from Safed Injera
-const brandColors = {
-    ethiopianEarth: '#4E1815',
-    injeraMaroon: '#5A0F12',
-    coffeeBrown: '#4A2A1F',
-    sefedSand: '#A89688',
-    amberGlow: '#B56A3A',
-    injeraWhite: '#F9F9F7',
-    cloudWhite: '#FFFFFF',
-};
-
-// Dark mode colors
-const darkColors = {
-    bgPrimary: '#3A120F',
-    bgSecondary: '#4A2A1F',
-    bgTertiary: '#5A0F12',
+// New modern dashboard color palette inspired by premium flight booking dashboard
+const designTokens = {
+    // Sidebar and primary colors
+    sidebar: {
+        dark: '#3F4F51',      // Dark teal
+        darker: '#2D3739',    // Darker variant
+        light: '#4A5C5E',     // Lighter variant
+    },
+    // Background colors
+    background: {
+        cream: '#F5F3EE',     // Main content background
+        paper: '#FFFFFF',     // Card backgrounds
+        muted: '#EDEBE6',     // Muted sections
+    },
+    // Accent colors
+    accent: {
+        gold: '#E6B54D',      // Primary accent (gold/yellow)
+        goldDark: '#C99B39',  // Darker gold
+        goldLight: '#F1C85D', // Lighter gold
+        teal: '#5DB5A4',      // Secondary accent
+    },
+    // Text colors
+    text: {
+        primary: '#2D3739',   // Main text
+        secondary: '#6B7B7D', // Secondary text
+        muted: '#9CA9AB',     // Muted text
+        light: '#FFFFFF',     // Light text for dark backgrounds
+    },
+    // Status colors
+    status: {
+        success: '#4CAF50',
+        warning: '#FF9800',
+        error: '#F44336',
+        info: '#2196F3',
+    },
+    // Chart colors
+    charts: {
+        primary: '#3F4F51',
+        secondary: '#E6B54D',
+        tertiary: '#5DB5A4',
+        quaternary: '#F5A623',
+        quinary: '#7B68EE',
+    },
 };
 
 // Common theme options
 const commonTheme: ThemeOptions = {
     typography: {
-        fontFamily: 'Poppins, system-ui, sans-serif',
+        fontFamily: '"Inter", "Roboto", system-ui, sans-serif',
         h1: {
             fontWeight: 700,
             letterSpacing: '-0.02em',
@@ -32,15 +59,25 @@ const commonTheme: ThemeOptions = {
         },
         h3: {
             fontWeight: 600,
+            fontSize: '1.75rem',
         },
         h4: {
             fontWeight: 600,
+            fontSize: '1.5rem',
         },
         h5: {
             fontWeight: 600,
+            fontSize: '1.25rem',
         },
         h6: {
             fontWeight: 600,
+            fontSize: '1rem',
+        },
+        body1: {
+            fontSize: '0.938rem',
+        },
+        body2: {
+            fontSize: '0.875rem',
         },
         button: {
             textTransform: 'none',
@@ -48,67 +85,79 @@ const commonTheme: ThemeOptions = {
         },
     },
     shape: {
-        borderRadius: 12,
+        borderRadius: 16,
     },
     shadows: [
         'none',
-        '0 2px 8px rgba(78, 24, 21, 0.05)',
-        '0 4px 16px rgba(78, 24, 21, 0.08)',
-        '0 6px 24px rgba(78, 24, 21, 0.10)',
-        '0 8px 32px rgba(78, 24, 21, 0.12)',
-        '0 12px 40px rgba(78, 24, 21, 0.15)',
-        '0 16px 48px rgba(78, 24, 21, 0.18)',
-        '0 20px 56px rgba(78, 24, 21, 0.20)',
-        '0 24px 64px rgba(78, 24, 21, 0.22)',
-        ...Array(16).fill('0 24px 64px rgba(78, 24, 21, 0.22)'),
+        '0 2px 8px rgba(63, 79, 81, 0.04)',
+        '0 4px 16px rgba(63, 79, 81, 0.06)',
+        '0 6px 20px rgba(63, 79, 81, 0.08)',
+        '0 8px 24px rgba(63, 79, 81, 0.10)',
+        '0 12px 32px rgba(63, 79, 81, 0.12)',
+        '0 16px 40px rgba(63, 79, 81, 0.14)',
+        '0 20px 48px rgba(63, 79, 81, 0.16)',
+        '0 24px 56px rgba(63, 79, 81, 0.18)',
+        ...Array(16).fill('0 24px 56px rgba(63, 79, 81, 0.18)'),
     ] as any,
 };
 
-// Light theme
+// Light theme (main theme inspired by the reference design)
 export const lightTheme = createTheme({
     ...commonTheme,
     palette: {
         mode: 'light',
         primary: {
-            main: brandColors.ethiopianEarth,
-            light: '#6B2A25',
-            dark: '#3A120F',
+            main: designTokens.sidebar.dark,
+            light: designTokens.sidebar.light,
+            dark: designTokens.sidebar.darker,
             contrastText: '#FFFFFF',
         },
         secondary: {
-            main: brandColors.sefedSand,
-            light: '#D4C4B5',
-            dark: '#8A7568',
+            main: designTokens.accent.gold,
+            light: designTokens.accent.goldLight,
+            dark: designTokens.accent.goldDark,
             contrastText: '#FFFFFF',
         },
         error: {
-            main: '#d32f2f',
+            main: designTokens.status.error,
         },
         warning: {
-            main: brandColors.amberGlow,
+            main: designTokens.status.warning,
         },
         success: {
-            main: '#388e3c',
+            main: designTokens.status.success,
+        },
+        info: {
+            main: designTokens.status.info,
         },
         background: {
-            default: '#F5F5F5',
-            paper: '#FFFFFF',
+            default: designTokens.background.cream,
+            paper: designTokens.background.paper,
         },
         text: {
-            primary: brandColors.ethiopianEarth,
-            secondary: brandColors.coffeeBrown,
+            primary: designTokens.text.primary,
+            secondary: designTokens.text.secondary,
         },
     },
     components: {
+        MuiCssBaseline: {
+            styleOverrides: {
+                body: {
+                    backgroundColor: designTokens.background.cream,
+                },
+            },
+        },
         MuiCard: {
             styleOverrides: {
                 root: {
                     backgroundImage: 'none',
-                    boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)',
+                    backgroundColor: designTokens.background.paper,
+                    boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
+                    border: '1px solid rgba(63, 79, 81, 0.04)',
+                    borderRadius: 20,
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 8px 32px rgba(78, 24, 21, 0.12)',
+                        boxShadow: '0 8px 24px rgba(63, 79, 81, 0.10)',
                     },
                 },
             },
@@ -121,13 +170,13 @@ export const lightTheme = createTheme({
                     boxShadow: 'none',
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                        boxShadow: '0 4px 16px rgba(78, 24, 21, 0.15)',
+                        boxShadow: '0 4px 12px rgba(230, 181, 77, 0.25)',
                         transform: 'translateY(-1px)',
                     },
                 },
                 contained: {
                     '&:hover': {
-                        boxShadow: '0 8px 24px rgba(78, 24, 21, 0.2)',
+                        boxShadow: '0 6px 20px rgba(230, 181, 77, 0.30)',
                     },
                 },
             },
@@ -138,24 +187,62 @@ export const lightTheme = createTheme({
                     backgroundImage: 'none',
                 },
                 elevation1: {
-                    boxShadow: '0 2px 8px rgba(78, 24, 21, 0.05)',
+                    boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
                 },
             },
         },
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundImage: `linear-gradient(135deg, ${brandColors.ethiopianEarth} 0%, ${brandColors.injeraMaroon} 100%)`,
-                    boxShadow: '0 2px 8px rgba(78, 24, 21, 0.1)',
+                    backgroundColor: designTokens.sidebar.dark,
+                    backgroundImage: 'none',
+                    boxShadow: 'none',
                 },
             },
         },
         MuiDrawer: {
             styleOverrides: {
                 paper: {
-                    background: 'rgba(255, 255, 255, 0.95)',
-                    backdropFilter: 'blur(20px)',
-                    borderRight: '1px solid rgba(78, 24, 21, 0.08)',
+                    background: `linear-gradient(180deg, ${designTokens.sidebar.dark} 0%, ${designTokens.sidebar.darker} 100%)`,
+                    borderRight: 'none',
+                    boxShadow: '4px 0 24px rgba(0, 0, 0, 0.15)',
+                },
+            },
+        },
+        MuiListItemButton: {
+            styleOverrides: {
+                root: {
+                    borderRadius: 12,
+                    margin: '4px 12px',
+                    transition: 'all 0.2s ease',
+                    '&:hover': {
+                        backgroundColor: 'rgba(255, 255, 255, 0.08)',
+                    },
+                    '&.Mui-selected': {
+                        backgroundColor: 'rgba(230, 181, 77, 0.15)',
+                        '&:hover': {
+                            backgroundColor: 'rgba(230, 181, 77, 0.20)',
+                        },
+                    },
+                },
+            },
+        },
+        MuiChip: {
+            styleOverrides: {
+                root: {
+                    borderRadius: 8,
+                    fontWeight: 500,
+                },
+            },
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                root: {
+                    borderColor: 'rgba(63, 79, 81, 0.08)',
+                },
+                head: {
+                    fontWeight: 600,
+                    backgroundColor: designTokens.background.muted,
                 },
             },
         },
@@ -168,48 +255,51 @@ export const darkTheme = createTheme({
     palette: {
         mode: 'dark',
         primary: {
-            main: brandColors.amberGlow,
-            light: '#C88A5A',
-            dark: '#9A5A2A',
+            main: designTokens.accent.gold,
+            light: designTokens.accent.goldLight,
+            dark: designTokens.accent.goldDark,
             contrastText: '#FFFFFF',
         },
         secondary: {
-            main: brandColors.sefedSand,
-            light: '#D4C4B5',
-            dark: '#8A7568',
+            main: designTokens.accent.teal,
+            light: '#7DCBB8',
+            dark: '#409F8E',
             contrastText: '#FFFFFF',
         },
         error: {
-            main: '#f44336',
+            main: '#ff5252',
         },
         warning: {
-            main: brandColors.amberGlow,
+            main: '#ffb74d',
         },
         success: {
-            main: '#66bb6a',
+            main: '#69f0ae',
+        },
+        info: {
+            main: '#64b5f6',
         },
         background: {
-            default: darkColors.bgPrimary,
-            paper: darkColors.bgSecondary,
+            default: '#1a1f21',
+            paper: '#242a2c',
         },
         text: {
-            primary: brandColors.injeraWhite,
-            secondary: brandColors.sefedSand,
+            primary: '#f5f5f5',
+            secondary: '#b0bec5',
         },
     },
     components: {
         MuiCard: {
             styleOverrides: {
                 root: {
-                    background: 'rgba(58, 18, 15, 0.85)',
-                    backdropFilter: 'blur(20px) saturate(180%)',
-                    border: '1px solid rgba(181, 106, 58, 0.2)',
-                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+                    background: 'rgba(36, 42, 44, 0.95)',
+                    backdropFilter: 'blur(20px)',
+                    border: '1px solid rgba(230, 181, 77, 0.12)',
+                    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
+                    borderRadius: 20,
                     transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     '&:hover': {
-                        transform: 'translateY(-2px)',
-                        boxShadow: '0 12px 40px rgba(181, 106, 58, 0.25)',
-                        border: '1px solid rgba(181, 106, 58, 0.3)',
+                        boxShadow: '0 12px 40px rgba(230, 181, 77, 0.15)',
+                        border: '1px solid rgba(230, 181, 77, 0.20)',
                     },
                 },
             },
@@ -222,7 +312,7 @@ export const darkTheme = createTheme({
                     boxShadow: 'none',
                     transition: 'all 0.3s ease',
                     '&:hover': {
-                        boxShadow: '0 4px 16px rgba(181, 106, 58, 0.3)',
+                        boxShadow: '0 4px 16px rgba(230, 181, 77, 0.25)',
                         transform: 'translateY(-1px)',
                     },
                 },
@@ -232,7 +322,7 @@ export const darkTheme = createTheme({
             styleOverrides: {
                 root: {
                     backgroundImage: 'none',
-                    background: 'rgba(58, 18, 15, 0.90)',
+                    background: 'rgba(36, 42, 44, 0.95)',
                     backdropFilter: 'blur(15px)',
                 },
             },
@@ -240,8 +330,9 @@ export const darkTheme = createTheme({
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundImage: `linear-gradient(135deg, ${darkColors.bgSecondary} 0%, ${darkColors.bgTertiary} 100%)`,
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+                    backgroundColor: '#1a1f21',
+                    backgroundImage: 'none',
+                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
                     backdropFilter: 'blur(20px)',
                 },
             },
@@ -249,13 +340,25 @@ export const darkTheme = createTheme({
         MuiDrawer: {
             styleOverrides: {
                 paper: {
-                    background: 'rgba(58, 18, 15, 0.95)',
-                    backdropFilter: 'blur(20px) saturate(180%)',
-                    borderRight: '1px solid rgba(181, 106, 58, 0.15)',
+                    background: 'linear-gradient(180deg, #1a1f21 0%, #0f1314 100%)',
+                    borderRight: '1px solid rgba(230, 181, 77, 0.08)',
+                },
+            },
+        },
+        MuiTableCell: {
+            styleOverrides: {
+                root: {
+                    borderColor: 'rgba(255, 255, 255, 0.08)',
+                },
+                head: {
+                    fontWeight: 600,
+                    backgroundColor: 'rgba(0, 0, 0, 0.2)',
                 },
             },
         },
     },
 });
 
+// Export design tokens for use in components
+export { designTokens };
 export default lightTheme;
