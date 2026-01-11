@@ -32,18 +32,53 @@ const Products = () => {
   ];
 
   return (
-    <section id="products" className="relative section-container py-20 overflow-hidden transition-colors duration-800">
+    <section id="products" className="relative section-container py-20 overflow-hidden transition-colors duration-300">
       {/* Background Decor */}
-      <div className="absolute inset-0 bg-injera-white night-mode:bg-transparent pointer-events-none -z-20 transition-colors duration-800" />
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-sefed-sand/5 night-mode:bg-amber-glow/10 rounded-full blur-3xl -z-10 transition-colors duration-800" />
-      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-injera-maroon/5 night-mode:bg-injera-maroon/15 rounded-full blur-3xl -z-10 transition-colors duration-800" />
+      <div className="absolute inset-0 bg-injera-white night-mode:bg-transparent pointer-events-none -z-20 transition-colors duration-300" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-sefed-sand/5 night-mode:bg-amber-glow/10 rounded-full blur-2xl -z-10 transition-colors duration-300" />
+      <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-injera-maroon/5 night-mode:bg-injera-maroon/15 rounded-full blur-2xl -z-10 transition-colors duration-300" />
+      
+      {/* Pattern overlays - Using actual PNG images as overlays */}
+      {/* Centered large pattern */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-20 pointer-events-none pattern-products-center-light night-mode:hidden -z-5" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern white.png.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             backgroundPosition: 'center',
+             mixBlendMode: 'multiply'
+           }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-25 pointer-events-none pattern-products-center-dark hidden night-mode:block -z-5" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern brown.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             backgroundPosition: 'center',
+             mixBlendMode: 'overlay'
+           }} />
+      
+      {/* Repeated background */}
+      <div className="absolute inset-0 opacity-12 pointer-events-none pattern-products-bg-light night-mode:hidden -z-5" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern white.png.png)', 
+             backgroundRepeat: 'repeat', 
+             backgroundSize: '350px',
+             mixBlendMode: 'soft-light'
+           }} />
+      <div className="absolute inset-0 opacity-15 pointer-events-none pattern-products-bg-dark hidden night-mode:block -z-5" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern brown.png)', 
+             backgroundRepeat: 'repeat', 
+             backgroundSize: '350px',
+             mixBlendMode: 'soft-light'
+           }} />
 
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-16"
+        transition={{ duration: 0.4 }}
+        className="text-center mb-16 relative z-10"
       >
         <span className="text-amber-glow font-bold tracking-widest text-sm uppercase mb-2 block">Our Promise</span>
         <h2 className="section-title text-5xl md:text-6xl text-injera-maroon drop-shadow-sm font-black mb-4">
@@ -54,16 +89,16 @@ const Products = () => {
         </p>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 px-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8 px-4 relative z-10">
         {products.map((product, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 50 }}
+            initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.1 }}
-            whileHover={{ y: -10 }}
-            className="group relative bg-white night-mode:bg-white/10 night-mode:backdrop-blur-xl rounded-[2rem] p-8 shadow-lg hover:shadow-2xl transition-all duration-500 border border-transparent night-mode:border-white/10 hover:border-amber-glow/20 overflow-hidden"
+            transition={{ duration: 0.4, delay: index * 0.05 }}
+            whileHover={{ y: -5 }}
+            className="group relative bg-white night-mode:bg-white/10 night-mode:backdrop-blur-xl rounded-[2rem] p-8 shadow-lg hover:shadow-2xl transition-all duration-300 border border-transparent night-mode:border-white/10 hover:border-amber-glow/20 overflow-hidden"
           >
             {/* Hover Gradient Background */}
             <div className={`absolute inset-0 bg-gradient-to-br ${product.color} opacity-0 group-hover:opacity-5 transition-opacity duration-500`} />

@@ -69,12 +69,17 @@ const ContactPage = () => {
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20">
-        <div className="section-container">
+      <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
+        {/* Pattern overlay */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none pattern-contactpage-light night-mode:hidden" 
+             style={{ backgroundImage: 'url(/images 2/pattern white.png.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-contactpage-dark hidden night-mode:block" 
+             style={{ backgroundImage: 'url(/images 2/pattern brown.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
+        <div className="section-container relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
             className="text-center text-cloud-white"
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
@@ -92,10 +97,10 @@ const ContactPage = () => {
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* Contact Form */}
           <motion.div
-            initial={{ opacity: 0, x: -30 }}
+            initial={{ opacity: 0, x: -20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.4 }}
             className="card-modern"
           >
             <h2 className="text-2xl sm:text-3xl font-bold text-ethiopian-earth mb-6">
@@ -241,10 +246,10 @@ const ContactPage = () => {
 
           {/* Contact Information */}
           <motion.div
-            initial={{ opacity: 0, x: 30 }}
+            initial={{ opacity: 0, x: 20 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
+            transition={{ duration: 0.4 }}
             className="gradient-primary rounded-xl p-6 sm:p-8 text-cloud-white h-fit"
           >
             <h2 className="text-2xl sm:text-3xl font-bold mb-6">{t('contact.title')}</h2>

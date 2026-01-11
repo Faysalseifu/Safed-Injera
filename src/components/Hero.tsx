@@ -25,38 +25,83 @@ const Hero = () => {
         }}
       />
 
-      {/* Golden glow fx - Enhanced */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 2, repeat: Infinity, repeatType: "reverse" }}
-        className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-yellow-500/10 rounded-full blur-[100px] pointer-events-none"
-      />
-      <motion.div
-        initial={{ opacity: 0, scale: 0.8 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 3, repeat: Infinity, repeatType: "reverse", delay: 1 }}
-        className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-red-900/20 rounded-full blur-[120px] pointer-events-none"
-      />
+      {/* Golden glow fx - Optimized with CSS */}
+      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-yellow-500/10 rounded-full blur-[80px] pointer-events-none opacity-60 hero-glow-1" />
+      <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-red-900/20 rounded-full blur-[100px] pointer-events-none opacity-50 hero-glow-2" />
+      
+      {/* Pattern overlays - Using actual PNG images as overlays */}
+      {/* Large centered pattern - Hero style */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-30 pointer-events-none pattern-hero-center-light night-mode:hidden" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern white.png.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             backgroundPosition: 'center',
+             mixBlendMode: 'overlay'
+           }} />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] opacity-35 pointer-events-none pattern-hero-center-dark hidden night-mode:block" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern brown.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             backgroundPosition: 'center',
+             mixBlendMode: 'overlay'
+           }} />
+      
+      {/* Repeated pattern overlay - Full background */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none pattern-hero-repeat-light night-mode:hidden" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern white.png.png)', 
+             backgroundRepeat: 'repeat', 
+             backgroundSize: '400px',
+             mixBlendMode: 'soft-light'
+           }} />
+      <div className="absolute inset-0 opacity-25 pointer-events-none pattern-hero-repeat-dark hidden night-mode:block" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern brown.png)', 
+             backgroundRepeat: 'repeat', 
+             backgroundSize: '400px',
+             mixBlendMode: 'soft-light'
+           }} />
+      
+      {/* Corner accent patterns */}
+      <div className="absolute top-0 left-0 w-[500px] h-[500px] opacity-15 pointer-events-none pattern-hero-corner-light night-mode:hidden" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern white.png.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             transform: 'rotate(-45deg)',
+             transformOrigin: 'top left',
+             mixBlendMode: 'multiply'
+           }} />
+      <div className="absolute bottom-0 right-0 w-[500px] h-[500px] opacity-15 pointer-events-none pattern-hero-corner-dark hidden night-mode:block" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern brown.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             transform: 'rotate(45deg)',
+             transformOrigin: 'bottom right',
+             mixBlendMode: 'overlay'
+           }} />
 
       <div className="section-container relative z-10 pt-20 sm:pt-24 pb-12 sm:pb-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center min-h-[calc(100vh-100px)]">
           {/* Left Side - Cover Image */}
           <motion.div
-            initial={{ opacity: 0, x: -100, rotate: -5 }}
-            animate={{ opacity: 1, x: 0, rotate: 0 }}
-            transition={{ type: "spring", stiffness: 50, damping: 20, duration: 1.2 }}
-            className="relative order-2 lg:order-1 flex items-center justify-center perspective-1000"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.1, duration: 0.5 }}
+            className="relative order-2 lg:order-1 flex items-center justify-center"
           >
             <div className="relative w-full max-w-lg group">
               {/* White circular background glow */}
-              <div className="absolute inset-0 bg-white/5 rounded-full blur-3xl transform scale-125 -z-10 group-hover:bg-white/10 transition-colors duration-700"></div>
+              <div className="absolute inset-0 bg-white/5 rounded-full blur-2xl transform scale-125 -z-10 group-hover:bg-white/10 transition-colors duration-300"></div>
 
               {/* Image container with glow */}
               <motion.div
-                className="relative z-10 transform-style-3d"
-                whileHover={{ scale: 1.05, rotateY: 5 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                className="relative z-10"
+                whileHover={{ scale: 1.02 }}
+                transition={{ duration: 0.3 }}
               >
                 <img
                   src="/images/sefed cover.jpg"
@@ -83,15 +128,15 @@ const Hero = () => {
 
             {/* Main Heading */}
             <motion.div
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+              transition={{ delay: 0.2, duration: 0.5, ease: "easeOut" }}
             >
               <h1
                 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] tracking-tight mb-2"
                 style={{ textShadow: '0 4px 30px rgba(0,0,0,0.5)' }}
               >
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-white via-sefed-sand to-white bg-300% animate-gradient">
+                <span className="block text-white">
                   {t('hero.title')}
                 </span>
               </h1>
@@ -100,9 +145,9 @@ const Hero = () => {
             {/* Subtitle */}
             <motion.p
               className="text-2xl sm:text-3xl md:text-4xl text-amber-500/90 font-bold"
-              initial={{ opacity: 0, x: 50 }}
+              initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
+              transition={{ delay: 0.3, duration: 0.5 }}
             >
               {t('hero.subtitle')}
             </motion.p>
@@ -110,9 +155,9 @@ const Hero = () => {
             {/* Description */}
             <motion.p
               className="text-lg sm:text-xl text-gray-300 leading-relaxed font-light max-w-xl backdrop-blur-sm p-4 rounded-xl bg-black/10 border-l-4 border-amber-600"
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.7, duration: 0.8 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
             >
               {t('hero.description')}
             </motion.p>
@@ -120,9 +165,9 @@ const Hero = () => {
             {/* Contact Information */}
             <motion.div
               className="flex flex-col sm:flex-row gap-5 pt-6"
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.9, duration: 0.8 }}
+              transition={{ delay: 0.5, duration: 0.5 }}
             >
               <button
                 onClick={() => scrollToSection('contact')}
@@ -143,7 +188,7 @@ const Hero = () => {
               className="flex items-center gap-5 pt-8 border-t border-white/10 mt-4"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 1.1, duration: 0.8 }}
+              transition={{ delay: 0.6, duration: 0.5 }}
             >
               <div className="w-14 h-14 rounded-full bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-md flex items-center justify-center border border-white/20 shadow-inner group cursor-pointer hover:scale-110 transition-transform">
                 <svg className="w-6 h-6 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

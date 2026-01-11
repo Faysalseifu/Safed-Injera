@@ -43,20 +43,19 @@ const Process = () => {
 
         <div className="space-y-24">
           {steps.map((step, index) => (
-            <motion.div
+              <motion.div
               key={step.key}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.7, ease: "easeOut" }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
               className={`flex flex-col md:flex-row items-center gap-12 ${index % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'
                 }`}
             >
               {/* Step number and icon */}
               <div className="relative flex-shrink-0 z-10">
-                <div className="w-24 h-24 rounded-full bg-white shadow-xl flex items-center justify-center text-4xl border-4 border-white relative z-10 group hover:scale-110 transition-transform duration-500">
-                  <span className="transform group-hover:rotate-12 transition-transform duration-300">{step.icon}</span>
-                  <div className="absolute inset-0 rounded-full border border-amber-glow/20 animate-ping opacity-20" />
+                <div className="w-24 h-24 rounded-full bg-white shadow-xl flex items-center justify-center text-4xl border-4 border-white relative z-10 group hover:scale-105 transition-transform duration-300">
+                  <span className="transform group-hover:rotate-6 transition-transform duration-300">{step.icon}</span>
                 </div>
                 {/* Connector Dot */}
                 <div className="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-32 h-0.5 bg-amber-glow/20 -z-10"

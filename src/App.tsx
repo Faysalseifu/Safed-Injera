@@ -29,6 +29,17 @@ function App() {
   });
 
   useEffect(() => {
+    // Apply night-mode class to html element for proper CSS cascade
+    if (nightMode) {
+      document.documentElement.classList.add('night-mode');
+      document.body.classList.add('night-mode');
+    } else {
+      document.documentElement.classList.remove('night-mode');
+      document.body.classList.remove('night-mode');
+    }
+  }, [nightMode]);
+
+  useEffect(() => {
     const handler = () => {
       setNightMode(localStorage.getItem('sefedinjera-night-mode') === 'true');
     };
@@ -38,9 +49,26 @@ function App() {
 
   return (
     <Router>
-      <div className={`min-h-screen flex flex-col transition-colors duration-500 ${nightMode ? 'night-mode' : ''}`}>
+      <div className={`min-h-screen flex flex-col transition-colors duration-300 ${nightMode ? 'night-mode' : ''}`}>
+        {/* Body-wide pattern overlay - Using actual PNG images */}
+        <div className="fixed inset-0 pointer-events-none z-0 pattern-body-light night-mode:hidden" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern white.png.png)', 
+               backgroundRepeat: 'repeat', 
+               backgroundSize: '500px',
+               opacity: 0.12,
+               mixBlendMode: 'multiply'
+             }} />
+        <div className="fixed inset-0 pointer-events-none z-0 pattern-body-dark hidden night-mode:block" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern brown.png)', 
+               backgroundRepeat: 'repeat', 
+               backgroundSize: '500px',
+               opacity: 0.15,
+               mixBlendMode: 'overlay'
+             }} />
         <Header />
-        <main className="flex-grow">
+        <main className="flex-grow relative z-10">
           <Routes>
             <Route
               path="/"

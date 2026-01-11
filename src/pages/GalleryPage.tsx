@@ -26,12 +26,17 @@ const GalleryPage = () => {
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20">
-        <div className="section-container">
+      <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
+        {/* Pattern overlay */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none pattern-gallery-light night-mode:hidden" 
+             style={{ backgroundImage: 'url(/images 2/pattern white.png.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-gallery-dark hidden night-mode:block" 
+             style={{ backgroundImage: 'url(/images 2/pattern brown.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
+        <div className="section-container relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
             className="text-center text-cloud-white"
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
@@ -50,17 +55,17 @@ const GalleryPage = () => {
           {images.map((image, index) => (
             <motion.div
               key={image.id}
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: index * 0.05 }}
+              transition={{ duration: 0.4, delay: index * 0.03 }}
               className="relative aspect-[4/3] overflow-hidden rounded-2xl cursor-pointer group card-modern p-0"
               onClick={() => setSelectedImage(index)}
             >
               <img
                 src={image.src}
                 alt={image.alt}
-                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-ethiopian-earth/0 group-hover:bg-ethiopian-earth/30 transition-colors duration-300 flex items-center justify-center">

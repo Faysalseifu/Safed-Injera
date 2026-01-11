@@ -49,22 +49,77 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="relative bg-ethiopian-earth night-mode:bg-injera-maroon text-cloud-white night-mode:text-injera-white overflow-hidden pt-20 pb-10 transition-all duration-800">
+    <footer className="relative bg-ethiopian-earth night-mode:bg-injera-maroon text-cloud-white night-mode:text-injera-white overflow-hidden pt-20 pb-10 transition-all duration-300">
       {/* Decorative Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-gradient-to-br from-amber-glow/10 to-transparent rounded-full blur-[120px]" />
-        <div className="absolute bottom-[0%] right-[0%] w-[40%] h-[40%] bg-gradient-to-tl from-coffee-brown/40 night-mode:from-coffee-brown/60 to-transparent rounded-full blur-[100px]" />
+        <div className="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] bg-gradient-to-br from-amber-glow/10 to-transparent rounded-full blur-[100px]" />
+        <div className="absolute bottom-[0%] right-[0%] w-[40%] h-[40%] bg-gradient-to-tl from-coffee-brown/40 night-mode:from-coffee-brown/60 to-transparent rounded-full blur-[80px]" />
       </div>
+      
+      {/* Pattern overlays - Using actual PNG images as overlays */}
+      {/* Main repeated pattern */}
+      <div className="absolute inset-0 opacity-25 pointer-events-none pattern-footer-main-light night-mode:hidden" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern white.png.png)', 
+             backgroundRepeat: 'repeat', 
+             backgroundSize: '350px',
+             mixBlendMode: 'soft-light'
+           }} />
+      <div className="absolute inset-0 opacity-30 pointer-events-none pattern-footer-main-dark hidden night-mode:block" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern brown.png)', 
+             backgroundRepeat: 'repeat', 
+             backgroundSize: '350px',
+             mixBlendMode: 'soft-light'
+           }} />
+      
+      {/* Large decorative pattern at top */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[700px] opacity-20 pointer-events-none pattern-footer-top-light night-mode:hidden" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern white.png.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             backgroundPosition: 'center top',
+             mixBlendMode: 'overlay'
+           }} />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[700px] opacity-25 pointer-events-none pattern-footer-top-dark hidden night-mode:block" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern brown.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             backgroundPosition: 'center top',
+             mixBlendMode: 'overlay'
+           }} />
+      
+      {/* Side accent patterns */}
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[400px] h-[400px] opacity-18 pointer-events-none pattern-footer-side-light night-mode:hidden" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern white.png.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             transform: 'rotate(-90deg)',
+             transformOrigin: 'center',
+             mixBlendMode: 'multiply'
+           }} />
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 w-[400px] h-[400px] opacity-18 pointer-events-none pattern-footer-side-dark hidden night-mode:block" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern brown.png)', 
+             backgroundRepeat: 'no-repeat', 
+             backgroundSize: 'contain',
+             transform: 'rotate(90deg)',
+             transformOrigin: 'center',
+             mixBlendMode: 'overlay'
+           }} />
 
       <div className="section-container relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-8 mb-16">
 
           {/* Brand Column */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="space-y-6"
+            transition={{ duration: 0.4 }}
+            className="space-y-6 relative z-10"
           >
             <Link to="/" className="block">
               <img
@@ -97,9 +152,10 @@ const Footer = () => {
 
           {/* Quick Links */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="relative z-10"
           >
             <h4 className="text-lg font-semibold mb-6 text-white tracking-wide relative inline-block">
               {t('footer.quickLinks')}
@@ -124,9 +180,10 @@ const Footer = () => {
 
           {/* Contact */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+            className="relative z-10"
           >
             <h4 className="text-lg font-semibold mb-6 text-white tracking-wide relative inline-block">
               {t('footer.contact')}
@@ -160,9 +217,10 @@ const Footer = () => {
 
           {/* Newsletter (New) */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.6 }}
+            transition={{ duration: 0.4, delay: 0.3 }}
+            className="relative z-10"
           >
             <h4 className="text-lg font-semibold mb-6 text-white tracking-wide relative inline-block">
               Stay Updated

@@ -28,12 +28,17 @@ const PricingPage = () => {
   return (
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
-      <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20">
-        <div className="section-container">
+      <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
+        {/* Pattern overlay */}
+        <div className="absolute inset-0 opacity-10 pointer-events-none pattern-pricing-light night-mode:hidden" 
+             style={{ backgroundImage: 'url(/images 2/pattern white.png.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-pricing-dark hidden night-mode:block" 
+             style={{ backgroundImage: 'url(/images 2/pattern brown.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
+        <div className="section-container relative z-10">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 0.5 }}
             className="text-center text-cloud-white"
           >
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
@@ -52,13 +57,13 @@ const PricingPage = () => {
           {packages.map((pkg, index) => (
             <motion.div
               key={pkg.key}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.15 }}
+              transition={{ duration: 0.4, delay: index * 0.1 }}
               className={`card-modern ${
                 pkg.highlight
-                  ? 'ring-4 ring-ethiopian-earth scale-105 sm:scale-110'
+                  ? 'ring-4 ring-ethiopian-earth scale-[1.02] sm:scale-[1.05]'
                   : ''
               }`}
             >
@@ -100,10 +105,10 @@ const PricingPage = () => {
 
         {/* Additional Info */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.6 }}
+          transition={{ duration: 0.4, delay: 0.3 }}
           className="mt-12 sm:mt-16"
         >
           <div className="card-modern text-center">

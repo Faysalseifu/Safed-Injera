@@ -19,33 +19,38 @@ const Gallery = () => {
   ];
 
   return (
-    <section id="gallery" className="section-container bg-gradient-to-b from-cloud-white to-sefed-sand/10 night-mode:from-transparent night-mode:to-transparent transition-colors duration-800">
+    <section id="gallery" className="section-container bg-gradient-to-b from-cloud-white to-sefed-sand/10 night-mode:from-transparent night-mode:to-transparent transition-colors duration-300 relative overflow-hidden">
+      {/* Pattern overlay */}
+      <div className="absolute inset-0 opacity-5 pointer-events-none pattern-gallery-section-light night-mode:hidden" 
+           style={{ backgroundImage: 'url(/images 2/pattern white.png.png)', backgroundRepeat: 'repeat', backgroundSize: '150px' }} />
+      <div className="absolute inset-0 opacity-10 pointer-events-none pattern-gallery-section-dark hidden night-mode:block" 
+           style={{ backgroundImage: 'url(/images 2/pattern brown.png)', backgroundRepeat: 'repeat', backgroundSize: '150px' }} />
       <motion.div
-        initial={{ opacity: 0, y: 30 }}
+        initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
-        transition={{ duration: 0.6 }}
-        className="text-center mb-12"
+        transition={{ duration: 0.4 }}
+        className="text-center mb-12 relative z-10"
       >
         <h2 className="section-title">{t('gallery.title')}</h2>
         <p className="section-subtitle">{t('gallery.subtitle')}</p>
       </motion.div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 relative z-10">
         {images.map((image, index) => (
           <motion.div
             key={image.id}
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.98 }}
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: index * 0.05 }}
+            transition={{ duration: 0.4, delay: index * 0.03 }}
             className="relative aspect-square overflow-hidden rounded-xl cursor-pointer group card-glass p-0"
             onClick={() => setSelectedImage(index)}
           >
             <img
               src={image.src}
               alt={image.alt}
-              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               loading="lazy"
             />
             <div className="absolute inset-0 bg-ethiopian-earth/0 group-hover:bg-ethiopian-earth/30 transition-colors duration-300 flex items-center justify-center">
@@ -68,9 +73,10 @@ const Gallery = () => {
             onClick={() => setSelectedImage(null)}
           >
             <motion.div
-              initial={{ scale: 0.8 }}
+              initial={{ scale: 0.95 }}
               animate={{ scale: 1 }}
-              exit={{ scale: 0.8 }}
+              exit={{ scale: 0.95 }}
+              transition={{ duration: 0.3 }}
               className="relative max-w-5xl max-h-full"
             >
               <img

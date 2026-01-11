@@ -23,7 +23,7 @@
   body {
     @apply bg-cloud-white text-ethiopian-earth antialiased;
     font-family: 'Poppins', system-ui, sans-serif;
-    transition: background-color 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   html {
@@ -128,14 +128,22 @@
   }
 
   .card-modern {
-    @apply bg-gradient-to-br from-cloud-white to-cloud-white/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-sefed-sand/20 shadow-2xl transition-all duration-500 hover:shadow-[0_30px_80px_rgba(78, 24, 21, 0.15)] hover:-translate-y-3;
+    @apply bg-gradient-to-br from-cloud-white to-cloud-white/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-sefed-sand/20 shadow-2xl transition-all duration-300 hover:-translate-y-2;
+    box-shadow: 0 25px 50px -12px rgba(78, 24, 21, 0.25);
+    will-change: transform;
   }
 
-  /* Gradient backgrounds - Inspired by image's sophisticated gradients */
+  .card-modern:hover {
+    box-shadow: 0 30px 80px rgba(78, 24, 21, 0.2), 0 0 0 1px rgba(168, 150, 136, 0.1);
+    transform: translateY(-8px);
+  }
+
+  /* Gradient backgrounds - Optimized */
   .gradient-primary {
     background: linear-gradient(135deg, #4E1815 0%, #6B2A25 25%, #4E1815 50%, #3A120F 75%, #4E1815 100%);
     background-size: 200% 200%;
-    animation: gradientShift 15s ease infinite;
+    animation: gradientShift 25s ease infinite;
+    will-change: background-position;
   }
 
   .gradient-light {
@@ -185,10 +193,50 @@
     letter-spacing: -0.02em;
   }
 
-  /* Smooth transitions */
+  /* Smooth transitions - optimized */
   * {
-    transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-property: color, background-color, border-color, opacity, transform;
+    transition-timing-function: ease;
+    transition-duration: 0.3s;
+  }
+
+  /* Performance optimizations */
+  img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+
+  /* Optimized animations */
+  @keyframes heroGlow1 {
+    0%, 100% { opacity: 0.5; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.05); }
+  }
+
+  @keyframes heroGlow2 {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.03); }
+  }
+
+  .hero-glow-1 {
+    animation: heroGlow1 20s ease-in-out infinite;
+    will-change: opacity, transform;
+  }
+
+  .hero-glow-2 {
+    animation: heroGlow2 25s ease-in-out infinite;
+    animation-delay: 2s;
+    will-change: opacity, transform;
   }
 
   /* Link hovers brand tone */
