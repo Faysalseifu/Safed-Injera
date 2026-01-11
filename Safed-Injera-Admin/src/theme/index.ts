@@ -1,25 +1,25 @@
 import { createTheme, ThemeOptions } from '@mui/material/styles';
 
-// New modern dashboard color palette inspired by premium flight booking dashboard
+// Safed Injera brand color palette
 const designTokens = {
-    // Sidebar and primary colors
+    // Sidebar and primary colors - Safed Injera branding
     sidebar: {
-        dark: '#3F4F51',      // Dark teal
-        darker: '#2D3739',    // Darker variant
-        light: '#4A5C5E',     // Lighter variant
+        dark: '#4E1815',      // Ethiopian earth (main brand color)
+        darker: '#5A0F12',    // Injera maroon (darker variant)
+        light: '#6B2A25',     // Lighter variant
     },
     // Background colors
     background: {
-        cream: '#F5F3EE',     // Main content background
+        cream: '#F9F9F7',     // Injera white (main content background)
         paper: '#FFFFFF',     // Card backgrounds
-        muted: '#EDEBE6',     // Muted sections
+        muted: '#EDEAE6',     // Muted sections
     },
-    // Accent colors
+    // Accent colors - Safed Injera branding
     accent: {
-        gold: '#E6B54D',      // Primary accent (gold/yellow)
-        goldDark: '#C99B39',  // Darker gold
-        goldLight: '#F1C85D', // Lighter gold
-        teal: '#5DB5A4',      // Secondary accent
+        gold: '#B56A3A',      // Amber glow (primary accent)
+        goldDark: '#A85A2A',  // Darker amber
+        goldLight: '#C88A5A', // Lighter amber
+        teal: '#A89688',      // Sefed sand (secondary accent)
     },
     // Text colors
     text: {
@@ -56,11 +56,14 @@ const designTokens = {
         gold: 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)',
         dark: 'linear-gradient(135deg, #3F4F51 0%, #2D3739 100%)',
     },
-    // Injera-inspired colors
+    // Safed Injera brand colors
     injera: {
-        brown: '#4A2A1F',
-        maroon: '#5B1214',
-        cream: '#EDEAE6',
+        maroon: '#5A0F12',      // Injera maroon
+        brown: '#4A2A1F',       // Coffee brown
+        earth: '#4E1815',       // Ethiopian earth
+        white: '#F9F9F7',       // Injera white
+        sand: '#A89688',        // Sefed sand
+        amber: '#B56A3A',       // Amber glow
     },
 };
 
@@ -174,9 +177,11 @@ export const lightTheme = createTheme({
                     boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
                     border: '1px solid rgba(63, 79, 81, 0.04)',
                     borderRadius: 20,
-                    transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                    transition: 'box-shadow 0.2s ease, transform 0.2s ease',
+                    willChange: 'box-shadow, transform',
                     '&:hover': {
                         boxShadow: '0 8px 24px rgba(63, 79, 81, 0.10)',
+                        transform: 'translateY(-2px)',
                     },
                 },
             },
@@ -187,15 +192,16 @@ export const lightTheme = createTheme({
                     borderRadius: 12,
                     padding: '10px 24px',
                     boxShadow: 'none',
-                    transition: 'all 0.3s ease',
+                    transition: 'box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease',
+                    willChange: 'box-shadow, transform',
                     '&:hover': {
-                        boxShadow: '0 4px 12px rgba(230, 181, 77, 0.25)',
+                        boxShadow: '0 4px 12px rgba(181, 106, 58, 0.25)',
                         transform: 'translateY(-1px)',
                     },
                 },
                 contained: {
                     '&:hover': {
-                        boxShadow: '0 6px 20px rgba(230, 181, 77, 0.30)',
+                        boxShadow: '0 6px 20px rgba(181, 106, 58, 0.30)',
                     },
                 },
             },
@@ -213,9 +219,7 @@ export const lightTheme = createTheme({
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: designTokens.sidebar.dark,
-                    backgroundImage: 'none',
-                    boxShadow: 'none',
+                    display: 'none', // Hide AppBar completely
                 },
             },
         },
@@ -224,7 +228,7 @@ export const lightTheme = createTheme({
                 paper: {
                     background: `linear-gradient(180deg, ${designTokens.sidebar.dark} 0%, ${designTokens.sidebar.darker} 100%)`,
                     borderRight: 'none',
-                    boxShadow: '4px 0 24px rgba(0, 0, 0, 0.15)',
+                    boxShadow: '4px 0 24px rgba(0, 0, 0, 0.25)',
                 },
             },
         },
@@ -233,14 +237,15 @@ export const lightTheme = createTheme({
                 root: {
                     borderRadius: 12,
                     margin: '4px 12px',
-                    transition: 'all 0.2s ease',
+                    transition: 'background-color 0.15s ease, color 0.15s ease',
+                    willChange: 'background-color',
                     '&:hover': {
                         backgroundColor: 'rgba(255, 255, 255, 0.08)',
                     },
                     '&.Mui-selected': {
-                        backgroundColor: 'rgba(230, 181, 77, 0.15)',
+                        backgroundColor: 'rgba(181, 106, 58, 0.2)',
                         '&:hover': {
-                            backgroundColor: 'rgba(230, 181, 77, 0.20)',
+                            backgroundColor: 'rgba(181, 106, 58, 0.25)',
                         },
                     },
                 },
@@ -349,18 +354,16 @@ export const darkTheme = createTheme({
         MuiAppBar: {
             styleOverrides: {
                 root: {
-                    backgroundColor: '#1a1f21',
-                    backgroundImage: 'none',
-                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.2)',
-                    backdropFilter: 'blur(20px)',
+                    display: 'none', // Hide AppBar completely
                 },
             },
         },
         MuiDrawer: {
             styleOverrides: {
                 paper: {
-                    background: 'linear-gradient(180deg, #1a1f21 0%, #0f1314 100%)',
-                    borderRight: '1px solid rgba(230, 181, 77, 0.08)',
+                    background: 'linear-gradient(180deg, #4A2A1F 0%, #5A0F12 100%)',
+                    borderRight: '1px solid rgba(181, 106, 58, 0.2)',
+                    boxShadow: '4px 0 24px rgba(0, 0, 0, 0.3)',
                 },
             },
         },

@@ -12,7 +12,7 @@ import {
   countOrdersSince,
 } from '../repositories/orderRepository';
 import { getStocks, findStockById, getLowStockItems } from '../repositories/stockRepository';
-import { transformStock } from '../utils/transform';
+import { transformStock, toCamelCase } from '../utils/transform';
 
 // @desc    Get sales analysis
 // @route   GET /api/analytics/sales
@@ -82,7 +82,7 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
         quantity: item.quantity,
         minimumThreshold: item.minimum_threshold,
       })),
-      recentOrders,
+      recentOrders: toCamelCase(recentOrders),
     });
   } catch (error) {
     logger.error('Dashboard error:', error);

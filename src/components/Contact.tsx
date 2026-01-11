@@ -32,10 +32,41 @@ const Contact = () => {
     setSubmitStatus('idle');
 
     try {
-      // API call simulation
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      // const response = await fetch(`${API_URL}/orders`, ...); 
+      const orderData = {
+        customerName: data.name,
+        email: data.email,
+        phone: data.phone || '',
+        businessType: data.businessType,
+        product: data.product || 'Pure Teff Injera',
+        quantity: Number(data.quantity) || 1,
+        message: data.message || '',
+      };
 
+      console.log('Submitting order:', orderData);
+      console.log('API URL:', API_URL);
+
+      const response = await fetch(`${API_URL}/orders`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorData;
+        try {
+          errorData = JSON.parse(errorText);
+        } catch {
+          errorData = { message: errorText || 'Failed to submit order' };
+        }
+        console.error('Order submission failed:', errorData);
+        throw new Error(errorData.message || 'Failed to submit order');
+      }
+
+      const result = await response.json();
+      console.log('Order submitted successfully:', result);
       setSubmitStatus('success');
       reset();
     } catch (error) {
@@ -158,18 +189,32 @@ const Contact = () => {
                   <option value="international">{t('contact.international')}</option>
                   <option value="other">{t('contact.other')}</option>
                 </select>
+                {errors.businessType && <p className="text-red-500 text-xs ml-1">Required</p>}
               </div>
               <div className="space-y-2">
-                <label htmlFor="quantity" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.quantity')}</label>
-                <input
-                  id="quantity"
-                  type="number"
-                  min="1"
-                  defaultValue={1}
-                  {...register('quantity', { min: 1 })}
+                <label htmlFor="product" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.product') || 'Product'}</label>
+                <select
+                  id="product"
+                  {...register('product')}
                   className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
-                />
+                >
+                  <option value="Pure Teff Injera">Pure Teff Injera</option>
+                  <option value="Mixed Grain Injera">Mixed Grain Injera</option>
+                  <option value="Premium Injera">Premium Injera</option>
+                </select>
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="quantity" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.quantity')}</label>
+              <input
+                id="quantity"
+                type="number"
+                min="1"
+                defaultValue={1}
+                {...register('quantity', { min: 1, valueAsNumber: true })}
+                className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+              />
             </div>
 
             <div className="space-y-2">

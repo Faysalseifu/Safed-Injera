@@ -275,11 +275,12 @@ export const quickAdjustStock = async (req: AuthRequest, res: Response) => {
     const adjustment = operation === 'add' ? Number(amount) : -Number(amount);
     
     // Create a modified request object with adjustment
+    // Use 'unknown' first to satisfy TypeScript's type checking
     const modifiedReq = {
       ...req,
       body: { ...req.body, adjustment, reason },
       params: { ...req.params, id: String(id) },
-    } as AuthRequest;
+    } as unknown as AuthRequest;
     
     return updateStockQuantity(modifiedReq, res);
   } catch (error) {

@@ -8,21 +8,21 @@
 
 /* CSS Design Tokens */
 :root {
-    /* Sidebar Colors */
-    --sidebar-dark: #3F4F51;
-    --sidebar-darker: #2D3739;
-    --sidebar-light: #4A5C5E;
+    /* Sidebar Colors - Safed Injera Branding */
+    --sidebar-dark: #4E1815;
+    --sidebar-darker: #5A0F12;
+    --sidebar-light: #6B2A25;
 
-    /* Background Colors */
-    --bg-cream: #F5F3EE;
+    /* Background Colors - Safed Injera Branding */
+    --bg-cream: #F9F9F7;
     --bg-paper: #FFFFFF;
-    --bg-muted: #EDEBE6;
+    --bg-muted: #EDEAE6;
 
-    /* Accent Colors */
-    --accent-gold: #E6B54D;
-    --accent-gold-dark: #C99B39;
-    --accent-gold-light: #F1C85D;
-    --accent-teal: #5DB5A4;
+    /* Accent Colors - Safed Injera Branding */
+    --accent-gold: #B56A3A;
+    --accent-gold-dark: #A85A2A;
+    --accent-gold-light: #C88A5A;
+    --accent-teal: #A89688;
 
     /* Text Colors */
     --text-primary: #2D3739;
@@ -90,7 +90,49 @@ body {
     color: var(--text-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    transition: background-color var(--duration-normal) var(--ease-out);
+    transition: background-color 0.2s ease;
+    overflow-x: hidden;
+}
+
+/* Performance optimizations */
+* {
+    -webkit-tap-highlight-color: transparent;
+}
+
+/* Optimize rendering */
+.RaLayout-content {
+    contain: layout style paint;
+    will-change: auto;
+}
+
+/* Fix content alignment with sidebar */
+.RaLayout-appFrame {
+    display: flex !important;
+    flex-direction: row !important;
+}
+
+/* Ensure sidebar doesn't overlap content */
+@media (min-width: 900px) {
+    .RaLayout-content {
+        margin-left: 280px !important;
+        width: calc(100% - 280px) !important;
+    }
+    
+    .MuiDrawer-paper {
+        transform: none !important;
+    }
+}
+
+/* Optimize rendering performance */
+.RaLayout-content > * {
+    contain: layout style;
+}
+
+/* Improve scroll performance */
+.RaLayout-content,
+.MuiDrawer-paper {
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
 }
 
 /* ========================================
@@ -108,7 +150,8 @@ body {
     position: fixed;
     height: 100vh;
     z-index: 100;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.25);
+    border-right: 1px solid rgba(181, 106, 58, 0.1);
 }
 
 .admin-content {
@@ -128,12 +171,14 @@ body {
     border-radius: var(--radius-xl);
     border: 1px solid rgba(63, 79, 81, 0.04);
     box-shadow: var(--shadow-md);
-    transition: all var(--duration-normal) var(--ease-out);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
     overflow: hidden;
+    will-change: box-shadow, transform;
 }
 
 .modern-card:hover {
     box-shadow: var(--shadow-lg);
+    transform: translateY(-2px);
 }
 
 .metric-card {
@@ -147,11 +192,12 @@ body {
     overflow: hidden;
     border: 1px solid rgba(63, 79, 81, 0.04);
     box-shadow: var(--shadow-md);
-    transition: all var(--duration-normal) var(--ease-out);
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+    will-change: transform, box-shadow;
 }
 
 .metric-card:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-xl);
 }
 
@@ -208,10 +254,11 @@ body {
     padding: var(--space-md) var(--space-xl);
     color: rgba(255, 255, 255, 0.7);
     text-decoration: none;
-    transition: all var(--duration-normal) var(--ease-out);
+    transition: background-color 0.15s ease, color 0.15s ease;
     margin: var(--space-xs) var(--space-md);
     border-radius: var(--radius-md);
     font-weight: 500;
+    will-change: background-color;
 }
 
 .sidebar-nav-item:hover {
@@ -220,7 +267,7 @@ body {
 }
 
 .sidebar-nav-item.active {
-    background: rgba(230, 181, 77, 0.15);
+    background: rgba(181, 106, 58, 0.2);
     color: var(--accent-gold);
 }
 
@@ -358,13 +405,13 @@ body {
 }
 
 /* ========================================
-   ANIMATIONS
+   ANIMATIONS - Optimized
    ======================================== */
 
 @keyframes fadeIn {
     from {
         opacity: 0;
-        transform: translateY(10px);
+        transform: translateY(5px);
     }
 
     to {
@@ -422,19 +469,23 @@ body {
 }
 
 .fade-in {
-    animation: fadeIn var(--duration-normal) var(--ease-out);
+    animation: fadeIn 0.2s ease;
+    will-change: opacity, transform;
 }
 
 .slide-in-left {
-    animation: slideInLeft var(--duration-normal) var(--ease-out);
+    animation: slideInLeft 0.2s ease;
+    will-change: opacity, transform;
 }
 
 .slide-in-up {
-    animation: slideInUp var(--duration-normal) var(--ease-out);
+    animation: slideInUp 0.2s ease;
+    will-change: opacity, transform;
 }
 
 .scale-in {
-    animation: scaleIn var(--duration-normal) var(--ease-out);
+    animation: scaleIn 0.2s ease;
+    will-change: opacity, transform;
 }
 
 /* Staggered animations */
@@ -463,16 +514,27 @@ body {
    ======================================== */
 
 .smooth-transition {
-    transition: all var(--duration-normal) var(--ease-out);
+    transition: background-color 0.2s ease, color 0.2s ease, transform 0.2s ease;
 }
 
 .hover-scale:hover {
-    transform: scale(1.02);
+    transform: scale(1.01);
 }
 
 .hover-lift:hover {
-    transform: translateY(-4px);
+    transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
+}
+
+/* Performance: Reduce motion for better performance */
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
 }
 
 .text-gold {

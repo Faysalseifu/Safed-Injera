@@ -16,13 +16,18 @@ const app: Application = express();
 // CORS configuration
 const corsOptions = {
   origin: [
-    process.env.FRONTEND_URL || 'http://localhost:3000',
+    process.env.FRONTEND_URL || 'http://localhost:5174',
     process.env.ADMIN_URL || 'http://localhost:5173',
     'http://localhost:3000',
     'http://localhost:5173',
+    'http://localhost:5174',
+    'http://127.0.0.1:5174',
+    'http://127.0.0.1:5173',
   ],
   credentials: true,
   exposedHeaders: ['Content-Range', 'X-Total-Count'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
 };
 
 app.use(cors(corsOptions));

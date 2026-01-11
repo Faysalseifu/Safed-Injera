@@ -8,6 +8,20 @@ import {
   Chip,
   useTheme,
   useMediaQuery,
+  Menu,
+  MenuItem,
+  IconButton,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
+  TextField,
+  Select,
+  FormControl,
+  InputLabel,
+  Snackbar,
+  Alert,
 } from '@mui/material';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
@@ -29,6 +43,9 @@ import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import MoreVertIcon from '@mui/icons-material/MoreVert';
+import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 ChartJS.register(
   CategoryScale,
@@ -45,15 +62,15 @@ ChartJS.register(
 
 const API_URL = 'http://localhost:5000/api';
 
-// Design tokens with modern gradients
+// Design tokens - Safed Injera Branding
 const colors = {
-  sidebar: '#3F4F51',
-  cream: '#F5F3EE',
+  sidebar: '#4E1815',
+  cream: '#F9F9F7',
   paper: '#FFFFFF',
-  gold: '#E6B54D',
-  goldDark: '#C99B39',
-  teal: '#5DB5A4',
-  textPrimary: '#2D3739',
+  gold: '#B56A3A',
+  goldDark: '#A85A2A',
+  teal: '#A89688',
+  textPrimary: '#4E1815',
   textSecondary: '#6B7B7D',
   success: '#4CAF50',
   warning: '#FF9800',
@@ -61,19 +78,19 @@ const colors = {
   purple: '#9C27B0',
   blue: '#2196F3',
   pink: '#E91E63',
-  darkBg: '#1a1f21',
-  darkCard: '#242a2c',
+  darkBg: '#3A120F',
+  darkCard: '#4A2A1F',
 };
 
-// Gradient definitions
+// Gradient definitions - Safed Injera Branding
 const gradients = {
   purple: 'linear-gradient(135deg, #9C27B0 0%, #7B1FA2 100%)',
   blue: 'linear-gradient(135deg, #2196F3 0%, #1976D2 100%)',
   pink: 'linear-gradient(135deg, #E91E63 0%, #C2185B 100%)',
-  teal: 'linear-gradient(135deg, #00BCD4 0%, #0097A7 100%)',
-  gold: 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)',
-  dark: 'linear-gradient(135deg, #3F4F51 0%, #2D3739 100%)',
-  darkCard: 'linear-gradient(135deg, #242a2c 0%, #1a1f21 100%)',
+  teal: 'linear-gradient(135deg, #A89688 0%, #8B7A6D 100%)',
+  gold: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+  dark: 'linear-gradient(135deg, #4E1815 0%, #5A0F12 100%)',
+  darkCard: 'linear-gradient(135deg, #4A2A1F 0%, #3A120F 100%)',
 };
 
 interface DashboardData {
@@ -88,6 +105,7 @@ interface DashboardData {
   lowStockAlerts: number;
   lowStockItems: Array<{ productName: string; quantity: number }>;
   recentOrders: Array<{
+    id: number;
     customerName: string;
     businessType: string;
     quantity: number;
@@ -242,9 +260,41 @@ const MetricCard = ({
 // Recent Orders Card Component
 const RecentOrdersCard = ({
   orders,
+  onUpdateStatus,
 }: {
   orders: DashboardData['recentOrders'];
+  onUpdateStatus: (orderId: number, newStatus: string) => Promise<void>;
 }) => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+
+  const handleStatusClick = (event: React.MouseEvent<HTMLElement>, orderId: number) => {
+    setAnchorEl(event.currentTarget);
+    setSelectedOrderId(orderId);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+    setSelectedOrderId(null);
+  };
+
+  const handleStatusChange = async (newStatus: string) => {
+    if (selectedOrderId !== null) {
+      await onUpdateStatus(selectedOrderId, newStatus);
+    }
+    handleClose();
+  };
+
+  const statusColors: Record<string, { bg: string; text: string }> = {
+    pending: { bg: 'rgba(255, 152, 0, 0.15)', text: colors.warning },
+    confirmed: { bg: 'rgba(33, 150, 243, 0.15)', text: colors.blue },
+    processing: { bg: 'rgba(156, 39, 176, 0.15)', text: colors.purple },
+    shipped: { bg: 'rgba(0, 188, 212, 0.15)', text: '#00ACC1' },
+    delivered: { bg: 'rgba(76, 175, 80, 0.15)', text: colors.success },
+    cancelled: { bg: 'rgba(244, 67, 54, 0.15)', text: colors.error },
+    declined: { bg: 'rgba(244, 67, 54, 0.15)', text: colors.error },
+  };
+
   return (
     <Box
       sx={{
@@ -308,11 +358,12 @@ const RecentOrdersCard = ({
             <th>Type</th>
             <th>Quantity</th>
             <th>Status</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody>
-          {orders?.slice(0, 5).map((order, index) => (
-            <tr key={index}>
+          {orders?.slice(0, 5).map((order) => (
+            <tr key={order.id}>
               <td>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
                   <Avatar
@@ -356,28 +407,69 @@ const RecentOrdersCard = ({
                 <Chip
                   size="small"
                   label={order.status}
+                  onClick={(e) => handleStatusClick(e, order.id)}
                   sx={{
-                    bgcolor:
-                      order.status === 'pending'
-                        ? 'rgba(255, 152, 0, 0.1)'
-                        : order.status === 'completed'
-                          ? 'rgba(76, 175, 80, 0.1)'
-                          : 'rgba(63, 79, 81, 0.08)',
-                    color:
-                      order.status === 'pending'
-                        ? colors.warning
-                        : order.status === 'completed'
-                          ? colors.success
-                          : colors.textSecondary,
-                    fontWeight: 500,
+                    bgcolor: (statusColors[order.status] || statusColors.pending).bg,
+                    color: (statusColors[order.status] || statusColors.pending).text,
+                    fontWeight: 600,
                     textTransform: 'capitalize',
+                    px: 1,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      opacity: 0.8,
+                      transform: 'translateY(-1px)',
+                    },
+                    transition: 'all 0.2s ease',
                   }}
                 />
+              </td>
+              <td>
+                <IconButton
+                  size="small"
+                  onClick={(e) => handleStatusClick(e, order.id)}
+                  sx={{ color: colors.textSecondary }}
+                >
+                  <MoreVertIcon fontSize="small" />
+                </IconButton>
               </td>
             </tr>
           ))}
         </tbody>
       </Box>
+
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        PaperProps={{
+          sx: {
+            borderRadius: '12px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.1)',
+            minWidth: '150px',
+            mt: 0.5,
+          }
+        }}
+      >
+        <Typography variant="caption" sx={{ px: 2, py: 1, color: colors.textSecondary, display: 'block' }}>
+          Change Status
+        </Typography>
+        {['pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled'].map((status) => (
+          <MenuItem
+            key={status}
+            onClick={() => handleStatusChange(status)}
+            sx={{
+              fontSize: '0.875rem',
+              textTransform: 'capitalize',
+              '&:hover': {
+                bgcolor: statusColors[status]?.bg,
+                color: statusColors[status]?.text,
+              }
+            }}
+          >
+            {status}
+          </MenuItem>
+        ))}
+      </Menu>
 
       {(!orders || orders.length === 0) && (
         <Typography sx={{ color: colors.textSecondary, textAlign: 'center', py: 4 }}>
@@ -699,7 +791,7 @@ const LowStockCard = ({ items }: { items: DashboardData['lowStockItems'] }) => {
   return (
     <Box
       sx={{
-        background: items && items.length > 0 
+        background: items && items.length > 0
           ? 'linear-gradient(135deg, rgba(233, 30, 99, 0.1) 0%, rgba(244, 67, 54, 0.05) 100%)'
           : 'linear-gradient(135deg, rgba(33, 150, 243, 0.1) 0%, rgba(0, 188, 212, 0.05) 100%)',
         borderRadius: '20px',
@@ -802,54 +894,112 @@ const Dashboard = () => {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [salesData, setSalesData] = useState<SalesData | null>(null);
+  const [allStocks, setAllStocks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [stockDialogOpen, setStockDialogOpen] = useState(false);
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const token = localStorage.getItem('token');
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json',
-      };
-
-      try {
-        const [dashboardRes, salesRes, lowStockRes] = await Promise.all([
-          fetch(`${API_URL}/analytics/dashboard`, { headers }),
-          fetch(`${API_URL}/analytics/sales?period=monthly`, { headers }),
-          fetch(`${API_URL}/stocks/low-stock`, { headers }),
-        ]);
-
-        if (!dashboardRes.ok || !salesRes.ok) {
-          throw new Error('Failed to fetch data');
-        }
-
-        const dashboard = await dashboardRes.json();
-        const sales = await salesRes.json();
-        const lowStockItems = lowStockRes.ok ? await lowStockRes.json() : [];
-
-        // Enhance dashboard data with low stock items
-        if (lowStockItems && lowStockItems.length > 0) {
-          dashboard.lowStockItems = lowStockItems.map((item: any) => ({
-            productName: item.productName,
-            quantity: item.quantity,
-            minimumThreshold: item.minimumThreshold,
-          }));
-          dashboard.lowStockAlerts = lowStockItems.length;
-        }
-
-        setDashboardData(dashboard);
-        setSalesData(sales);
-      } catch (err) {
-        setError('Failed to load dashboard data. Make sure the backend is running.');
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+  const fetchData = async () => {
+    const token = localStorage.getItem('token');
+    const headers = {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
     };
 
+    try {
+      const [dashboardRes, salesRes, lowStockRes] = await Promise.all([
+        fetch(`${API_URL}/analytics/dashboard`, { headers }),
+        fetch(`${API_URL}/analytics/sales?period=monthly`, { headers }),
+        fetch(`${API_URL}/stocks/low-stock`, { headers }),
+      ]);
+
+      if (!dashboardRes.ok || !salesRes.ok) {
+        throw new Error('Failed to fetch data');
+      }
+
+      const dashboard = await dashboardRes.json();
+      const sales = await salesRes.json();
+      const lowStockItems = lowStockRes.ok ? await lowStockRes.json() : [];
+
+      // Enhance dashboard data with low stock items
+      if (lowStockItems && lowStockItems.length > 0) {
+        dashboard.lowStockItems = lowStockItems.map((item: any) => ({
+          productName: item.productName,
+          quantity: item.quantity,
+          minimumThreshold: item.minimumThreshold,
+        }));
+        dashboard.lowStockAlerts = lowStockItems.length;
+      }
+
+      setDashboardData(dashboard);
+      setSalesData(sales);
+    } catch (err) {
+      setError('Failed to load dashboard data. Make sure the backend is running.');
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchData();
   }, []);
+
+  const fetchStocks = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${API_URL}/stocks`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        // Since the response from /api/stocks might be an array directly or { rows, total }
+        // Let's handle both. Based on StockList, it seems to be an array or handled by react-admin.
+        // Actually /api/stocks (handled by RA) usually returns an array.
+        setAllStocks(Array.isArray(data) ? data : (data.rows || []));
+      }
+    } catch (err) {
+      console.error('Failed to fetch stocks', err);
+    }
+  };
+
+  const showSuccess = (msg: string) => {
+    setSuccessMessage(msg);
+    setTimeout(() => setSuccessMessage(null), 5000);
+  };
+
+  const handleUpdateOrderStatus = async (orderId: number, status: string) => {
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
+        method: 'PATCH',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to update status');
+      }
+
+      // Update local state to reflect change immediately
+      if (dashboardData) {
+        setDashboardData({
+          ...dashboardData,
+          recentOrders: dashboardData.recentOrders.map((order) =>
+            order.id === orderId ? { ...order, status } : order
+          ),
+        });
+      }
+    } catch (err) {
+      console.error(err);
+      setError('Failed to update order status');
+    }
+  };
 
   if (loading) {
     return (
@@ -891,21 +1041,9 @@ const Dashboard = () => {
         p: { xs: 2, sm: 3 },
         maxWidth: '1600px',
         margin: '0 auto',
-        bgcolor: colors.cream,
+        bgcolor: 'transparent',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #F5F3EE 0%, #EDEAE6 100%)',
         position: 'relative',
-        '&::before': {
-          content: '""',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: '300px',
-          background: 'linear-gradient(135deg, rgba(156, 39, 176, 0.03) 0%, rgba(33, 150, 243, 0.03) 50%, rgba(233, 30, 99, 0.03) 100%)',
-          pointerEvents: 'none',
-          zIndex: 0,
-        },
       }}
       className="fade-in"
     >
@@ -926,6 +1064,49 @@ const Dashboard = () => {
         <Typography variant="body2" sx={{ color: colors.textSecondary }}>
           Welcome back! Here's what's happening with your business.
         </Typography>
+      </Box>
+
+      {/* Quick Actions Row */}
+      <Box sx={{ mb: 4, display: 'flex', gap: 2, flexWrap: 'wrap', position: 'relative', zIndex: 1 }}>
+        <Button
+          variant="contained"
+          startIcon={<AddCircleOutlineIcon />}
+          onClick={() => {
+            fetchStocks();
+            setStockDialogOpen(true);
+          }}
+          sx={{
+            bgcolor: colors.gold,
+            borderRadius: '12px',
+            px: 3,
+            py: 1.5,
+            fontWeight: 600,
+            textTransform: 'none',
+            '&:hover': { bgcolor: colors.goldDark, transform: 'translateY(-2px)' },
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 12px rgba(230, 181, 77, 0.3)',
+          }}
+        >
+          Add Injera Stock
+        </Button>
+        <Button
+          variant="contained"
+          startIcon={<PhoneInTalkIcon />}
+          onClick={() => setOrderDialogOpen(true)}
+          sx={{
+            bgcolor: colors.sidebar,
+            borderRadius: '12px',
+            px: 3,
+            py: 1.5,
+            fontWeight: 600,
+            textTransform: 'none',
+            '&:hover': { bgcolor: colors.darkBg, transform: 'translateY(-2px)' },
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 12px rgba(63, 79, 81, 0.3)',
+          }}
+        >
+          Register Phone Order
+        </Button>
       </Box>
 
       {/* Metric Cards Row */}
@@ -969,7 +1150,10 @@ const Dashboard = () => {
       {/* Charts and Activity Row */}
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
         <Grid item xs={12} lg={7}>
-          <RecentOrdersCard orders={dashboardData?.recentOrders || []} />
+          <RecentOrdersCard
+            orders={dashboardData?.recentOrders || []}
+            onUpdateStatus={handleUpdateOrderStatus}
+          />
         </Grid>
         <Grid item xs={12} lg={5}>
           <StatisticsChart data={salesData?.dailyBreakdown || []} />
@@ -988,6 +1172,139 @@ const Dashboard = () => {
           <LowStockCard items={dashboardData?.lowStockItems || []} />
         </Grid>
       </Grid>
+
+      {/* Injera Adder Dialog */}
+      <Dialog open={stockDialogOpen} onClose={() => setStockDialogOpen(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: '20px' } }}>
+        <DialogTitle sx={{ fontWeight: 700 }}>Add Injera Stock</DialogTitle>
+        <DialogContent>
+          <Box component="form" sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <FormControl fullWidth>
+              <InputLabel>Select Product</InputLabel>
+              <Select
+                native
+                label="Select Product"
+                defaultValue=""
+                id="stock-product-select"
+              >
+                <option value="" disabled></option>
+                {allStocks.map((stock) => (
+                  <option key={stock.id} value={stock.id}>
+                    {stock.productName} ({stock.quantity} in stock)
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+            <TextField
+              id="stock-amount"
+              label="Amount to Add"
+              type="number"
+              fullWidth
+              defaultValue={50}
+              InputProps={{ inputProps: { min: 1 } }}
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setStockDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={async () => {
+              const stockId = (document.getElementById('stock-product-select') as HTMLSelectElement).value;
+              const amount = (document.getElementById('stock-amount') as HTMLInputElement).value;
+              if (!stockId || !amount) return;
+
+              const token = localStorage.getItem('token');
+              const res = await fetch(`${API_URL}/stocks/${stockId}/quick-adjust`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify({ amount: Number(amount), operation: 'add', reason: 'Manual restoration via dashboard' })
+              });
+              if (res.ok) {
+                setStockDialogOpen(false);
+                showSuccess(`Added ${amount} to stock`);
+                // Refresh dashboard data
+                fetchData();
+              }
+            }}
+            sx={{ bgcolor: colors.gold, '&:hover': { bgcolor: colors.goldDark } }}
+          >
+            Update Stock
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Phone Order Dialog */}
+      <Dialog open={orderDialogOpen} onClose={() => setOrderDialogOpen(false)} maxWidth="sm" fullWidth PaperProps={{ sx: { borderRadius: '20px' } }}>
+        <DialogTitle sx={{ fontWeight: 700 }}>Register Phone Order</DialogTitle>
+        <DialogContent>
+          <Box component="form" sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <TextField id="cust-name" label="Customer Name" fullWidth required />
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <TextField id="cust-phone" label="Phone Number" fullWidth required />
+              <TextField id="cust-email" label="Email (Optional)" fullWidth />
+            </Box>
+            <FormControl fullWidth>
+              <InputLabel>Business Type</InputLabel>
+              <Select native label="Business Type" id="cust-biz-type">
+                <option value="retailer">Retailer</option>
+                <option value="hotel">Hotel/Restaurant</option>
+                <option value="supermarket">Supermarket</option>
+                <option value="international">International</option>
+                <option value="other">Other</option>
+              </Select>
+            </FormControl>
+            <Box sx={{ display: 'flex', gap: 2 }}>
+              <FormControl sx={{ flex: 2 }}>
+                <InputLabel>Product</InputLabel>
+                <Select native label="Product" id="order-product">
+                  <option value="Pure Teff Injera">Pure Teff Injera</option>
+                  <option value="Mixed Injera">Mixed Injera</option>
+                </Select>
+              </FormControl>
+              <TextField id="order-qty" label="Quantity" type="number" sx={{ flex: 1 }} defaultValue={1} />
+            </Box>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setOrderDialogOpen(false)}>Cancel</Button>
+          <Button
+            variant="contained"
+            onClick={async () => {
+              const payload = {
+                customerName: (document.getElementById('cust-name') as HTMLInputElement).value,
+                phone: (document.getElementById('cust-phone') as HTMLInputElement).value,
+                email: (document.getElementById('cust-email') as HTMLInputElement).value || 'phone-order@safedinjer.com',
+                businessType: (document.getElementById('cust-biz-type') as HTMLSelectElement).value,
+                product: (document.getElementById('order-product') as HTMLSelectElement).value,
+                quantity: Number((document.getElementById('order-qty') as HTMLInputElement).value),
+                status: 'confirmed', // Admin orders are usually confirmed immediately
+              };
+
+              const token = localStorage.getItem('token');
+              const res = await fetch(`${API_URL}/orders`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+                body: JSON.stringify(payload)
+              });
+              if (res.ok) {
+                setOrderDialogOpen(false);
+                showSuccess('Phone order registered successfully');
+                fetchData();
+              }
+            }}
+            sx={{ bgcolor: colors.sidebar, '&:hover': { bgcolor: colors.darkBg } }}
+          >
+            Create Order
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Success Notification */}
+      <Snackbar open={!!successMessage} autoHideDuration={6000} onClose={() => setSuccessMessage(null)}>
+        <Alert severity="success" sx={{ width: '100%', borderRadius: '12px' }}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

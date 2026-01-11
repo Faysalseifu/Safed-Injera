@@ -28,13 +28,13 @@ import { DarkModeContext } from '../App';
 
 const menuItemStyles = {
   '& .RaMenuItemLink-active': {
-    backgroundColor: 'rgba(230, 181, 77, 0.15) !important',
+    backgroundColor: 'rgba(181, 106, 58, 0.2) !important',
     borderRadius: '12px',
     '& .MuiListItemIcon-root': {
-      color: '#E6B54D',
+      color: '#B56A3A',
     },
     '& .MuiTypography-root': {
-      color: '#E6B54D',
+      color: '#B56A3A',
       fontWeight: 600,
     },
   },
@@ -42,22 +42,23 @@ const menuItemStyles = {
     borderRadius: '12px',
     margin: '4px 12px',
     padding: '12px 16px',
-    transition: 'all 0.2s ease',
+    transition: 'background-color 0.15s ease, color 0.15s ease',
     color: 'rgba(255, 255, 255, 0.7)',
+    willChange: 'background-color',
     '&:hover': {
       backgroundColor: 'rgba(255, 255, 255, 0.08)',
-      transform: 'translateX(4px)',
+      transform: 'translateX(2px)',
       color: '#FFFFFF',
       '& .MuiListItemIcon-root': {
-        color: '#E6B54D',
-        transform: 'scale(1.1)',
+        color: '#B56A3A',
       },
     },
   },
   '& .MuiListItemIcon-root': {
-    transition: 'all 0.2s ease',
+    transition: 'color 0.15s ease',
     minWidth: '40px',
     color: 'rgba(255, 255, 255, 0.6)',
+    willChange: 'color',
   },
 };
 
@@ -95,13 +96,65 @@ const CustomMenu = () => {
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        background: 'linear-gradient(180deg, #3F4F51 0%, #2D3739 100%)',
+        background: darkMode 
+          ? 'linear-gradient(180deg, #4A2A1F 0%, #5A0F12 100%)'
+          : 'linear-gradient(180deg, #4E1815 0%, #5A0F12 100%)',
       }}
     >
+      {/* Brand Logo Section */}
+      <Box
+        sx={{
+          p: { xs: 2, sm: 2.5 },
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: 1,
+          borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+        }}
+      >
+        <Box
+          sx={{
+            height: { xs: 40, sm: 50 },
+            width: 'auto',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            mb: 0.5,
+            fontSize: { xs: '1.5rem', sm: '1.75rem' },
+            fontWeight: 800,
+            color: '#FFFFFF',
+            letterSpacing: '0.1em',
+            textShadow: '0 2px 8px rgba(0, 0, 0, 0.3)',
+          }}
+        >
+          SAFED
+        </Box>
+        <Typography
+          sx={{
+            color: '#FFFFFF',
+            fontWeight: 700,
+            fontSize: { xs: '0.875rem', sm: '1rem' },
+            letterSpacing: '0.05em',
+            textTransform: 'uppercase',
+          }}
+        >
+          Safed Injera
+        </Typography>
+        <Typography
+          sx={{
+            color: 'rgba(255, 255, 255, 0.6)',
+            fontSize: { xs: '0.625rem', sm: '0.75rem' },
+            fontWeight: 500,
+          }}
+        >
+          Admin Dashboard
+        </Typography>
+      </Box>
+
       {/* Profile Section */}
       <Box
         sx={{
-          p: { xs: 2, sm: 3 },
+          p: { xs: 2, sm: 2.5 },
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
@@ -113,11 +166,11 @@ const CustomMenu = () => {
           sx={{
             width: { xs: 56, sm: 72 },
             height: { xs: 56, sm: 72 },
-            background: 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)',
+            background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
             fontSize: { xs: '1.25rem', sm: '1.5rem' },
             fontWeight: 700,
             border: '3px solid rgba(255, 255, 255, 0.2)',
-            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+            boxShadow: '0 4px 20px rgba(0, 0, 0, 0.3)',
             cursor: 'pointer',
             '&:hover': {
               transform: 'scale(1.05)',
@@ -200,10 +253,11 @@ const CustomMenu = () => {
             borderRadius: '12px',
             px: { xs: 1.5, sm: 2 },
             py: { xs: 1, sm: 1.25 },
-            transition: 'all 0.2s ease',
+            transition: 'background-color 0.15s ease, border-color 0.15s ease',
+            willChange: 'background-color',
             '&:focus-within': {
               bgcolor: 'rgba(255, 255, 255, 0.12)',
-              border: '1px solid rgba(230, 181, 77, 0.3)',
+              border: '1px solid rgba(181, 106, 58, 0.3)',
             },
           }}
         >
@@ -240,9 +294,11 @@ const CustomMenu = () => {
               bgcolor: 'rgba(255, 255, 255, 0.05)',
               borderRadius: '10px',
               py: { xs: 1, sm: 1.25 },
+              transition: 'background-color 0.15s ease, color 0.15s ease',
+              willChange: 'background-color',
               '&:hover': {
                 bgcolor: 'rgba(255, 255, 255, 0.1)',
-                color: '#E6B54D',
+                color: '#B56A3A',
               },
             }}
           >
@@ -262,7 +318,7 @@ const CustomMenu = () => {
               py: { xs: 1, sm: 1.25 },
               '&:hover': {
                 bgcolor: 'rgba(255, 255, 255, 0.1)',
-                color: '#E6B54D',
+                color: '#B56A3A',
               },
             }}
           >
@@ -326,15 +382,13 @@ const CustomMenu = () => {
             p: 1.5,
             borderRadius: '12px',
             cursor: 'pointer',
-            transition: 'all 0.2s ease',
+            transition: 'background-color 0.15s ease, color 0.15s ease, transform 0.15s ease',
             color: 'rgba(255, 255, 255, 0.7)',
+            willChange: 'background-color',
             '&:hover': {
               bgcolor: 'rgba(244, 67, 54, 0.15)',
               color: '#F44336',
-              transform: 'translateX(4px)',
-              '& .MuiSvgIcon-root': {
-                transform: 'scale(1.1)',
-              },
+              transform: 'translateX(2px)',
             },
           }}
         >
@@ -369,11 +423,11 @@ const CustomMenu = () => {
                 fontSize: '0.75rem',
                 fontWeight: 600,
                 background: index === 0 
-                  ? 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)'
+                  ? 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)'
                   : index === 1 
-                    ? 'linear-gradient(135deg, #5DB5A4 0%, #409F8E 100%)'
-                    : 'linear-gradient(135deg, #7B68EE 0%, #6A5ACD 100%)',
-                border: '2px solid #3F4F51',
+                    ? 'linear-gradient(135deg, #A89688 0%, #8B7A6D 100%)'
+                    : 'linear-gradient(135deg, #5A0F12 0%, #4A2A1F 100%)',
+                border: darkMode ? '2px solid #4A2A1F' : '2px solid #5A0F12',
                 marginLeft: index > 0 ? '-8px' : 0,
                 zIndex: activeUsers.length - index,
               }}
@@ -391,7 +445,7 @@ const CustomMenu = () => {
               alignItems: 'center',
               justifyContent: 'center',
               marginLeft: '-8px',
-              border: '2px solid #3F4F51',
+              border: darkMode ? '2px solid #4A2A1F' : '2px solid #5A0F12',
             }}
           >
             <Typography sx={{ fontSize: '0.625rem', color: 'rgba(255, 255, 255, 0.7)' }}>
