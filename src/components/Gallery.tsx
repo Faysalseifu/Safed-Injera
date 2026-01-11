@@ -20,11 +20,22 @@ const Gallery = () => {
 
   return (
     <section id="gallery" className="section-container bg-gradient-to-b from-cloud-white to-sefed-sand/10 night-mode:from-transparent night-mode:to-transparent transition-colors duration-300 relative overflow-hidden">
-      {/* Pattern overlay */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none pattern-gallery-section-light night-mode:hidden" 
-           style={{ backgroundImage: 'url(/images 2/pattern white.png.png)', backgroundRepeat: 'repeat', backgroundSize: '150px' }} />
-      <div className="absolute inset-0 opacity-10 pointer-events-none pattern-gallery-section-dark hidden night-mode:block" 
-           style={{ backgroundImage: 'url(/images 2/pattern brown.png)', backgroundRepeat: 'repeat', backgroundSize: '150px' }} />
+      {/* Pattern overlays - Using actual PNG images as overlays */}
+      {/* Repeated background */}
+      <div className="absolute inset-0 opacity-12 pointer-events-none pattern-gallery-section-bg-light night-mode:hidden" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern white.png.png)', 
+             backgroundRepeat: 'repeat', 
+             backgroundSize: '250px',
+             mixBlendMode: 'soft-light'
+           }} />
+      <div className="absolute inset-0 opacity-15 pointer-events-none pattern-gallery-section-bg-dark hidden night-mode:block" 
+           style={{ 
+             backgroundImage: 'url(/images 2/pattern brown.png)', 
+             backgroundRepeat: 'repeat', 
+             backgroundSize: '250px',
+             mixBlendMode: 'soft-light'
+           }} />
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}

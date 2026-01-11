@@ -27,11 +27,38 @@ const GalleryPage = () => {
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
       <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
-        {/* Pattern overlay */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none pattern-gallery-light night-mode:hidden" 
-             style={{ backgroundImage: 'url(/images 2/pattern white.png.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
-        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-gallery-dark hidden night-mode:block" 
-             style={{ backgroundImage: 'url(/images 2/pattern brown.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
+        {/* Pattern overlays - Using actual PNG images as overlays */}
+        {/* Corner accent patterns */}
+        <div className="absolute top-0 left-0 w-[400px] h-[400px] opacity-18 pointer-events-none pattern-gallery-corner-light night-mode:hidden" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern white.png.png)', 
+               backgroundRepeat: 'no-repeat', 
+               backgroundSize: 'contain',
+               mixBlendMode: 'multiply'
+             }} />
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] opacity-18 pointer-events-none pattern-gallery-corner-dark hidden night-mode:block" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern brown.png)', 
+               backgroundRepeat: 'no-repeat', 
+               backgroundSize: 'contain',
+               mixBlendMode: 'overlay'
+             }} />
+        
+        {/* Repeated background */}
+        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-gallery-bg-light night-mode:hidden" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern white.png.png)', 
+               backgroundRepeat: 'repeat', 
+               backgroundSize: '280px',
+               mixBlendMode: 'soft-light'
+             }} />
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-gallery-bg-dark hidden night-mode:block" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern brown.png)', 
+               backgroundRepeat: 'repeat', 
+               backgroundSize: '280px',
+               mixBlendMode: 'soft-light'
+             }} />
         <div className="section-container relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}

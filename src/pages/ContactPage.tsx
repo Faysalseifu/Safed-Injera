@@ -70,11 +70,40 @@ const ContactPage = () => {
     <div className="min-h-screen pt-20">
       {/* Hero Section */}
       <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
-        {/* Pattern overlay */}
-        <div className="absolute inset-0 opacity-10 pointer-events-none pattern-contactpage-light night-mode:hidden" 
-             style={{ backgroundImage: 'url(/images 2/pattern white.png.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
-        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-contactpage-dark hidden night-mode:block" 
-             style={{ backgroundImage: 'url(/images 2/pattern brown.png)', backgroundRepeat: 'repeat', backgroundSize: '180px' }} />
+        {/* Pattern overlays - Using actual PNG images as overlays */}
+        {/* Large decorative pattern */}
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-20 pointer-events-none pattern-contactpage-decor-light night-mode:hidden" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern white.png.png)', 
+               backgroundRepeat: 'no-repeat', 
+               backgroundSize: 'contain',
+               backgroundPosition: 'center top',
+               mixBlendMode: 'overlay'
+             }} />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-25 pointer-events-none pattern-contactpage-decor-dark hidden night-mode:block" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern brown.png)', 
+               backgroundRepeat: 'no-repeat', 
+               backgroundSize: 'contain',
+               backgroundPosition: 'center top',
+               mixBlendMode: 'overlay'
+             }} />
+        
+        {/* Repeated background */}
+        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-contactpage-bg-light night-mode:hidden" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern white.png.png)', 
+               backgroundRepeat: 'repeat', 
+               backgroundSize: '280px',
+               mixBlendMode: 'soft-light'
+             }} />
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-contactpage-bg-dark hidden night-mode:block" 
+             style={{ 
+               backgroundImage: 'url(/images 2/pattern brown.png)', 
+               backgroundRepeat: 'repeat', 
+               backgroundSize: '280px',
+               mixBlendMode: 'soft-light'
+             }} />
         <div className="section-container relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
