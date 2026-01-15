@@ -1,441 +1,76 @@
-/* ========================================
-   NIGHT MODE - Enhanced Premium Dark Theme
-   ======================================== */
-
-/* Root dark mode class with sophisticated gradient background */
-.night-mode,
-.night-mode body,
-.night-mode html {
-  background: 
-    radial-gradient(1400px 700px at 15% 5%, rgba(181, 106, 58, 0.15), transparent 65%),
-    radial-gradient(1200px 600px at 85% 85%, rgba(90, 15, 18, 0.25), transparent 65%),
-    radial-gradient(800px 800px at 50% 50%, rgba(74, 42, 31, 0.12), transparent 70%),
-    linear-gradient(135deg, #3A120F 0%, #4A2A1F 25%, #5A0F12 50%, #4A2A1F 75%, #3A120F 100%);
-  background-size: 100% 100%, 100% 100%, 100% 100%, 200% 200%;
-  background-attachment: fixed;
+/* Night mode styles for Sefed Injera brand */
+.night-mode {
+  background: radial-gradient(1200px 600px at 20% 10%, rgba(181, 106, 58, 0.15), transparent 60%),
+              radial-gradient(1000px 500px at 80% 80%, rgba(90, 15, 18, 0.25), transparent 60%),
+              linear-gradient(135deg, #4A2A1F 0%, #5A0F12 50%, #4A2A1F 100%);
   color: #F9F9F7 !important;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  transition: background 0.8s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
   position: relative;
 }
 
-/* Reduced animation for better performance */
-.night-mode::before {
-  animation: subtleShift 30s ease-in-out infinite;
-  will-change: transform;
-}
-
-@keyframes subtleShift {
-  0%, 100% { background-position: 0% 0%, 0% 0%, 0% 0%, 0% 50%; }
-  50% { background-position: 0% 0%, 0% 0%, 0% 0%, 100% 50%; }
-}
-
-/* Floating ambient light overlay - optimized */
 .night-mode::before {
   content: "";
-  position: fixed;
+  position: absolute;
   inset: 0;
-  background: 
-    radial-gradient(circle at 25% 15%, rgba(181, 106, 58, 0.08), transparent 45%),
-    radial-gradient(circle at 75% 85%, rgba(255, 255, 255, 0.02), transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(168, 150, 136, 0.03), transparent 60%);
+  background: radial-gradient(circle at 30% 20%, rgba(181,106,58,0.15), transparent 40%),
+              radial-gradient(circle at 70% 80%, rgba(255,255,255,0.04), transparent 45%);
   pointer-events: none;
-  animation: nmFloat 25s ease-in-out infinite;
-  z-index: 0;
-  will-change: transform, opacity;
+  animation: nmFloat 12s ease-in-out infinite;
 }
 
 @keyframes nmFloat {
-  0%, 100% { 
-    transform: translateY(0) scale(1); 
-    opacity: 0.6; 
-  }
-  50% { 
-    transform: translateY(-10px) scale(1.01); 
-    opacity: 0.8; 
-  }
+  0%, 100% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(-10px); opacity: 0.9; }
 }
-
-/* ========================================
-   COMPONENT-SPECIFIC DARK MODE OVERRIDES
-   ======================================== */
-
-/* Backgrounds */
-.night-mode .bg-injera-white,
-.night-mode .bg-white {
-  background-color: rgba(26, 20, 18, 0.95) !important;
-  transition: background-color 0.3s ease;
+.night-mode .bg-injera-white {
+  background-color: #1a1412 !important;
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
 }
-
-.night-mode .bg-cloud-white {
-  background-color: rgba(30, 22, 20, 0.90) !important;
-  transition: background-color 0.3s ease;
+.night-mode .text-injera-maroon {
+  color: #F9F9F7 !important;
+  transition: color 0.5s cubic-bezier(.4,0,.2,1);
 }
-
 .night-mode .bg-injera-maroon {
   background-color: #5A0F12 !important;
-  transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
 }
-
+.night-mode .text-coffee-brown {
+  color: #CFCFCF !important;
+  transition: color 0.5s cubic-bezier(.4,0,.2,1);
+}
 .night-mode .bg-accent-gray {
-  background-color: #2a1f1d !important;
-  transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #222 !important;
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
 }
-
-.night-mode .bg-white {
-  background-color: rgba(40, 30, 28, 0.85) !important;
-  transition: background-color 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Text Colors */
-.night-mode,
-.night-mode * {
-  color: inherit;
-}
-
-.night-mode .text-injera-maroon,
-.night-mode .text-ethiopian-earth,
-.night-mode h1,
-.night-mode h2,
-.night-mode h3,
-.night-mode h4,
-.night-mode h5,
-.night-mode h6 {
-  color: #F9F9F7 !important;
-  transition: color 0.3s ease;
-}
-
-.night-mode .text-coffee-brown,
-.night-mode p {
-  color: #D4C5BC !important;
-  transition: color 0.3s ease;
-}
-
-.night-mode .text-sefed-sand {
-  color: #C4B5A8 !important;
-  transition: color 0.3s ease;
-}
-
-.night-mode .text-gray-300 {
-  color: #E0D8D0 !important;
-}
-
-.night-mode .text-gray-400 {
-  color: #B8ACA0 !important;
-}
-
-/* Section Titles and Subtitles */
-.night-mode .section-title {
-  color: #F9F9F7 !important;
-  text-shadow: 0 2px 20px rgba(181, 106, 58, 0.2);
-  transition: color 0.3s ease;
-}
-
-.night-mode .section-subtitle {
-  color: #D4C5BC !important;
-  transition: color 0.3s ease;
-}
-
-/* ========================================
-   GLASSMORPHISM & CARDS
-   ======================================== */
-
-.night-mode .glass {
-  background-color: rgba(58, 18, 15, 0.40) !important;
-  backdrop-filter: blur(12px) saturate(150%) !important;
-  border-color: rgba(181, 106, 58, 0.25) !important;
-  transition: all 0.3s ease;
-}
-
-.night-mode .glass-card {
-  background-color: rgba(58, 18, 15, 0.75) !important;
-  backdrop-filter: blur(16px) saturate(150%) !important;
-  border-color: rgba(181, 106, 58, 0.35) !important;
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-  transition: all 0.3s ease;
-}
-
 .night-mode .card-modern {
-  background: linear-gradient(135deg, rgba(59, 34, 27, 0.90) 0%, rgba(74, 42, 31, 0.85) 100%) !important;
-  backdrop-filter: blur(16px) !important;
+  background-color: #3b221b !important;
   color: #F9F9F7 !important;
-  border-color: rgba(181, 106, 58, 0.30) !important;
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-  transition: all 0.3s ease;
+  border-color: rgba(181, 106, 58, 0.35) !important;
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1), border-color 0.5s cubic-bezier(.4,0,.2,1);
 }
-
-.night-mode .card-modern:hover {
-  border-color: rgba(181, 106, 58, 0.50) !important;
-  box-shadow: 0 16px 50px rgba(181, 106, 58, 0.25);
+.night-mode .section-title, .night-mode .section-subtitle {
+  color: #F9F9F7 !important;
+  transition: color 0.5s cubic-bezier(.4,0,.2,1);
 }
-
-/* ========================================
-   BUTTONS
-   ======================================== */
-
+.night-mode .shadow-amber-glow {
+  box-shadow: 0 0 24px 0 #B56A3A !important;
+  transition: box-shadow 0.5s cubic-bezier(.4,0,.2,1);
+}
 .night-mode .btn-primary {
-  background: linear-gradient(135deg, #5A0F12 0%, #6B1F1A 100%) !important;
+  background-color: #5A0F12 !important;
   color: #F9F9F7 !important;
-  box-shadow: 0 8px 24px rgba(90, 15, 18, 0.4);
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
 }
-
-.night-mode .btn-primary:hover {
-  background: linear-gradient(135deg, #6B1F1A 0%, #7A2F24 100%) !important;
-  box-shadow: 0 12px 32px rgba(90, 15, 18, 0.6);
-}
-
-.night-mode .btn-secondary {
-  background: linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%) !important;
-  color: #F9F9F7 !important;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
 .night-mode .btn-outline {
   border-color: #B56A3A !important;
   color: #B56A3A !important;
-  background-color: rgba(181, 106, 58, 0.05) !important;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: border-color 0.5s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
 }
 
-.night-mode .btn-outline:hover {
-  background-color: rgba(181, 106, 58, 0.15) !important;
-  border-color: #C88A5A !important;
-  color: #C88A5A !important;
-}
+/* Header glass variants in night mode */
+.night-mode .glass { background-color: rgba(58, 18, 15, 0.5) !important; border-color: rgba(181,106,58,0.25) !important; }
+.night-mode .glass-card { background-color: rgba(58, 18, 15, 0.9) !important; border-color: rgba(181,106,58,0.35) !important; }
 
-/* ========================================
-   FORM ELEMENTS
-   ======================================== */
-
-.night-mode input,
-.night-mode textarea,
-.night-mode select {
-  background-color: rgba(40, 30, 28, 0.60) !important;
-  backdrop-filter: blur(8px) !important;
-  border-color: rgba(181, 106, 58, 0.25) !important;
-  color: #F9F9F7 !important;
-  transition: all 0.3s ease;
-}
-
-.night-mode input::placeholder,
-.night-mode textarea::placeholder {
-  color: rgba(249, 249, 247, 0.35) !important;
-}
-
-.night-mode input:focus,
-.night-mode textarea:focus,
-.night-mode select:focus {
-  background-color: rgba(50, 38, 35, 0.75) !important;
-  border-color: rgba(181, 106, 58, 0.50) !important;
-  box-shadow: 0 0 0 3px rgba(181, 106, 58, 0.15) !important;
-}
-
-/* ========================================
-   BORDERS & SHADOWS
-   ======================================== */
-
-.night-mode .border-white\/10 {
-  border-color: rgba(181, 106, 58, 0.15) !important;
-}
-
-.night-mode .border-white\/20 {
-  border-color: rgba(181, 106, 58, 0.20) !important;
-}
-
-.night-mode .border-gray-200 {
-  border-color: rgba(181, 106, 58, 0.25) !important;
-}
-
-.night-mode .shadow-amber-glow {
-  box-shadow: 0 0 30px 0 rgba(181, 106, 58, 0.50) !important;
-  transition: box-shadow 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* ========================================
-   HEADER
-   ======================================== */
-
-.night-mode header {
-  background-color: rgba(58, 18, 15, 0.85) !important;
-  backdrop-filter: blur(16px) saturate(150%) !important;
-  border-bottom-color: rgba(181, 106, 58, 0.20) !important;
-  transition: all 0.3s ease;
-}
-
-.night-mode header a,
-.night-mode header button {
-  color: #F9F9F7 !important;
-}
-
-.night-mode header a:hover,
-.night-mode header button:hover {
-  color: #B56A3A !important;
-}
-
-/* ========================================
-   FOOTER
-   ======================================== */
-
-.night-mode footer {
-  background: linear-gradient(180deg, #4A2A1F 0%, #5A0F12 100%) !important;
-  color: #F9F9F7 !important;
-  transition: all 0.3s ease;
-}
-
-.night-mode footer a,
-.night-mode footer p,
-.night-mode footer span {
-  color: rgba(249, 249, 247, 0.80) !important;
-  transition: color 0.3s ease;
-}
-
-.night-mode footer a:hover {
-  color: #B56A3A !important;
-}
-
-/* ========================================
-   GRADIENTS & SPECIAL EFFECTS
-   ======================================== */
-
-.night-mode .bg-gradient-to-br {
-  background-image: linear-gradient(to bottom right, rgba(58, 18, 15, 0.90), rgba(74, 42, 31, 0.85)) !important;
-}
-
-.night-mode .bg-gradient-to-tr {
-  background-image: linear-gradient(to top right, rgba(58, 18, 15, 0.90), rgba(74, 42, 31, 0.85)) !important;
-}
-
-/* Ensure text remains readable on gradient backgrounds */
-.night-mode .bg-gradient-to-r {
-  color: #F9F9F7 !important;
-}
-
-/* ========================================
-   HOVER STATES & INTERACTIONS
-   ======================================== */
-
-.night-mode [class*="hover:"]:hover {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Ensure links have proper contrast */
-.night-mode a:not([class]) {
-  color: #B56A3A;
-  text-decoration: underline;
-}
-
-.night-mode a:not([class]):hover {
-  color: #C88A5A;
-}
-
-/* ========================================
-   ACCESSIBILITY
-   ======================================== */
-
-/* Ensure sufficient contrast for all text */
-.night-mode,
-.night-mode body {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-/* Pattern images performance optimization */
-.pattern-hero-light,
-.pattern-hero-dark,
-.pattern-hero-center-light,
-.pattern-hero-center-dark,
-.pattern-hero-repeat-light,
-.pattern-hero-repeat-dark,
-.pattern-hero-corner-light,
-.pattern-hero-corner-dark,
-.pattern-about-light,
-.pattern-about-dark,
-.pattern-about-decor-light,
-.pattern-about-decor-dark,
-.pattern-about-bg-light,
-.pattern-about-bg-dark,
-.pattern-products-light,
-.pattern-products-dark,
-.pattern-products-center-light,
-.pattern-products-center-dark,
-.pattern-products-bg-light,
-.pattern-products-bg-dark,
-.pattern-footer-light,
-.pattern-footer-dark,
-.pattern-footer-main-light,
-.pattern-footer-main-dark,
-.pattern-footer-top-light,
-.pattern-footer-top-dark,
-.pattern-footer-side-light,
-.pattern-footer-side-dark,
-.pattern-contact-light,
-.pattern-contact-dark,
-.pattern-contact-corner-light,
-.pattern-contact-corner-dark,
-.pattern-contact-bg-light,
-.pattern-contact-bg-dark,
-.pattern-distribution-light,
-.pattern-distribution-dark,
-.pattern-distribution-corner-light,
-.pattern-distribution-corner-dark,
-.pattern-distribution-bg-light,
-.pattern-distribution-bg-dark,
-.pattern-clients-light,
-.pattern-clients-dark,
-.pattern-clients-side-light,
-.pattern-clients-side-dark,
-.pattern-clients-bg-light,
-.pattern-clients-bg-dark,
-.pattern-gallery-light,
-.pattern-gallery-dark,
-.pattern-gallery-section-light,
-.pattern-gallery-section-dark,
-.pattern-aboutpage-light,
-.pattern-aboutpage-dark,
-.pattern-contactpage-light,
-.pattern-contactpage-dark,
-.pattern-pricing-light,
-.pattern-pricing-dark,
-.pattern-body-light,
-.pattern-body-dark {
-  will-change: opacity, transform;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Focus visible for keyboard navigation */
-.night-mode *:focus-visible {
-  outline: 2px solid #B56A3A !important;
-  outline-offset: 2px;
-}
-
-/* Additional dark mode fixes for common elements */
-.night-mode section {
-  color: inherit;
-}
-
-.night-mode .text-gray-500,
-.night-mode .text-gray-600 {
-  color: #B8ACA0 !important;
-}
-
-.night-mode .text-gray-700,
-.night-mode .text-gray-800 {
-  color: #D4C5BC !important;
-}
-
-.night-mode .text-gray-900 {
-  color: #F9F9F7 !important;
-}
-
-/* Ensure images maintain visibility */
-.night-mode img {
-  opacity: 0.95;
-  transition: opacity 0.3s ease;
-}
-
-.night-mode img:hover {
-  opacity: 1;
-}
+/* Footer base */
+.night-mode footer { background: linear-gradient(180deg, #4A2A1F 0%, #5A0F12 100%) !important; color: #F9F9F7 !important; }
+.night-mode footer a:hover { color: #B56A3A !important; }

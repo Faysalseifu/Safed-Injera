@@ -9,10 +9,7 @@ export interface StockRecord {
   price: number;
   category: string;
   is_active: boolean;
-  minimum_threshold: number | null;
-  is_low_stock: boolean | null;
-  last_restocked_by: string | null;
-  last_restocked_at: Date | null;
+  minimum_threshold: number;
   last_updated: Date;
   created_at: Date;
   updated_at: Date;
@@ -41,9 +38,8 @@ export const getStocks = async (filters: StockFilters = {}): Promise<StockRecord
     conditions.push(`is_active = $${values.length}`);
   }
 
-  if (typeof isLowStock === 'boolean') {
-    values.push(isLowStock);
-    conditions.push(`is_low_stock = $${values.length}`);
+  if (isLowStock) {
+    conditions.push(`quantity <= minimum_threshold`);
   }
 
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -56,6 +52,13 @@ export const getStocks = async (filters: StockFilters = {}): Promise<StockRecord
     values
   );
 
+  return rows;
+};
+
+export const getLowStockItems = async (): Promise<StockRecord[]> => {
+  const { rows } = await pool.query<StockRecord>(
+    `SELECT * FROM stocks WHERE quantity <= minimum_threshold AND is_active = true ORDER BY quantity ASC`
+  );
   return rows;
 };
 
@@ -100,7 +103,7 @@ export const createStock = async (stock: CreateStockInput): Promise<StockRecord>
       stock.price,
       stock.category,
       stock.is_active,
-      stock.minimum_threshold ?? null,
+      stock.minimum_threshold ?? 0,
     ]
   );
   return rows[0];
@@ -114,9 +117,6 @@ export interface UpdateStockInput {
   price?: number;
   category?: string;
   is_active?: boolean;
-  minimum_threshold?: number;
-  last_restocked_by?: string;
-  last_restocked_at?: Date;
 }
 
 export const updateStock = async (
@@ -170,51 +170,17 @@ export const deleteStock = async (id: number): Promise<boolean> => {
 
 export const adjustStockQuantity = async (
   id: number,
-  adjustment: number,
-  performedBy?: string,
-  reason?: string
+  adjustment: number
 ): Promise<StockRecord | null> => {
-  // Get current stock first
-  const currentStock = await findStockById(id);
-  if (!currentStock) {
-    return null;
-  }
-
-  const newQuantity = currentStock.quantity + adjustment;
-  if (newQuantity < 0) {
-    return null;
-  }
-
-  const updateFields: string[] = [
-    'quantity = quantity + $2',
-    'last_updated = now()',
-    'updated_at = now()',
-  ];
-  const values: any[] = [id, adjustment];
-
-  // Update restocked fields if adding stock
-  if (adjustment > 0 && performedBy) {
-    updateFields.push('last_restocked_by = $3');
-    updateFields.push('last_restocked_at = now()');
-    values.push(performedBy);
-  }
-
   const { rows } = await pool.query<StockRecord>(
     `UPDATE stocks
-     SET ${updateFields.join(', ')}
+     SET quantity = quantity + $2,
+         last_updated = now(),
+         updated_at = now()
      WHERE id = $1 AND quantity + $2 >= 0
      RETURNING *`,
-    values
+    [id, adjustment]
   );
 
   return rows[0] ?? null;
-};
-
-export const getLowStockItems = async (): Promise<StockRecord[]> => {
-  const { rows } = await pool.query<StockRecord>(
-    `SELECT * FROM stocks
-     WHERE is_low_stock = true AND is_active = true
-     ORDER BY quantity ASC`
-  );
-  return rows;
 };

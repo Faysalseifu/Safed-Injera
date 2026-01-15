@@ -60,7 +60,7 @@ export const getStock = async (req: Request, res: Response) => {
 export const createStock = async (req: AuthRequest, res: Response) => {
   try {
     const { productName, description, quantity, unit, price, category, isActive, minimumThreshold } = req.body;
-    
+
     // Get default threshold for category if not provided
     let threshold = minimumThreshold;
     if (!threshold) {
@@ -133,7 +133,7 @@ export const updateStock = async (req: AuthRequest, res: Response) => {
 
     // Transform input from camelCase to snake_case for database
     const dbInput = transformStockInput(req.body);
-    
+
     // Track quantity changes
     const quantityChanged = req.body.quantity !== undefined && req.body.quantity !== currentStock.quantity;
     const quantityChange = quantityChanged ? Number(req.body.quantity) - currentStock.quantity : 0;
@@ -219,7 +219,7 @@ export const updateStockQuantity = async (req: AuthRequest, res: Response) => {
     }
 
     const userId = req.user?.id;
-    const stock = await adjustStockQuantityRepo(id, adjustment, userId, reason);
+    const stock = await adjustStockQuantityRepo(id, adjustment);
     if (!stock) {
       res.status(400).json({ message: 'Stock item not found or insufficient stock' });
       return;
@@ -266,14 +266,14 @@ export const quickAdjustStock = async (req: AuthRequest, res: Response) => {
   try {
     const id = Number(req.params.id);
     const { amount, operation, reason } = req.body; // operation: 'add' | 'subtract', amount: number
-    
+
     if (isNaN(id) || !amount || !operation) {
       res.status(400).json({ message: 'Invalid stock id, amount, or operation' });
       return;
     }
 
     const adjustment = operation === 'add' ? Number(amount) : -Number(amount);
-    
+
     // Create a modified request object with adjustment
     // Use 'unknown' first to satisfy TypeScript's type checking
     const modifiedReq = {
@@ -281,7 +281,7 @@ export const quickAdjustStock = async (req: AuthRequest, res: Response) => {
       body: { ...req.body, adjustment, reason },
       params: { ...req.params, id: String(id) },
     } as unknown as AuthRequest;
-    
+
     return updateStockQuantity(modifiedReq, res);
   } catch (error) {
     logger.error('Quick adjust stock error:', error);
@@ -293,7 +293,7 @@ export const getStockTransactionsHandler = async (req: Request, res: Response) =
   try {
     const id = Number(req.params.id);
     const limit = req.query.limit ? Number(req.query.limit) : 50;
-    
+
     if (isNaN(id)) {
       res.status(400).json({ message: 'Invalid stock id' });
       return;

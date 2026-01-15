@@ -13,10 +13,8 @@ export default function useNightMode() {
   useEffect(() => {
     if (nightMode) {
       document.documentElement.classList.add('night-mode');
-      document.body.classList.add('night-mode');
     } else {
       document.documentElement.classList.remove('night-mode');
-      document.body.classList.remove('night-mode');
     }
     localStorage.setItem(NIGHT_MODE_KEY, nightMode ? 'true' : 'false');
   }, [nightMode]);

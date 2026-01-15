@@ -11,8 +11,7 @@ import {
   countOrdersByStatus,
   countOrdersSince,
 } from '../repositories/orderRepository';
-import { getStocks, findStockById, getLowStockItems } from '../repositories/stockRepository';
-import { transformStock, toCamelCase } from '../utils/transform';
+import { getStocks, findStockById } from '../repositories/stockRepository';
 
 // @desc    Get sales analysis
 // @route   GET /api/analytics/sales
@@ -64,7 +63,8 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const weekOrders = await countOrdersSince(weekAgo);
-    const lowStockItems = await getLowStockItems();
+    const stocks = await getStocks({ isActive: true });
+    const lowStockItems = stocks.filter(s => s.quantity < 50);
     const revenue = await getRevenueSince(['confirmed', 'processing', 'shipped', 'delivered']);
     const recentOrders = await getRecentOrders();
     res.json({
@@ -77,12 +77,8 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
       },
       revenue,
       lowStockAlerts: lowStockItems.length,
-      lowStockItems: lowStockItems.map(item => ({
-        productName: item.product_name,
-        quantity: item.quantity,
-        minimumThreshold: item.minimum_threshold,
-      })),
-      recentOrders: toCamelCase(recentOrders),
+      lowStockItems,
+      recentOrders,
     });
   } catch (error) {
     logger.error('Dashboard error:', error);
