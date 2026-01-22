@@ -19,22 +19,23 @@ import {
   useRefresh,
   Button,
 } from 'react-admin';
-import { Box, Typography, Chip, IconButton, Tooltip } from '@mui/material';
+import { Box, Typography, Chip, IconButton, Tooltip, Avatar } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SendIcon from '@mui/icons-material/Send';
 import CancelIcon from '@mui/icons-material/Cancel';
 import HistoryIcon from '@mui/icons-material/History';
+import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import { useState } from 'react';
 
-// Design tokens
+// Design tokens - Safed Injera Branding
 const colors = {
-  sidebar: '#3F4F51',
-  cream: '#F5F3EE',
+  sidebar: '#4E1815',
+  cream: '#F9F9F7',
   paper: '#FFFFFF',
-  gold: '#E6B54D',
-  goldDark: '#C99B39',
-  teal: '#5DB5A4',
-  textPrimary: '#2D3739',
+  gold: '#B56A3A',
+  goldDark: '#A85A2A',
+  teal: '#A89688',
+  textPrimary: '#4E1815',
   textSecondary: '#6B7B7D',
   success: '#4CAF50',
   warning: '#FF9800',
@@ -102,8 +103,8 @@ const StatusField = (props: any) => {
     sent: { bg: 'linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(0, 188, 212, 0.1) 100%)', color: colors.info },
     checked: { bg: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(0, 188, 212, 0.1) 100%)', color: colors.success },
     declined: { bg: 'linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(233, 30, 99, 0.1) 100%)', color: colors.error },
-    confirmed: { bg: 'linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(0, 188, 212, 0.1) 100%)', color: colors.info },
-    processing: { bg: 'linear-gradient(135deg, rgba(156, 39, 176, 0.15) 0%, rgba(123, 104, 238, 0.1) 100%)', color: '#9c27b0' },
+    confirmed: { bg: 'linear-gradient(135deg, rgba(181, 106, 58, 0.15) 0%, rgba(168, 90, 42, 0.1) 100%)', color: colors.gold },
+    processing: { bg: 'linear-gradient(135deg, rgba(168, 150, 136, 0.15) 0%, rgba(181, 106, 58, 0.1) 100%)', color: colors.teal },
     shipped: { bg: 'linear-gradient(135deg, rgba(0, 188, 212, 0.15) 0%, rgba(33, 150, 243, 0.1) 100%)', color: '#00bcd4' },
     delivered: { bg: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(0, 188, 212, 0.1) 100%)', color: colors.success },
     cancelled: { bg: 'linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(233, 30, 99, 0.1) 100%)', color: colors.error },
@@ -311,56 +312,93 @@ const StatusHistoryViewer = ({ record }: any) => {
 };
 
 export const OrderList = (props: any) => (
-  <Box sx={{ width: '100%' }}>
-    <List
-      {...props}
-      filters={<OrderFilter />}
-      sort={{ field: 'orderDate', order: 'DESC' }}
-      sx={{
-        width: '100%',
-        '& .RaList-content': {
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
-          borderRadius: { xs: '16px', sm: '20px' },
-          boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
-          border: '1px solid rgba(63, 79, 81, 0.06)',
-          overflow: 'hidden',
-          position: 'relative',
+  <Box sx={{ width: '100%', p: { xs: 1, sm: 1.5, md: 2, lg: 3 } }}>
+    <Box sx={{ maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
+      {/* Header Section */}
+      <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 }, display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
+        <Avatar
+          sx={{
+            bgcolor: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+            background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+            width: { xs: 48, sm: 56 },
+            height: { xs: 48, sm: 56 },
+            boxShadow: '0 4px 12px rgba(181, 106, 58, 0.3)',
+          }}
+        >
+          <ShoppingCartIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
+        </Avatar>
+        <Box>
+          <Typography 
+            variant="h4" 
+            sx={{ 
+              fontWeight: 700, 
+              color: colors.textPrimary,
+              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+            }}
+          >
+            Orders Management
+          </Typography>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: colors.textSecondary,
+              fontSize: { xs: '0.813rem', sm: '0.875rem' },
+            }}
+          >
+            View and manage all customer orders
+          </Typography>
+        </Box>
+      </Box>
+
+      <List
+        {...props}
+        filters={<OrderFilter />}
+        sort={{ field: 'orderDate', order: 'DESC' }}
+        sx={{
           width: '100%',
-          '&::before': {
-            content: '""',
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: { xs: '150px', sm: '200px' },
-            height: { xs: '150px', sm: '200px' },
-            background: 'radial-gradient(circle, rgba(156, 39, 176, 0.05) 0%, transparent 70%)',
-            borderRadius: '50%',
-            transform: 'translate(-30%, -30%)',
-            pointerEvents: 'none',
+          '& .RaList-content': {
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 249, 247, 0.9) 100%)',
+            borderRadius: { xs: '16px', sm: '20px' },
+            boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)',
+            border: '1px solid rgba(78, 24, 21, 0.06)',
+            overflow: 'hidden',
+            position: 'relative',
+            width: '100%',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: { xs: '150px', sm: '200px' },
+              height: { xs: '150px', sm: '200px' },
+              background: 'radial-gradient(circle, rgba(181, 106, 58, 0.05) 0%, transparent 70%)',
+              borderRadius: '50%',
+              transform: 'translate(-30%, -30%)',
+              pointerEvents: 'none',
+            },
           },
-        },
         '& .MuiTableCell-head': {
           fontWeight: 600,
           color: colors.textSecondary,
-          bgcolor: 'rgba(63, 79, 81, 0.02)',
-          borderBottom: `1px solid rgba(63, 79, 81, 0.08)`,
+          bgcolor: 'rgba(78, 24, 21, 0.02)',
+          borderBottom: `1px solid rgba(78, 24, 21, 0.08)`,
           textTransform: 'uppercase',
           fontSize: { xs: '0.688rem', sm: '0.75rem' },
           letterSpacing: '0.05em',
           padding: { xs: '8px 4px', sm: '12px 8px' },
         },
         '& .MuiTableCell-body': {
-          borderBottom: `1px solid rgba(63, 79, 81, 0.06)`,
+          borderBottom: `1px solid rgba(78, 24, 21, 0.06)`,
           color: colors.textPrimary,
           padding: { xs: '12px 4px', sm: '16px 8px' },
           fontSize: { xs: '0.813rem', sm: '0.875rem' },
         },
         '& .MuiTableRow-root:hover': {
-          background: 'linear-gradient(90deg, rgba(156, 39, 176, 0.08) 0%, rgba(156, 39, 176, 0.02) 100%)',
+          background: 'linear-gradient(90deg, rgba(181, 106, 58, 0.08) 0%, rgba(181, 106, 58, 0.02) 100%)',
           transition: 'all 0.2s ease',
         },
         '& .RaDatagrid-clickableRow:hover': {
-          background: 'linear-gradient(90deg, rgba(156, 39, 176, 0.08) 0%, rgba(156, 39, 176, 0.02) 100%)',
+          background: 'linear-gradient(90deg, rgba(181, 106, 58, 0.08) 0%, rgba(181, 106, 58, 0.02) 100%)',
         },
         '& .MuiToolbar-root': {
           padding: { xs: '12px 16px', sm: '16px 24px' },
@@ -399,7 +437,7 @@ export const OrderList = (props: any) => (
         sx={{
           color: colors.gold,
           '&:hover': { 
-            background: 'linear-gradient(135deg, rgba(230, 181, 77, 0.15) 0%, rgba(201, 155, 57, 0.1) 100%)',
+            background: 'linear-gradient(135deg, rgba(181, 106, 58, 0.15) 0%, rgba(168, 90, 42, 0.1) 100%)',
             transform: 'scale(1.1)',
           },
         }}
@@ -415,6 +453,7 @@ export const OrderList = (props: any) => (
       />
     </Datagrid>
     </List>
+    </Box>
   </Box>
 );
 
@@ -423,10 +462,30 @@ export const OrderEdit = (props: any) => (
     {...props}
     sx={{
       '& .RaEdit-main': {
-        bgcolor: colors.paper,
+        bgcolor: 'transparent',
         borderRadius: '20px',
-        boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
         mt: 2,
+        p: { xs: 1, sm: 2 },
+      },
+      '& .RaEdit-card': {
+        background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 249, 247, 0.9) 100%)',
+        borderRadius: '20px',
+        boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)',
+        border: '1px solid rgba(78, 24, 21, 0.06)',
+        overflow: 'hidden',
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          width: '200px',
+          height: '200px',
+          background: 'radial-gradient(circle, rgba(181, 106, 58, 0.05) 0%, transparent 70%)',
+          borderRadius: '50%',
+          transform: 'translate(30%, -30%)',
+          pointerEvents: 'none',
+        },
       },
     }}
   >
@@ -435,12 +494,18 @@ export const OrderEdit = (props: any) => (
         p: { xs: 2, md: 3 },
         '& .MuiOutlinedInput-root': {
           borderRadius: '12px',
+          bgcolor: colors.paper,
           '&.Mui-focused fieldset': {
             borderColor: colors.gold,
+            borderWidth: '2px',
           },
         },
         '& .MuiInputLabel-root.Mui-focused': {
           color: colors.gold,
+          fontWeight: 600,
+        },
+        '& .MuiSelect-root': {
+          borderRadius: '12px',
         },
       }}
     >

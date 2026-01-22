@@ -11,19 +11,19 @@ import {
   SimpleShowLayout,
   ShowButton,
 } from 'react-admin';
-import { Box, Typography, Chip } from '@mui/material';
+import { Box, Typography, Chip, Avatar } from '@mui/material';
 import HistoryIcon from '@mui/icons-material/History';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
 const colors = {
-  sidebar: '#3F4F51',
-  cream: '#F5F3EE',
+  sidebar: '#4E1815',
+  cream: '#F9F9F7',
   paper: '#FFFFFF',
-  gold: '#E6B54D',
-  goldDark: '#C99B39',
-  teal: '#5DB5A4',
-  textPrimary: '#2D3739',
+  gold: '#B56A3A',
+  goldDark: '#A85A2A',
+  teal: '#A89688',
+  textPrimary: '#4E1815',
   textSecondary: '#6B7B7D',
   success: '#4CAF50',
   warning: '#FF9800',
@@ -86,7 +86,17 @@ export const ActivityLogs = (props: any) => {
     <Box sx={{ width: '100%', p: { xs: 1, sm: 1.5, md: 2, lg: 3 } }}>
       <Box sx={{ maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
         <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 }, display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
-          <HistoryIcon sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: colors.gold }} />
+          <Avatar
+            sx={{
+              bgcolor: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+              background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+              width: { xs: 48, sm: 56 },
+              height: { xs: 48, sm: 56 },
+              boxShadow: '0 4px 12px rgba(181, 106, 58, 0.3)',
+            }}
+          >
+            <HistoryIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
+          </Avatar>
           <Box>
             <Typography 
               variant="h4" 
@@ -117,10 +127,10 @@ export const ActivityLogs = (props: any) => {
           sx={{
             width: '100%',
             '& .RaList-content': {
-              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
+              background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 249, 247, 0.9) 100%)',
               borderRadius: { xs: '16px', sm: '20px' },
-              boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
-              border: '1px solid rgba(63, 79, 81, 0.06)',
+              boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)',
+              border: '1px solid rgba(78, 24, 21, 0.06)',
               overflow: 'hidden',
               position: 'relative',
               width: '100%',
@@ -131,7 +141,7 @@ export const ActivityLogs = (props: any) => {
                 right: 0,
                 width: { xs: '150px', sm: '200px' },
                 height: { xs: '150px', sm: '200px' },
-                background: 'radial-gradient(circle, rgba(93, 181, 164, 0.05) 0%, transparent 70%)',
+                background: 'radial-gradient(circle, rgba(168, 150, 136, 0.05) 0%, transparent 70%)',
                 borderRadius: '50%',
                 transform: 'translate(30%, -30%)',
                 pointerEvents: 'none',
@@ -140,18 +150,25 @@ export const ActivityLogs = (props: any) => {
             '& .MuiTableCell-head': {
               fontWeight: 600,
               color: colors.textSecondary,
-              bgcolor: 'rgba(63, 79, 81, 0.02)',
-              borderBottom: `1px solid rgba(63, 79, 81, 0.08)`,
+              bgcolor: 'rgba(78, 24, 21, 0.02)',
+              borderBottom: `1px solid rgba(78, 24, 21, 0.08)`,
               textTransform: 'uppercase',
               fontSize: { xs: '0.688rem', sm: '0.75rem' },
               letterSpacing: '0.05em',
               padding: { xs: '8px 4px', sm: '12px 8px' },
             },
             '& .MuiTableCell-body': {
-              borderBottom: `1px solid rgba(63, 79, 81, 0.06)`,
+              borderBottom: `1px solid rgba(78, 24, 21, 0.06)`,
               color: colors.textPrimary,
               padding: { xs: '12px 4px', sm: '16px 8px' },
               fontSize: { xs: '0.813rem', sm: '0.875rem' },
+            },
+            '& .MuiTableRow-root:hover': {
+              background: 'linear-gradient(90deg, rgba(168, 150, 136, 0.08) 0%, rgba(168, 150, 136, 0.02) 100%)',
+              transition: 'all 0.2s ease',
+            },
+            '& .RaDatagrid-clickableRow:hover': {
+              background: 'linear-gradient(90deg, rgba(168, 150, 136, 0.08) 0%, rgba(168, 150, 136, 0.02) 100%)',
             },
             '& .MuiToolbar-root': {
               padding: { xs: '12px 16px', sm: '16px 24px' },
@@ -175,22 +192,71 @@ export const ActivityLogs = (props: any) => {
 };
 
 export const ActivityLogShow = (props: any) => (
-  <Show {...props} sx={{ '& .RaShow-main': { bgcolor: colors.cream, minHeight: '100vh', p: { xs: 1, sm: 2, md: 3 } } }}>
+  <Show 
+    {...props} 
+    sx={{ 
+      '& .RaShow-main': { 
+        bgcolor: 'transparent', 
+        minHeight: '100vh', 
+        p: { xs: 1, sm: 2, md: 3 } 
+      } 
+    }}
+  >
     <Box sx={{ maxWidth: '1200px', margin: '0 auto' }}>
       <SimpleShowLayout
         sx={{
           '& .RaSimpleShowLayout-root': {
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 249, 247, 0.9) 100%)',
             borderRadius: { xs: '16px', sm: '20px' },
-            boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
-            border: '1px solid rgba(63, 79, 81, 0.06)',
+            boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)',
+            border: '1px solid rgba(78, 24, 21, 0.06)',
             p: { xs: 2, sm: 3, md: 4 },
+            position: 'relative',
+            overflow: 'hidden',
+            '&::before': {
+              content: '""',
+              position: 'absolute',
+              top: 0,
+              right: 0,
+              width: '200px',
+              height: '200px',
+              background: 'radial-gradient(circle, rgba(168, 150, 136, 0.05) 0%, transparent 70%)',
+              borderRadius: '50%',
+              transform: 'translate(30%, -30%)',
+              pointerEvents: 'none',
+            },
+          },
+          '& .RaLabeled-label': {
+            fontWeight: 600,
+            color: colors.textSecondary,
+            fontSize: '0.875rem',
+            textTransform: 'uppercase',
+            letterSpacing: '0.05em',
+            mb: 1,
+          },
+          '& .RaLabeled-content': {
+            color: colors.textPrimary,
+            fontSize: '1rem',
+            fontWeight: 500,
           },
         }}
       >
-        <Typography variant="h5" sx={{ mb: 3, fontWeight: 700, color: colors.textPrimary }}>
-          Activity Log Details
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4, position: 'relative', zIndex: 1 }}>
+          <Avatar
+            sx={{
+              bgcolor: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+              background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+              width: 48,
+              height: 48,
+              boxShadow: '0 4px 12px rgba(181, 106, 58, 0.3)',
+            }}
+          >
+            <HistoryIcon />
+          </Avatar>
+          <Typography variant="h5" sx={{ fontWeight: 700, color: colors.textPrimary }}>
+            Activity Log Details
+          </Typography>
+        </Box>
         <DateField source="createdAt" label="Date & Time" showTime />
         <TextField source="userUsername" label="User" />
         <ActionTypeField label="Action Type" />

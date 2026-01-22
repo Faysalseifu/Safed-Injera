@@ -107,10 +107,15 @@ interface DashboardData {
   recentOrders: Array<{
     id: number;
     customerName: string;
+    email?: string;
+    phone?: string;
     businessType: string;
+    product?: string;
     quantity: number;
     status: string;
     orderDate: string;
+    message?: string;
+    totalPrice?: number;
   }>;
 }
 
@@ -261,9 +266,11 @@ const MetricCard = ({
 const RecentOrdersCard = ({
   orders,
   onUpdateStatus,
+  onOrderClick,
 }: {
   orders: DashboardData['recentOrders'];
   onUpdateStatus: (orderId: number, newStatus: string) => Promise<void>;
+  onOrderClick: (orderId: number) => void;
 }) => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
@@ -379,7 +386,20 @@ const RecentOrdersCard = ({
                     {order.customerName?.charAt(0) || 'U'}
                   </Avatar>
                   <Box>
-                    <Typography variant="body2" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontWeight: 600, 
+                        color: colors.textPrimary,
+                        cursor: 'pointer',
+                        '&:hover': {
+                          color: colors.gold,
+                          textDecoration: 'underline',
+                        },
+                        transition: 'color 0.2s ease',
+                      }}
+                      onClick={() => onOrderClick(order.id)}
+                    >
                       {order.customerName || 'Unknown'}
                     </Typography>
                   </Box>
@@ -895,10 +915,14 @@ const Dashboard = () => {
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [salesData, setSalesData] = useState<SalesData | null>(null);
   const [allStocks, setAllStocks] = useState<any[]>([]);
+  const [totalInjera, setTotalInjera] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [orderDetailDialogOpen, setOrderDetailDialogOpen] = useState(false);
+  const [selectedOrderDetail, setSelectedOrderDetail] = useState<any>(null);
+  const [loadingOrderDetail, setLoadingOrderDetail] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const fetchData = async () => {
@@ -945,7 +969,15 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchData();
+    fetchStocks();
   }, []);
+
+  // Refresh stocks when stock dialog closes (after adding stock)
+  useEffect(() => {
+    if (!stockDialogOpen) {
+      fetchStocks();
+    }
+  }, [stockDialogOpen]);
 
   const fetchStocks = async () => {
     const token = localStorage.getItem('token');
@@ -955,10 +987,14 @@ const Dashboard = () => {
       });
       if (response.ok) {
         const data = await response.json();
-        // Since the response from /api/stocks might be an array directly or { rows, total }
-        // Let's handle both. Based on StockList, it seems to be an array or handled by react-admin.
-        // Actually /api/stocks (handled by RA) usually returns an array.
-        setAllStocks(Array.isArray(data) ? data : (data.rows || []));
+        const stocks = Array.isArray(data) ? data : (data.rows || []);
+        setAllStocks(stocks);
+        
+        // Calculate total injera quantity (sum of all active stock quantities)
+        const total = stocks
+          .filter((stock: any) => stock.isActive !== false)
+          .reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
+        setTotalInjera(total);
       }
     } catch (err) {
       console.error('Failed to fetch stocks', err);
@@ -973,8 +1009,15 @@ const Dashboard = () => {
   const handleUpdateOrderStatus = async (orderId: number, status: string) => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${API_URL}/orders/${orderId}/status`, {
-        method: 'PATCH',
+      // Get current order to check if we need to update stock
+      const orderResponse = await fetch(`${API_URL}/orders/${orderId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const currentOrder = orderResponse.ok ? await orderResponse.json() : null;
+      const previousStatus = currentOrder?.status;
+
+      const response = await fetch(`${API_URL}/orders/${orderId}`, {
+        method: 'PUT',
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
@@ -995,9 +1038,54 @@ const Dashboard = () => {
           ),
         });
       }
+
+      // Update total injera if order is shipped or delivered
+      // Only reduce if transitioning TO shipped/delivered (not from)
+      if (currentOrder && (status === 'shipped' || status === 'delivered')) {
+        if (previousStatus !== 'shipped' && previousStatus !== 'delivered') {
+          // Reduce stock by order quantity
+          const orderQuantity = currentOrder.quantity || 0;
+          setTotalInjera((prev) => Math.max(0, prev - orderQuantity));
+        }
+      } else if (currentOrder && (previousStatus === 'shipped' || previousStatus === 'delivered')) {
+        // If reverting from shipped/delivered, add back the quantity
+        if (status !== 'shipped' && status !== 'delivered') {
+          const orderQuantity = currentOrder.quantity || 0;
+          setTotalInjera((prev) => prev + orderQuantity);
+        }
+      }
+
+      // Refresh stocks to ensure accuracy
+      fetchStocks();
     } catch (err) {
       console.error(err);
       setError('Failed to update order status');
+    }
+  };
+
+  const handleOrderClick = async (orderId: number) => {
+    setLoadingOrderDetail(true);
+    setOrderDetailDialogOpen(true);
+    const token = localStorage.getItem('token');
+    try {
+      const response = await fetch(`${API_URL}/orders/${orderId}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to fetch order details');
+      }
+
+      const orderDetail = await response.json();
+      setSelectedOrderDetail(orderDetail);
+    } catch (err) {
+      console.error(err);
+      setError('Failed to load order details');
+      setSelectedOrderDetail(null);
+    } finally {
+      setLoadingOrderDetail(false);
     }
   };
 
@@ -1111,7 +1199,16 @@ const Dashboard = () => {
 
       {/* Metric Cards Row */}
       <Grid container spacing={{ xs: 2, md: 3 }} sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
-        <Grid item xs={12} sm={6} lg={3}>
+        <Grid item xs={12} sm={6} md={4} lg={2.4} sx={{ '@media (min-width: 1200px)': { maxWidth: 'calc(20% - 24px)', flexBasis: 'calc(20% - 24px)' } }}>
+          <MetricCard
+            title="Total Injera"
+            value={totalInjera.toLocaleString()}
+            icon={<InventoryIcon />}
+            variant="gold"
+            subtitle="Available in stock"
+          />
+        </Grid>
+        <Grid item xs={12} sm={6} md={4} lg={2.4} sx={{ '@media (min-width: 1200px)': { maxWidth: 'calc(20% - 24px)', flexBasis: 'calc(20% - 24px)' } }}>
           <MetricCard
             title="Total Orders"
             value={dashboardData?.orders.total || 0}
@@ -1120,27 +1217,27 @@ const Dashboard = () => {
             trend={{ value: 12, positive: true }}
           />
         </Grid>
-        <Grid item xs={12} sm={6} lg={3}>
+        <Grid item xs={12} sm={6} md={4} lg={2.4} sx={{ '@media (min-width: 1200px)': { maxWidth: 'calc(20% - 24px)', flexBasis: 'calc(20% - 24px)' } }}>
           <MetricCard
             title="Active Orders"
             value={dashboardData?.orders.pending || 0}
             icon={<LocalShippingOutlinedIcon />}
-            variant="gold"
+            variant="teal"
           />
         </Grid>
-        <Grid item xs={12} sm={6} lg={3}>
+        <Grid item xs={12} sm={6} md={4} lg={2.4} sx={{ '@media (min-width: 1200px)': { maxWidth: 'calc(20% - 24px)', flexBasis: 'calc(20% - 24px)' } }}>
           <MetricCard
             title="Today's Orders"
             value={dashboardData?.orders.today || 0}
             icon={<TrendingUpIcon />}
-            variant="teal"
+            variant="blue"
           />
         </Grid>
-        <Grid item xs={12} sm={6} lg={3}>
+        <Grid item xs={12} sm={6} md={4} lg={2.4} sx={{ '@media (min-width: 1200px)': { maxWidth: 'calc(20% - 24px)', flexBasis: 'calc(20% - 24px)' } }}>
           <MetricCard
             title="Low Stock Alerts"
             value={dashboardData?.lowStockAlerts || 0}
-            icon={<InventoryIcon />}
+            icon={<WarningAmberIcon />}
             variant={dashboardData?.lowStockAlerts && dashboardData.lowStockAlerts > 0 ? 'pink' : 'blue'}
             subtitle={dashboardData?.lowStockAlerts && dashboardData.lowStockAlerts > 0 ? 'Items need attention' : 'All items stocked'}
           />
@@ -1153,6 +1250,7 @@ const Dashboard = () => {
           <RecentOrdersCard
             orders={dashboardData?.recentOrders || []}
             onUpdateStatus={handleUpdateOrderStatus}
+            onOrderClick={handleOrderClick}
           />
         </Grid>
         <Grid item xs={12} lg={5}>
@@ -1222,6 +1320,8 @@ const Dashboard = () => {
               if (res.ok) {
                 setStockDialogOpen(false);
                 showSuccess(`Added ${amount} to stock`);
+                // Refresh stocks and update total injera
+                await fetchStocks();
                 // Refresh dashboard data
                 fetchData();
               }
@@ -1229,6 +1329,174 @@ const Dashboard = () => {
             sx={{ bgcolor: colors.gold, '&:hover': { bgcolor: colors.goldDark } }}
           >
             Update Stock
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Order Detail Dialog */}
+      <Dialog 
+        open={orderDetailDialogOpen} 
+        onClose={() => {
+          setOrderDetailDialogOpen(false);
+          setSelectedOrderDetail(null);
+        }} 
+        maxWidth="md" 
+        fullWidth 
+        PaperProps={{ sx: { borderRadius: '20px' } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700, color: colors.textPrimary, borderBottom: '1px solid rgba(63, 79, 81, 0.1)' }}>
+          Order Details
+        </DialogTitle>
+        <DialogContent sx={{ pt: 3 }}>
+          {loadingOrderDetail ? (
+            <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: 4 }}>
+              <CircularProgress sx={{ color: colors.gold }} />
+            </Box>
+          ) : selectedOrderDetail ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+              {/* Customer Information */}
+              <Box sx={{ p: 2, bgcolor: 'rgba(181, 106, 58, 0.05)', borderRadius: '12px', border: '1px solid rgba(181, 106, 58, 0.1)' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.textSecondary, mb: 1.5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Customer Information
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Name</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                      {selectedOrderDetail.customerName || 'N/A'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Email</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                      {selectedOrderDetail.email || 'N/A'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Phone</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                      {selectedOrderDetail.phone || 'N/A'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Business Type</Typography>
+                    <Chip
+                      label={selectedOrderDetail.businessType || 'N/A'}
+                      size="small"
+                      sx={{
+                        bgcolor: 'rgba(181, 106, 58, 0.15)',
+                        color: colors.goldDark,
+                        fontWeight: 600,
+                      }}
+                    />
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Order Information */}
+              <Box sx={{ p: 2, bgcolor: 'rgba(33, 150, 243, 0.05)', borderRadius: '12px', border: '1px solid rgba(33, 150, 243, 0.1)' }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.textSecondary, mb: 1.5, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                  Order Information
+                </Typography>
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Product</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                      {selectedOrderDetail.product || 'N/A'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Quantity</Typography>
+                    <Chip
+                      label={selectedOrderDetail.quantity || 0}
+                      size="small"
+                      sx={{
+                        bgcolor: 'rgba(181, 106, 58, 0.2)',
+                        color: colors.goldDark,
+                        fontWeight: 600,
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Total Price</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                      {selectedOrderDetail.totalPrice 
+                        ? `ETB ${Number(selectedOrderDetail.totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : 'N/A'}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Status</Typography>
+                    <Chip
+                      label={selectedOrderDetail.status || 'N/A'}
+                      size="small"
+                      sx={{
+                        bgcolor: selectedOrderDetail.status === 'pending' 
+                          ? 'rgba(255, 152, 0, 0.15)' 
+                          : selectedOrderDetail.status === 'delivered'
+                          ? 'rgba(76, 175, 80, 0.15)'
+                          : 'rgba(33, 150, 243, 0.15)',
+                        color: selectedOrderDetail.status === 'pending'
+                          ? colors.warning
+                          : selectedOrderDetail.status === 'delivered'
+                          ? colors.success
+                          : colors.blue,
+                        fontWeight: 600,
+                        textTransform: 'capitalize',
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Order Date</Typography>
+                    <Typography variant="body1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                      {selectedOrderDetail.orderDate 
+                        ? new Date(selectedOrderDetail.orderDate).toLocaleString('en-US', {
+                            year: 'numeric',
+                            month: 'long',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                          })
+                        : 'N/A'}
+                    </Typography>
+                  </Grid>
+                </Grid>
+              </Box>
+
+              {/* Message */}
+              {selectedOrderDetail.message && (
+                <Box sx={{ p: 2, bgcolor: 'rgba(63, 79, 81, 0.03)', borderRadius: '12px', border: '1px solid rgba(63, 79, 81, 0.08)' }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, color: colors.textSecondary, mb: 1, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
+                    Message
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: colors.textPrimary, whiteSpace: 'pre-wrap' }}>
+                    {selectedOrderDetail.message}
+                  </Typography>
+                </Box>
+              )}
+            </Box>
+          ) : (
+            <Box sx={{ textAlign: 'center', py: 4 }}>
+              <Typography variant="body2" sx={{ color: colors.textSecondary }}>
+                No order details available
+              </Typography>
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ p: 3, borderTop: '1px solid rgba(63, 79, 81, 0.1)' }}>
+          <Button 
+            onClick={() => {
+              setOrderDetailDialogOpen(false);
+              setSelectedOrderDetail(null);
+            }}
+            sx={{
+              color: colors.textSecondary,
+              '&:hover': {
+                bgcolor: 'rgba(63, 79, 81, 0.05)',
+              },
+            }}
+          >
+            Close
           </Button>
         </DialogActions>
       </Dialog>
