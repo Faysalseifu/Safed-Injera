@@ -386,10 +386,10 @@ const RecentOrdersCard = ({
                     {order.customerName?.charAt(0) || 'U'}
                   </Avatar>
                   <Box>
-                    <Typography 
-                      variant="body2" 
-                      sx={{ 
-                        fontWeight: 600, 
+                    <Typography
+                      variant="body2"
+                      sx={{
+                        fontWeight: 600,
                         color: colors.textPrimary,
                         cursor: 'pointer',
                         '&:hover': {
@@ -989,7 +989,7 @@ const Dashboard = () => {
         const data = await response.json();
         const stocks = Array.isArray(data) ? data : (data.rows || []);
         setAllStocks(stocks);
-        
+
         // Calculate total injera quantity (sum of all active stock quantities)
         const total = stocks
           .filter((stock: any) => stock.isActive !== false)
@@ -1009,13 +1009,6 @@ const Dashboard = () => {
   const handleUpdateOrderStatus = async (orderId: number, status: string) => {
     const token = localStorage.getItem('token');
     try {
-      // Get current order to check if we need to update stock
-      const orderResponse = await fetch(`${API_URL}/orders/${orderId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const currentOrder = orderResponse.ok ? await orderResponse.json() : null;
-      const previousStatus = currentOrder?.status;
-
       const response = await fetch(`${API_URL}/orders/${orderId}`, {
         method: 'PUT',
         headers: {
@@ -1039,23 +1032,8 @@ const Dashboard = () => {
         });
       }
 
-      // Update total injera if order is shipped or delivered
-      // Only reduce if transitioning TO shipped/delivered (not from)
-      if (currentOrder && (status === 'shipped' || status === 'delivered')) {
-        if (previousStatus !== 'shipped' && previousStatus !== 'delivered') {
-          // Reduce stock by order quantity
-          const orderQuantity = currentOrder.quantity || 0;
-          setTotalInjera((prev) => Math.max(0, prev - orderQuantity));
-        }
-      } else if (currentOrder && (previousStatus === 'shipped' || previousStatus === 'delivered')) {
-        // If reverting from shipped/delivered, add back the quantity
-        if (status !== 'shipped' && status !== 'delivered') {
-          const orderQuantity = currentOrder.quantity || 0;
-          setTotalInjera((prev) => prev + orderQuantity);
-        }
-      }
-
-      // Refresh stocks to ensure accuracy
+      // Refresh stocks to get updated values from backend
+      // Backend handles all stock adjustments based on status changes
       fetchStocks();
     } catch (err) {
       console.error(err);
@@ -1334,14 +1312,14 @@ const Dashboard = () => {
       </Dialog>
 
       {/* Order Detail Dialog */}
-      <Dialog 
-        open={orderDetailDialogOpen} 
+      <Dialog
+        open={orderDetailDialogOpen}
         onClose={() => {
           setOrderDetailDialogOpen(false);
           setSelectedOrderDetail(null);
-        }} 
-        maxWidth="md" 
-        fullWidth 
+        }}
+        maxWidth="md"
+        fullWidth
         PaperProps={{ sx: { borderRadius: '20px' } }}
       >
         <DialogTitle sx={{ fontWeight: 700, color: colors.textPrimary, borderBottom: '1px solid rgba(63, 79, 81, 0.1)' }}>
@@ -1420,7 +1398,7 @@ const Dashboard = () => {
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Total Price</Typography>
                     <Typography variant="body1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
-                      {selectedOrderDetail.totalPrice 
+                      {selectedOrderDetail.totalPrice
                         ? `ETB ${Number(selectedOrderDetail.totalPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                         : 'N/A'}
                     </Typography>
@@ -1431,16 +1409,16 @@ const Dashboard = () => {
                       label={selectedOrderDetail.status || 'N/A'}
                       size="small"
                       sx={{
-                        bgcolor: selectedOrderDetail.status === 'pending' 
-                          ? 'rgba(255, 152, 0, 0.15)' 
+                        bgcolor: selectedOrderDetail.status === 'pending'
+                          ? 'rgba(255, 152, 0, 0.15)'
                           : selectedOrderDetail.status === 'delivered'
-                          ? 'rgba(76, 175, 80, 0.15)'
-                          : 'rgba(33, 150, 243, 0.15)',
+                            ? 'rgba(76, 175, 80, 0.15)'
+                            : 'rgba(33, 150, 243, 0.15)',
                         color: selectedOrderDetail.status === 'pending'
                           ? colors.warning
                           : selectedOrderDetail.status === 'delivered'
-                          ? colors.success
-                          : colors.blue,
+                            ? colors.success
+                            : colors.blue,
                         fontWeight: 600,
                         textTransform: 'capitalize',
                       }}
@@ -1449,14 +1427,14 @@ const Dashboard = () => {
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Order Date</Typography>
                     <Typography variant="body1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
-                      {selectedOrderDetail.orderDate 
+                      {selectedOrderDetail.orderDate
                         ? new Date(selectedOrderDetail.orderDate).toLocaleString('en-US', {
-                            year: 'numeric',
-                            month: 'long',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })
+                          year: 'numeric',
+                          month: 'long',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })
                         : 'N/A'}
                     </Typography>
                   </Grid>
@@ -1484,7 +1462,7 @@ const Dashboard = () => {
           )}
         </DialogContent>
         <DialogActions sx={{ p: 3, borderTop: '1px solid rgba(63, 79, 81, 0.1)' }}>
-          <Button 
+          <Button
             onClick={() => {
               setOrderDetailDialogOpen(false);
               setSelectedOrderDetail(null);

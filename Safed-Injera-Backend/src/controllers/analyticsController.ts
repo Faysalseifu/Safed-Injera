@@ -12,7 +12,6 @@ import {
   countOrdersSince,
 } from '../repositories/orderRepository';
 import { getStocks, findStockById } from '../repositories/stockRepository';
-import { transformOrder } from '../utils/transform';
 
 // @desc    Get sales analysis
 // @route   GET /api/analytics/sales
@@ -67,9 +66,7 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
     const stocks = await getStocks({ isActive: true });
     const lowStockItems = stocks.filter(s => s.quantity < 50);
     const revenue = await getRevenueSince(['confirmed', 'processing', 'shipped', 'delivered']);
-    const recentOrdersRaw = await getRecentOrders();
-    // Transform recent orders from snake_case to camelCase for frontend
-    const recentOrders = recentOrdersRaw.map(order => transformOrder(order));
+    const recentOrders = await getRecentOrders();
     res.json({
       orders: {
         total: totalOrders,
