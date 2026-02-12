@@ -9,7 +9,6 @@ export interface StockRecord {
   price: number;
   category: string;
   is_active: boolean;
-  minimum_threshold: number;
   last_updated: Date;
   created_at: Date;
   updated_at: Date;
@@ -18,15 +17,14 @@ export interface StockRecord {
 export interface StockFilters {
   category?: string;
   isActive?: boolean;
-  isLowStock?: boolean;
-  sortBy?: 'price' | 'created_at' | 'quantity';
+  sortBy?: 'price' | 'created_at';
   sortOrder?: 'ASC' | 'DESC';
 }
 
 export const getStocks = async (filters: StockFilters = {}): Promise<StockRecord[]> => {
-  const { category, isActive, isLowStock, sortBy, sortOrder } = filters;
+  const { category, isActive, sortBy, sortOrder } = filters;
   const conditions: string[] = [];
-  const values: (string | boolean | number)[] = [];
+  const values: (string | boolean)[] = [];
 
   if (category) {
     values.push(category);
@@ -38,17 +36,10 @@ export const getStocks = async (filters: StockFilters = {}): Promise<StockRecord
     conditions.push(`is_active = $${values.length}`);
   }
 
-  if (isLowStock) {
-    conditions.push(`quantity <= minimum_threshold`);
-  }
-
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
-
-  let orderBy = 'created_at';
-  if (sortBy === 'price') orderBy = 'price';
-  else if (sortBy === 'quantity') orderBy = 'quantity';
-
-  const orderClause = `ORDER BY ${orderBy} ${sortOrder ?? 'DESC'}`;
+  const orderClause = sortBy
+    ? `ORDER BY ${sortBy === 'price' ? 'price' : 'created_at'} ${sortOrder ?? 'DESC'}`
+    : 'ORDER BY created_at DESC';
 
   const { rows } = await pool.query<StockRecord>(
     `SELECT * FROM stocks ${whereClause} ${orderClause}`,
@@ -74,13 +65,6 @@ export const findStockByName = async (productName: string): Promise<StockRecord 
   return rows[0] ?? null;
 };
 
-export const getLowStockItems = async (): Promise<StockRecord[]> => {
-  const { rows } = await pool.query<StockRecord>(
-    `SELECT * FROM stocks WHERE quantity <= minimum_threshold AND is_active = true ORDER BY quantity ASC`
-  );
-  return rows;
-};
-
 export interface CreateStockInput {
   product_name: string;
   description?: string;
@@ -89,14 +73,13 @@ export interface CreateStockInput {
   price: number;
   category: string;
   is_active: boolean;
-  minimum_threshold?: number;
 }
 
 export const createStock = async (stock: CreateStockInput): Promise<StockRecord> => {
   const { rows } = await pool.query<StockRecord>(
     `INSERT INTO stocks
-     (product_name, description, quantity, unit, price, category, is_active, minimum_threshold, last_updated)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, now())
+     (product_name, description, quantity, unit, price, category, is_active, last_updated)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, now())
      RETURNING *`,
     [
       stock.product_name,
@@ -106,7 +89,6 @@ export const createStock = async (stock: CreateStockInput): Promise<StockRecord>
       stock.price,
       stock.category,
       stock.is_active,
-      stock.minimum_threshold ?? 10,
     ]
   );
   return rows[0];
@@ -120,7 +102,6 @@ export interface UpdateStockInput {
   price?: number;
   category?: string;
   is_active?: boolean;
-  minimum_threshold?: number;
 }
 
 export const updateStock = async (

@@ -31,38 +31,38 @@ const PricingPage = () => {
       <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
         {/* Pattern overlays - Using actual PNG images as overlays */}
         {/* Centered large pattern */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] opacity-22 pointer-events-none pattern-pricing-center-light night-mode:hidden" 
-             style={{ 
-               backgroundImage: 'url(/images 2/pattern white.png.png)', 
-               backgroundRepeat: 'no-repeat', 
-               backgroundSize: 'contain',
-               backgroundPosition: 'center',
-               mixBlendMode: 'multiply'
-             }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] opacity-28 pointer-events-none pattern-pricing-center-dark hidden night-mode:block" 
-             style={{ 
-               backgroundImage: 'url(/images 2/pattern brown.png)', 
-               backgroundRepeat: 'no-repeat', 
-               backgroundSize: 'contain',
-               backgroundPosition: 'center',
-               mixBlendMode: 'overlay'
-             }} />
-        
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] opacity-22 pointer-events-none pattern-pricing-center-light night-mode:hidden"
+          style={{
+            backgroundImage: 'url(/images 2/pattern white.png.png)',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            mixBlendMode: 'multiply'
+          }} />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] opacity-28 pointer-events-none pattern-pricing-center-dark hidden night-mode:block"
+          style={{
+            backgroundImage: 'url(/images 2/pattern brown.png)',
+            backgroundRepeat: 'no-repeat',
+            backgroundSize: 'contain',
+            backgroundPosition: 'center',
+            mixBlendMode: 'overlay'
+          }} />
+
         {/* Repeated background */}
-        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-pricing-bg-light night-mode:hidden" 
-             style={{ 
-               backgroundImage: 'url(/images 2/pattern white.png.png)', 
-               backgroundRepeat: 'repeat', 
-               backgroundSize: '300px',
-               mixBlendMode: 'soft-light'
-             }} />
-        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-pricing-bg-dark hidden night-mode:block" 
-             style={{ 
-               backgroundImage: 'url(/images 2/pattern brown.png)', 
-               backgroundRepeat: 'repeat', 
-               backgroundSize: '300px',
-               mixBlendMode: 'soft-light'
-             }} />
+        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-pricing-bg-light night-mode:hidden"
+          style={{
+            backgroundImage: 'url(/images 2/pattern white.png.png)',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '300px',
+            mixBlendMode: 'soft-light'
+          }} />
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-pricing-bg-dark hidden night-mode:block"
+          style={{
+            backgroundImage: 'url(/images 2/pattern brown.png)',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '300px',
+            mixBlendMode: 'soft-light'
+          }} />
         <div className="section-container relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -90,11 +90,10 @@ const PricingPage = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.4, delay: index * 0.1 }}
-              className={`card-modern ${
-                pkg.highlight
+              className={`card-modern ${pkg.highlight
                   ? 'ring-4 ring-ethiopian-earth scale-[1.02] sm:scale-[1.05]'
                   : ''
-              }`}
+                }`}
             >
               <div className="text-center mb-6">
                 <h3 className="text-2xl sm:text-3xl font-bold text-ethiopian-earth mb-2">
@@ -112,7 +111,7 @@ const PricingPage = () => {
               </div>
 
               <ul className="space-y-3 sm:space-y-4 mb-6 sm:mb-8">
-                {t(`pricing.packages.${pkg.key}.features`, { returnObjects: true }).map(
+                {(t(`pricing.packages.${pkg.key}.features`, { returnObjects: true }) as string[]).map(
                   (feature: string, idx: number) => (
                     <li key={idx} className="flex items-start gap-2 sm:gap-3">
                       <span className="text-green-600 text-lg sm:text-xl mt-0.5">✓</span>
