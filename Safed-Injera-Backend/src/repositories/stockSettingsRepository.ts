@@ -48,6 +48,7 @@ export const getDefaultThresholds = (): Record<string, number> => {
   return {
     Injera: 200,
     'Teff Flour': 100,
+    'Pure Teff': 50,
     Packaging: 500,
     Other: 50,
   };

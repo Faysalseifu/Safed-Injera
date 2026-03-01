@@ -1,3 +1,4 @@
+import { PoolClient } from 'pg';
 import { pool } from '../config/db';
 
 export interface OrderRecord {
@@ -87,8 +88,12 @@ export const getOrders = async (
   };
 };
 
-export const getOrderById = async (id: number): Promise<OrderRecord | null> => {
-  const { rows } = await pool.query<OrderRecord>(
+export const getOrderById = async (
+  id: number,
+  client?: PoolClient
+): Promise<OrderRecord | null> => {
+  const db = client ?? pool;
+  const { rows } = await db.query<OrderRecord>(
     `SELECT * FROM orders WHERE id = $1 LIMIT 1`,
     [id]
   );
@@ -108,8 +113,12 @@ export interface CreateOrderInput {
   notes?: string;
 }
 
-export const createOrder = async (order: CreateOrderInput): Promise<OrderRecord> => {
-  const { rows } = await pool.query<OrderRecord>(
+export const createOrder = async (
+  order: CreateOrderInput,
+  client?: PoolClient
+): Promise<OrderRecord> => {
+  const db = client ?? pool;
+  const { rows } = await db.query<OrderRecord>(
     `INSERT INTO orders
      (customer_name, email, phone, business_type, product, quantity, message, status, total_price, notes)
      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
@@ -172,8 +181,12 @@ export const updateOrder = async (
   return rows[0] ?? null;
 };
 
-export const deleteOrder = async (id: number): Promise<boolean> => {
-  const result = await pool.query(`DELETE FROM orders WHERE id = $1`, [id]);
+export const deleteOrder = async (
+  id: number,
+  client?: PoolClient
+): Promise<boolean> => {
+  const db = client ?? pool;
+  const result = await db.query(`DELETE FROM orders WHERE id = $1`, [id]);
   return (result.rowCount ?? 0) > 0;
 };
 

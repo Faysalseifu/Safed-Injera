@@ -1,3 +1,4 @@
+import { PoolClient } from 'pg';
 import { pool } from '../config/db';
 
 export interface ActivityLogRecord {
@@ -8,6 +9,7 @@ export interface ActivityLogRecord {
   entity_id: number;
   details: Record<string, any>;
   created_at: Date;
+  user_username?: string; // Optional: populated when joined with users table
 }
 
 export interface CreateActivityLogInput {
@@ -19,9 +21,11 @@ export interface CreateActivityLogInput {
 }
 
 export const createActivityLog = async (
-  log: CreateActivityLogInput
+  log: CreateActivityLogInput,
+  client?: PoolClient
 ): Promise<ActivityLogRecord> => {
-  const { rows } = await pool.query<ActivityLogRecord>(
+  const db = client ?? pool;
+  const { rows } = await db.query<ActivityLogRecord>(
     `INSERT INTO activity_logs
      (user_id, action_type, entity_type, entity_id, details)
      VALUES ($1, $2, $3, $4, $5)
@@ -146,4 +150,23 @@ export const getActivityLogById = async (id: number): Promise<ActivityLogRecord 
     [id]
   );
   return rows[0] || null;
+};
+
+export const getActivityLogsByBranch = async (
+  branchId: string,
+  limit: number = 50
+): Promise<ActivityLogRecord[]> => {
+  const { rows } = await pool.query<ActivityLogRecord>(
+    `SELECT al.*, u.username as user_username
+     FROM activity_logs al
+     LEFT JOIN users u ON al.user_id = u.id
+     WHERE al.entity_type = 'stock' 
+       AND al.entity_id IN (
+         SELECT id FROM stocks WHERE branch_id = $1
+       )
+     ORDER BY al.created_at DESC
+     LIMIT $2`,
+    [branchId, limit]
+  );
+  return rows;
 };

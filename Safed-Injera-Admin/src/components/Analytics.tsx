@@ -9,6 +9,7 @@ import {
   Grid,
   Typography,
   Divider,
+  Avatar,
 } from '@mui/material';
 import DownloadIcon from '@mui/icons-material/Download';
 import PictureAsPdfIcon from '@mui/icons-material/PictureAsPdf';
@@ -17,16 +18,21 @@ import DescriptionIcon from '@mui/icons-material/Description';
 
 const API_URL = 'http://localhost:5000/api';
 
-// Design tokens
+// Design tokens - Safed Injera Branding
 const colors = {
-  sidebar: '#3F4F51',
-  cream: '#F5F3EE',
+  sidebar: '#4E1815',
+  cream: '#F9F9F7',
   paper: '#FFFFFF',
-  gold: '#E6B54D',
-  goldDark: '#C99B39',
-  teal: '#5DB5A4',
-  textPrimary: '#2D3739',
+  gold: '#B56A3A',
+  goldDark: '#A85A2A',
+  teal: '#A89688',
+  textPrimary: '#4E1815',
   textSecondary: '#6B7B7D',
+  success: '#4CAF50',
+  warning: '#FF9800',
+  error: '#F44336',
+  darkBg: '#3A120F',
+  darkCard: '#4A2A1F',
 };
 
 const Analytics = () => {
@@ -94,11 +100,11 @@ const Analytics = () => {
         bgcolor: colors.paper,
         borderRadius: '16px',
         p: 3,
-        border: exportFormat === format ? `2px solid ${colors.gold}` : `1px solid rgba(63, 79, 81, 0.08)`,
-        boxShadow: exportFormat === format ? '0 4px 20px rgba(230, 181, 77, 0.2)' : '0 2px 8px rgba(63, 79, 81, 0.04)',
+        border: exportFormat === format ? `2px solid ${colors.gold}` : `1px solid rgba(78, 24, 21, 0.08)`,
+        boxShadow: exportFormat === format ? '0 4px 20px rgba(181, 106, 58, 0.2)' : '0 2px 8px rgba(78, 24, 21, 0.04)',
         transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
         '&:hover': {
-          boxShadow: '0 8px 24px rgba(63, 79, 81, 0.1)',
+          boxShadow: '0 8px 24px rgba(78, 24, 21, 0.1)',
           transform: 'translateY(-2px)',
         },
       }}
@@ -109,7 +115,7 @@ const Analytics = () => {
             color: exportFormat === format ? colors.gold : colors.sidebar,
             p: 1.5,
             borderRadius: '12px',
-            bgcolor: exportFormat === format ? 'rgba(230, 181, 77, 0.1)' : 'rgba(63, 79, 81, 0.06)',
+            bgcolor: exportFormat === format ? 'rgba(181, 106, 58, 0.1)' : 'rgba(78, 24, 21, 0.06)',
           }}
         >
           {icon}
@@ -138,20 +144,33 @@ const Analytics = () => {
       className="fade-in"
     >
       {/* Header */}
-      <Box sx={{ mb: 4 }}>
-        <Typography
-          variant="h4"
+      <Box sx={{ mb: 4, display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, flexWrap: 'wrap' }}>
+        <Avatar
           sx={{
-            fontWeight: 700,
-            color: colors.textPrimary,
-            mb: 0.5,
+            width: { xs: 48, sm: 56 },
+            height: { xs: 48, sm: 56 },
+            background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+            boxShadow: '0 4px 12px rgba(181, 106, 58, 0.3)',
           }}
         >
-          Analytics & Reports
-        </Typography>
-        <Typography variant="body2" sx={{ color: colors.textSecondary }}>
-          Export your data in various formats for reporting and analysis.
-        </Typography>
+          <TableChartIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
+        </Avatar>
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: colors.textPrimary,
+              mb: 0.5,
+              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+            }}
+          >
+            Analytics & Reports
+          </Typography>
+          <Typography variant="body2" sx={{ color: colors.textSecondary }}>
+            Export your data in various formats for reporting and analysis.
+          </Typography>
+        </Box>
       </Box>
 
       <Grid container spacing={3}>
@@ -162,8 +181,8 @@ const Analytics = () => {
               bgcolor: colors.paper,
               borderRadius: '20px',
               p: { xs: 2, md: 4 },
-              boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
-              border: '1px solid rgba(63, 79, 81, 0.04)',
+              boxShadow: '0 2px 12px rgba(78, 24, 21, 0.06)',
+              border: '1px solid rgba(78, 24, 21, 0.04)',
             }}
           >
             <Typography variant="h5" sx={{ fontWeight: 600, color: colors.textPrimary, mb: 3 }}>
@@ -290,10 +309,10 @@ const Analytics = () => {
                 px: 4,
                 py: 1.5,
                 fontWeight: 600,
-                boxShadow: '0 4px 16px rgba(230, 181, 77, 0.25)',
+                boxShadow: '0 4px 16px rgba(181, 106, 58, 0.25)',
                 '&:hover': {
                   bgcolor: colors.goldDark,
-                  boxShadow: '0 6px 24px rgba(230, 181, 77, 0.35)',
+                  boxShadow: '0 6px 24px rgba(181, 106, 58, 0.35)',
                 },
               }}
             >
@@ -309,8 +328,8 @@ const Analytics = () => {
               bgcolor: colors.paper,
               borderRadius: '20px',
               p: { xs: 2, md: 4 },
-              boxShadow: '0 2px 12px rgba(63, 79, 81, 0.06)',
-              border: '1px solid rgba(63, 79, 81, 0.04)',
+              boxShadow: '0 2px 12px rgba(78, 24, 21, 0.06)',
+              border: '1px solid rgba(78, 24, 21, 0.04)',
             }}
           >
             <Typography variant="h5" sx={{ fontWeight: 600, color: colors.textPrimary, mb: 3 }}>
@@ -337,7 +356,7 @@ const Analytics = () => {
                     '&:hover': {
                       borderColor: colors.gold,
                       color: colors.gold,
-                      bgcolor: 'rgba(230, 181, 77, 0.05)',
+                      bgcolor: 'rgba(181, 106, 58, 0.05)',
                     },
                   }}
                 >
@@ -363,7 +382,7 @@ const Analytics = () => {
                     '&:hover': {
                       borderColor: colors.gold,
                       color: colors.gold,
-                      bgcolor: 'rgba(230, 181, 77, 0.05)',
+                      bgcolor: 'rgba(181, 106, 58, 0.05)',
                     },
                   }}
                 >
@@ -389,7 +408,7 @@ const Analytics = () => {
                     '&:hover': {
                       borderColor: colors.gold,
                       color: colors.gold,
-                      bgcolor: 'rgba(230, 181, 77, 0.05)',
+                      bgcolor: 'rgba(181, 106, 58, 0.05)',
                     },
                   }}
                 >

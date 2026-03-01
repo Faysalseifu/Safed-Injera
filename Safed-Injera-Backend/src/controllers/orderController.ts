@@ -13,7 +13,9 @@ import {
   adjustStockQuantity,
   findStockByName,
 } from '../repositories/stockRepository';
+import { createStockTransaction } from '../repositories/stockTransactionRepository';
 import { sendOrderNotification } from '../utils/email';
+import { withTransaction } from '../utils/transaction';
 import logger from '../utils/logger';
 import { transformOrder, transformOrderInput } from '../utils/transform';
 
@@ -102,28 +104,46 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     const quantityNumber = Math.max(Number(quantity) || 1, 1);
     const productName = typeof product === 'string' && product.trim().length > 0 ? product : 'Pure Teff Injera';
 
-    const stockItem = await findStockByName(productName);
-    const totalPrice = stockItem ? Number(Number(stockItem.price) * quantityNumber) : undefined;
+    const order = await withTransaction(async (client) => {
+      const stockItem = await findStockByName(productName, client);
+      const totalPrice = stockItem ? Number(Number(stockItem.price) * quantityNumber) : undefined;
 
-    const payload = {
-      customer_name: customerName,
-      email,
-      phone,
-      business_type: businessType,
-      product: productName,
-      quantity: quantityNumber,
-      message,
-      total_price: totalPrice,
-    };
+      if (stockItem && stockItem.quantity < quantityNumber) {
+        throw new Error(`INSUFFICIENT_STOCK:${productName}:${stockItem.quantity}:${quantityNumber}`);
+      }
 
-    const order = await insertOrder(payload);
+      const payload = {
+        customer_name: customerName,
+        email,
+        phone,
+        business_type: businessType,
+        product: productName,
+        quantity: quantityNumber,
+        message,
+        total_price: totalPrice,
+      };
 
-    if (stockItem && stockItem.quantity >= quantityNumber) {
-      await adjustStockQuantity(stockItem.id, -quantityNumber);
-      logger.info(`Stock updated for order: ${productName} (-${quantityNumber})`);
-    } else if (stockItem) {
-      logger.warn(`Order created but stock for ${productName} is insufficient to decrement`);
-    }
+      const createdOrder = await insertOrder(payload, client);
+
+      if (stockItem && stockItem.quantity >= quantityNumber) {
+        const updatedStock = await adjustStockQuantity(stockItem.id, -quantityNumber, client);
+        if (updatedStock) {
+          await createStockTransaction(
+            {
+              stock_id: stockItem.id,
+              transaction_type: 'out',
+              quantity_change: -quantityNumber,
+              quantity_before: stockItem.quantity,
+              quantity_after: updatedStock.quantity,
+              reason: `Order #${createdOrder.id} - ${productName}`,
+            },
+            client
+          );
+        }
+      }
+
+      return createdOrder;
+    });
 
     try {
       await sendOrderNotification({
@@ -140,7 +160,14 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
 
     logger.info(`New order created: ${order.id} from ${customerName}`);
     res.status(201).json({ message: 'Order created successfully', order: transformOrder(order) });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message?.startsWith('INSUFFICIENT_STOCK:')) {
+      const [, name, available, requested] = error.message.split(':');
+      res.status(400).json({
+        message: `Insufficient stock for ${name}. Available: ${available}, requested: ${requested}`,
+      });
+      return;
+    }
     logger.error('Create order error:', error);
     res.status(500).json({ message: 'Server error' });
   }
@@ -178,15 +205,43 @@ export const deleteOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    const deleted = await removeOrder(orderId);
-    if (!deleted) {
-      res.status(404).json({ message: 'Order not found' });
-      return;
-    }
+    await withTransaction(async (client) => {
+      const order = await getOrderById(orderId, client);
+      if (!order) {
+        throw new Error('ORDER_NOT_FOUND');
+      }
+
+      const stockItem = await findStockByName(order.product, client);
+      if (stockItem && order.quantity > 0) {
+        const updatedStock = await adjustStockQuantity(stockItem.id, order.quantity, client);
+        if (updatedStock) {
+          await createStockTransaction(
+            {
+              stock_id: stockItem.id,
+              transaction_type: 'in',
+              quantity_change: order.quantity,
+              quantity_before: stockItem.quantity,
+              quantity_after: updatedStock.quantity,
+              reason: `Order #${orderId} deleted - stock reversal`,
+            },
+            client
+          );
+        }
+      }
+
+      const deleted = await removeOrder(orderId, client);
+      if (!deleted) {
+        throw new Error('ORDER_NOT_FOUND');
+      }
+    });
 
     logger.info(`Order deleted: ${orderId}`);
     res.json({ message: 'Order deleted', id: orderId });
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message === 'ORDER_NOT_FOUND') {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
     logger.error('Delete order error:', error);
     res.status(500).json({ message: 'Server error' });
   }

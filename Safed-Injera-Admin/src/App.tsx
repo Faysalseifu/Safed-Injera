@@ -10,12 +10,17 @@ import HistoryIcon from '@mui/icons-material/History';
 import authProvider from './providers/authProvider';
 import dataProvider from './providers/dataProvider';
 import Dashboard from './components/Dashboard';
+import { DashboardWrapper } from './components/DashboardWrapper';
 import CustomLayout from './components/CustomLayout';
 import { StockList, StockCreate, StockEdit } from './components/StockList';
 import { OrderList, OrderEdit } from './components/OrderList';
 import Analytics from './components/Analytics';
 import { StockSettings } from './components/StockSettings';
 import { ActivityLogs, ActivityLogShow } from './components/ActivityLogs';
+import { BranchDashboard } from './components/BranchDashboard';
+import { DashboardBranch } from './components/DashboardBranch';
+import { BranchReports } from './components/BranchReports';
+import ErrorBoundary from './components/ErrorBoundary';
 import { lightTheme, darkTheme } from './theme';
 import './styles/globals.css';
 
@@ -42,40 +47,45 @@ function App() {
   const theme = darkMode ? darkTheme : lightTheme;
 
   return (
-    <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        <Admin
-          dashboard={Dashboard}
-          authProvider={authProvider}
-          dataProvider={dataProvider}
-          layout={CustomLayout}
-          title="Safed Injera Admin"
-        >
-          <Resource
-            name="stocks"
-            list={StockList}
-            create={StockCreate}
-            edit={StockEdit}
-            icon={InventoryIcon}
-            options={{ label: 'Stock' }}
-          />
-          <Resource
-            name="orders"
-            list={OrderList}
-            edit={OrderEdit}
-            icon={ShoppingCartIcon}
-            options={{ label: 'Orders' }}
-          />
-          <CustomRoutes>
-            <Route path="/analytics" element={<Analytics />} />
-            <Route path="/stock-settings" element={<StockSettings />} />
-            <Route path="/activity-logs" element={<ActivityLogs />} />
-            <Route path="/activity-logs/:id" element={<ActivityLogShow />} />
-          </CustomRoutes>
-        </Admin>
-      </ThemeProvider>
-    </DarkModeContext.Provider>
+    <ErrorBoundary>
+      <DarkModeContext.Provider value={{ darkMode, toggleDarkMode }}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          <Admin
+            dashboard={DashboardWrapper}
+            authProvider={authProvider}
+            dataProvider={dataProvider}
+            layout={CustomLayout}
+            title="Safed Injera Admin"
+          >
+            <Resource
+              name="stocks"
+              list={StockList}
+              create={StockCreate}
+              edit={StockEdit}
+              icon={InventoryIcon}
+              options={{ label: 'Stock' }}
+            />
+            <Resource
+              name="orders"
+              list={OrderList}
+              edit={OrderEdit}
+              icon={ShoppingCartIcon}
+              options={{ label: 'Orders' }}
+            />
+            <CustomRoutes>
+              <Route path="/branch-dashboard" element={<BranchDashboard />} />
+              <Route path="/dashboard/branch/:branchId" element={<DashboardBranch />} />
+              <Route path="/branch-reports" element={<BranchReports />} />
+              <Route path="/analytics" element={<Analytics />} />
+              <Route path="/stock-settings" element={<StockSettings />} />
+              <Route path="/activity-logs" element={<ActivityLogs />} />
+              <Route path="/activity-logs/:id" element={<ActivityLogShow />} />
+            </CustomRoutes>
+          </Admin>
+        </ThemeProvider>
+      </DarkModeContext.Provider>
+    </ErrorBoundary>
   );
 }
 

@@ -22,10 +22,16 @@ const generateToken = (id: string): string => {
 // @access  Public (should be restricted in production)
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { username, email, password, role } = req.body;
+    const { username, email, password, role, branchId } = req.body;
 
     if (!username || !email || !password) {
       res.status(400).json({ message: 'Username, email, and password are required' });
+      return;
+    }
+
+    const resolvedRole = role === 'sub_admin' ? 'sub_admin' : role === 'staff' ? 'staff' : 'admin';
+    if (resolvedRole === 'sub_admin' && !branchId) {
+      res.status(400).json({ message: 'Branch is required for sub-admin role' });
       return;
     }
 
@@ -49,15 +55,17 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       username,
       email,
       password: hashedPassword,
-      role: role === 'staff' ? 'staff' : 'admin',
+      role: resolvedRole,
+      branch_id: resolvedRole === 'sub_admin' ? branchId : null,
     });
 
-    logger.info(`New user registered: ${username}`);
+    logger.info(`New user registered: ${username} (${resolvedRole})`);
     res.status(201).json({
       id: user.id,
       username: user.username,
       email: user.email,
       role: user.role,
+      branchId: user.branch_id,
       token: generateToken(user.id),
     });
   } catch (error) {
@@ -99,6 +107,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       username: user.username,
       email: user.email,
       role: user.role,
+      branchId: user.branch_id ?? null,
       token,
     });
   } catch (error) {

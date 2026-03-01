@@ -8,7 +8,8 @@ export interface AuthRequest extends Request {
     id: string;
     username: string;
     email: string;
-    role: 'admin' | 'staff';
+    role: 'admin' | 'staff' | 'sub_admin';
+    branch_id?: string | null;
   };
 }
 
@@ -57,6 +58,34 @@ export const adminOnly = (
     next();
   } else {
     res.status(403).json({ message: 'Access denied, admin only' });
+  }
+};
+
+/** Main Hub admin only - admin with no branch_id or branch_id = main hub */
+export const hubAdminOnly = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'staff') && !req.user.branch_id) {
+    next();
+  } else if (req.user?.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied, Main Hub only' });
+  }
+};
+
+/** Sub-admin only - can access branch-scoped resources */
+export const subAdminOrHigher = (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): void => {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'staff' || req.user.role === 'sub_admin')) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied' });
   }
 };
 

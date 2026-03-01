@@ -1,3 +1,4 @@
+import { PoolClient } from 'pg';
 import { pool } from '../config/db';
 
 export interface StockRecord {
@@ -9,6 +10,8 @@ export interface StockRecord {
   price: number;
   category: string;
   is_active: boolean;
+  branch_id: string | null;
+  minimum_threshold: number;
   last_updated: Date;
   created_at: Date;
   updated_at: Date;
@@ -17,12 +20,14 @@ export interface StockRecord {
 export interface StockFilters {
   category?: string;
   isActive?: boolean;
+  isLowStock?: boolean;
+  branchId?: string | null;
   sortBy?: 'price' | 'created_at';
   sortOrder?: 'ASC' | 'DESC';
 }
 
 export const getStocks = async (filters: StockFilters = {}): Promise<StockRecord[]> => {
-  const { category, isActive, sortBy, sortOrder } = filters;
+  const { category, isActive, isLowStock, branchId, sortBy, sortOrder } = filters;
   const conditions: string[] = [];
   const values: (string | boolean)[] = [];
 
@@ -34,6 +39,19 @@ export const getStocks = async (filters: StockFilters = {}): Promise<StockRecord
   if (typeof isActive === 'boolean') {
     values.push(isActive);
     conditions.push(`is_active = $${values.length}`);
+  }
+
+  if (typeof isLowStock === 'boolean' && isLowStock) {
+    conditions.push('is_low_stock = true');
+  }
+
+  if (branchId !== undefined) {
+    if (branchId === null) {
+      conditions.push('branch_id IS NULL');
+    } else {
+      values.push(branchId);
+      conditions.push(`branch_id = $${values.length}`);
+    }
   }
 
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
@@ -49,18 +67,60 @@ export const getStocks = async (filters: StockFilters = {}): Promise<StockRecord
   return rows;
 };
 
-export const findStockById = async (id: number): Promise<StockRecord | null> => {
+export const getLowStockItems = async (branchId?: string | null): Promise<StockRecord[]> => {
+  const conditions = ['is_low_stock = true', 'is_active = true'];
+  const values: (string | null)[] = [];
+  if (branchId !== undefined) {
+    if (branchId === null) {
+      conditions.push('branch_id IS NULL');
+    } else {
+      values.push(branchId);
+      conditions.push(`branch_id = $${values.length}`);
+    }
+  }
+  const whereClause = conditions.join(' AND ');
   const { rows } = await pool.query<StockRecord>(
+    `SELECT * FROM stocks WHERE ${whereClause} ORDER BY quantity ASC`,
+    values
+  );
+  return rows;
+};
+
+export const findStockById = async (
+  id: number,
+  client?: PoolClient
+): Promise<StockRecord | null> => {
+  const db = client ?? pool;
+  const { rows } = await db.query<StockRecord>(
     `SELECT * FROM stocks WHERE id = $1 LIMIT 1`,
     [id]
   );
   return rows[0] ?? null;
 };
 
-export const findStockByName = async (productName: string): Promise<StockRecord | null> => {
-  const { rows } = await pool.query<StockRecord>(
+export const findStockByName = async (
+  productName: string,
+  client?: PoolClient
+): Promise<StockRecord | null> => {
+  const db = client ?? pool;
+  const { rows } = await db.query<StockRecord>(
     `SELECT * FROM stocks WHERE product_name = $1 LIMIT 1`,
     [productName]
+  );
+  return rows[0] ?? null;
+};
+
+export const findStockByProductAndBranch = async (
+  productName: string,
+  branchId: string | null,
+  client?: PoolClient
+): Promise<StockRecord | null> => {
+  const db = client ?? pool;
+  const { rows } = await db.query<StockRecord>(
+    branchId === null
+      ? `SELECT * FROM stocks WHERE product_name = $1 AND branch_id IS NULL LIMIT 1`
+      : `SELECT * FROM stocks WHERE product_name = $1 AND branch_id = $2 LIMIT 1`,
+    branchId === null ? [productName] : [productName, branchId]
   );
   return rows[0] ?? null;
 };
@@ -73,13 +133,19 @@ export interface CreateStockInput {
   price: number;
   category: string;
   is_active: boolean;
+  minimum_threshold?: number;
+  branch_id?: string | null;
 }
 
-export const createStock = async (stock: CreateStockInput): Promise<StockRecord> => {
-  const { rows } = await pool.query<StockRecord>(
+export const createStock = async (
+  stock: CreateStockInput,
+  client?: PoolClient
+): Promise<StockRecord> => {
+  const db = client ?? pool;
+  const { rows } = await db.query<StockRecord>(
     `INSERT INTO stocks
-     (product_name, description, quantity, unit, price, category, is_active, last_updated)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, now())
+     (product_name, description, quantity, unit, price, category, is_active, minimum_threshold, branch_id, last_updated)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, COALESCE($8, 0), $9, now())
      RETURNING *`,
     [
       stock.product_name,
@@ -89,6 +155,8 @@ export const createStock = async (stock: CreateStockInput): Promise<StockRecord>
       stock.price,
       stock.category,
       stock.is_active,
+      stock.minimum_threshold ?? 0,
+      stock.branch_id ?? null,
     ]
   );
   return rows[0];
@@ -155,9 +223,11 @@ export const deleteStock = async (id: number): Promise<boolean> => {
 
 export const adjustStockQuantity = async (
   id: number,
-  adjustment: number
+  adjustment: number,
+  client?: PoolClient
 ): Promise<StockRecord | null> => {
-  const { rows } = await pool.query<StockRecord>(
+  const db = client ?? pool;
+  const { rows } = await db.query<StockRecord>(
     `UPDATE stocks
      SET quantity = quantity + $2,
          last_updated = now(),
@@ -168,4 +238,58 @@ export const adjustStockQuantity = async (
   );
 
   return rows[0] ?? null;
+};
+
+export interface BranchStockSummary {
+  total_stock: number;
+  total_value: number;
+  low_stock_count: number;
+  category_breakdown: Array<{
+    category: string;
+    total_quantity: number;
+    total_value: number;
+  }>;
+}
+
+export const getBranchStockSummary = async (branchId: string): Promise<BranchStockSummary> => {
+  const { rows: summaryRows } = await pool.query<{
+    total_stock: number;
+    total_value: number;
+    low_stock_count: number;
+  }>(
+    `SELECT 
+      COALESCE(SUM(quantity), 0)::int as total_stock,
+      COALESCE(SUM(quantity * price), 0)::numeric(12,2) as total_value,
+      COUNT(CASE WHEN is_low_stock = true THEN 1 END)::int as low_stock_count
+    FROM stocks
+    WHERE branch_id = $1 AND is_active = true`,
+    [branchId]
+  );
+
+  const { rows: categoryRows } = await pool.query<{
+    category: string;
+    total_quantity: number;
+    total_value: number;
+  }>(
+    `SELECT 
+      category,
+      COALESCE(SUM(quantity), 0)::int as total_quantity,
+      COALESCE(SUM(quantity * price), 0)::numeric(12,2) as total_value
+    FROM stocks
+    WHERE branch_id = $1 AND is_active = true
+    GROUP BY category
+    ORDER BY total_quantity DESC`,
+    [branchId]
+  );
+
+  return {
+    total_stock: Number(summaryRows[0]?.total_stock ?? 0),
+    total_value: Number(summaryRows[0]?.total_value ?? 0),
+    low_stock_count: Number(summaryRows[0]?.low_stock_count ?? 0),
+    category_breakdown: categoryRows.map((r) => ({
+      category: r.category,
+      total_quantity: Number(r.total_quantity),
+      total_value: Number(r.total_value),
+    })),
+  };
 };

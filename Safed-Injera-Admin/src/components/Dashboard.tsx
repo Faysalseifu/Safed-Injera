@@ -22,6 +22,13 @@ import {
   InputLabel,
   Snackbar,
   Alert,
+  Card,
+  CardContent,
+  Table,
+  TableBody,
+  TableCell,
+  TableRow,
+  TableHead,
 } from '@mui/material';
 import { Bar, Doughnut, Line } from 'react-chartjs-2';
 import {
@@ -46,6 +53,10 @@ import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
+import StorefrontIcon from '@mui/icons-material/Storefront';
+import PersonIcon from '@mui/icons-material/Person';
+import AssignmentIcon from '@mui/icons-material/Assignment';
+import { useNavigate } from 'react-router-dom';
 
 ChartJS.register(
   CategoryScale,
@@ -908,10 +919,225 @@ const LowStockCard = ({ items }: { items: DashboardData['lowStockItems'] }) => {
   );
 };
 
+// Branch Office Activities Section Component
+const BranchOfficeActivitiesSection = () => {
+  const navigate = useNavigate();
+  const [recentReports, setRecentReports] = useState<any[]>([]);
+  const [branchStats, setBranchStats] = useState<any>(null);
+  const [branches, setBranches] = useState<Array<{ id: string; name: string }>>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchBranchActivities = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const [reportsRes, statsRes, branchesRes] = await Promise.all([
+          fetch(`${API_URL}/daily-reports?limit=5`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_URL}/daily-reports/analysis`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          fetch(`${API_URL}/branches`, {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+        ]);
+
+        if (reportsRes.ok) {
+          const reports = await reportsRes.json();
+          setRecentReports(reports);
+        }
+        if (statsRes.ok) {
+          const stats = await statsRes.json();
+          setBranchStats(stats);
+        }
+        if (branchesRes.ok) {
+          const branchesData = await branchesRes.json();
+          setBranches(branchesData);
+        }
+      } catch (e) {
+        console.error('Failed to fetch branch activities', e);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBranchActivities();
+  }, []);
+
+  return (
+    <Box sx={{ mb: 3, position: 'relative', zIndex: 1 }}>
+      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
+          <StorefrontIcon sx={{ fontSize: 28, color: colors.gold }} />
+          <Typography variant="h5" sx={{ fontWeight: 700, color: colors.textPrimary }}>
+            Branch Office Activities
+          </Typography>
+        </Box>
+        <Button
+          variant="outlined"
+          onClick={() => navigate('/branch-reports')}
+          sx={{ borderColor: colors.gold, color: colors.gold }}
+        >
+          View All Reports
+        </Button>
+      </Box>
+
+      <Grid container spacing={3}>
+        {/* Statistics Cards */}
+        {branchStats && (
+          <>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)' }}>
+                <CardContent>
+                  <Typography variant="caption" color="text.secondary">
+                    Total Reports Submitted
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: colors.textPrimary }}>
+                    {branchStats.totalReports}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)' }}>
+                <CardContent>
+                  <Typography variant="caption" color="text.secondary">
+                    Total Branch Revenue
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: colors.success }}>
+                    {branchStats.totalRevenue.toLocaleString()} ETB
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)' }}>
+                <CardContent>
+                  <Typography variant="caption" color="text.secondary">
+                    Average Waste Rate
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: branchStats.averageWasteRate > 5 ? colors.warning : colors.textPrimary }}>
+                    {branchStats.averageWasteRate.toFixed(1)}%
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+            <Grid item xs={12} sm={6} md={3}>
+              <Card sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)' }}>
+                <CardContent>
+                  <Typography variant="caption" color="text.secondary">
+                    Avg Daily Revenue
+                  </Typography>
+                  <Typography variant="h4" sx={{ fontWeight: 700, color: colors.textPrimary }}>
+                    {branchStats.averageDailyRevenue.toLocaleString()} ETB
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Grid>
+          </>
+        )}
+
+        {/* Recent Reports */}
+        <Grid item xs={12}>
+          <Card sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)' }}>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 2 }}>
+                <Typography variant="h6" sx={{ fontWeight: 600, color: colors.textPrimary }}>
+                  Recent Daily Reports
+                </Typography>
+                <Button
+                  size="small"
+                  onClick={() => navigate('/branch-reports')}
+                  sx={{ color: colors.gold }}
+                >
+                  View All
+                </Button>
+              </Box>
+              {loading ? (
+                <Box sx={{ display: 'flex', justifyContent: 'center', p: 3 }}>
+                  <CircularProgress size={24} sx={{ color: colors.gold }} />
+                </Box>
+              ) : recentReports.length === 0 ? (
+                <Alert severity="info">No reports submitted yet.</Alert>
+              ) : (
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 600 }}>Date</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }}>Branch</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Sold</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Revenue</TableCell>
+                      <TableCell sx={{ fontWeight: 600 }} align="right">Waste</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {recentReports.slice(0, 5).map((report: any) => {
+                      const branch = branches.find((b) => b.id === report.branch_id);
+                      return (
+                        <TableRow key={report.id} hover>
+                          <TableCell>{new Date(report.report_date).toLocaleDateString()}</TableCell>
+                          <TableCell>{branch?.name || report.branch_id.slice(0, 8)}</TableCell>
+                          <TableCell align="right">{report.sold_injera}</TableCell>
+                          <TableCell align="right">{report.total_revenue.toLocaleString()} ETB</TableCell>
+                          <TableCell align="right">
+                            {report.wasted_injera > 0 ? (
+                              <Chip label={report.wasted_injera} color="warning" size="small" />
+                            ) : (
+                              report.wasted_injera
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              )}
+            </CardContent>
+          </Card>
+        </Grid>
+
+        {/* Quick Actions */}
+        <Grid item xs={12}>
+          <Card sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)' }}>
+            <CardContent>
+              <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: colors.textPrimary }}>
+                Branch Management
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                <Button
+                  variant="contained"
+                  startIcon={<StorefrontIcon />}
+                  onClick={() => navigate('/branch-dashboard')}
+                  sx={{
+                    background: `linear-gradient(135deg, ${colors.gold} 0%, #A85A2A 100%)`,
+                    '&:hover': { opacity: 0.9 },
+                  }}
+                >
+                  View All Branches
+                </Button>
+                <Button
+                  variant="outlined"
+                  startIcon={<AssignmentIcon />}
+                  onClick={() => navigate('/branch-reports')}
+                  sx={{ borderColor: colors.gold, color: colors.gold }}
+                >
+                  Branch Reports & Analysis
+                </Button>
+              </Box>
+            </CardContent>
+          </Card>
+        </Grid>
+      </Grid>
+    </Box>
+  );
+};
+
 // Main Dashboard Component
 const Dashboard = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [salesData, setSalesData] = useState<SalesData | null>(null);
   const [allStocks, setAllStocks] = useState<any[]>([]);
@@ -1248,6 +1474,9 @@ const Dashboard = () => {
           <LowStockCard items={dashboardData?.lowStockItems || []} />
         </Grid>
       </Grid>
+
+      {/* Branch Office Activities Section */}
+      <BranchOfficeActivitiesSection />
 
       {/* Injera Adder Dialog */}
       <Dialog open={stockDialogOpen} onClose={() => setStockDialogOpen(false)} maxWidth="xs" fullWidth PaperProps={{ sx: { borderRadius: '20px' } }}>

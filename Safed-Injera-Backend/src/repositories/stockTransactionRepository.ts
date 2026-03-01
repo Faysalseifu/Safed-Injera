@@ -1,3 +1,4 @@
+import { PoolClient } from 'pg';
 import { pool } from '../config/db';
 
 export interface StockTransactionRecord {
@@ -23,9 +24,11 @@ export interface CreateStockTransactionInput {
 }
 
 export const createStockTransaction = async (
-  transaction: CreateStockTransactionInput
+  transaction: CreateStockTransactionInput,
+  client?: PoolClient
 ): Promise<StockTransactionRecord> => {
-  const { rows } = await pool.query<StockTransactionRecord>(
+  const db = client ?? pool;
+  const { rows } = await db.query<StockTransactionRecord>(
     `INSERT INTO stock_transactions
      (stock_id, transaction_type, quantity_change, quantity_before, quantity_after, performed_by, reason)
      VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -73,4 +76,25 @@ export const getStockTransactionsByUser = async (
     [userId, limit]
   );
   return rows;
+};
+
+export const getBranchDailyOutQuantity = async (
+  branchId: string,
+  date: Date
+): Promise<number> => {
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  const { rows } = await pool.query<{ total: number }>(
+    `SELECT COALESCE(SUM(ABS(st.quantity_change)), 0)::int AS total
+     FROM stock_transactions st
+     JOIN stocks s ON st.stock_id = s.id
+     WHERE s.branch_id = $1
+       AND st.transaction_type = 'out'
+       AND st.created_at >= $2 AND st.created_at <= $3`,
+    [branchId, startOfDay, endOfDay]
+  );
+  return Number(rows[0]?.total ?? 0);
 };

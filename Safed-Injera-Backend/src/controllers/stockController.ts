@@ -14,10 +14,11 @@ import { createStockTransaction, getStockTransactions } from '../repositories/st
 import { createActivityLog } from '../repositories/activityLogRepository';
 import { getStockSettingByCategory } from '../repositories/stockSettingsRepository';
 import { transformStock, transformStockInput } from '../utils/transform';
+import { withTransaction } from '../utils/transaction';
 import { AuthRequest } from '../middleware/authMiddleware';
 
 // Exported controller functions
-export const getStocks = async (req: Request, res: Response) => {
+export const getStocks = async (req: AuthRequest, res: Response) => {
   try {
     const { category, isActive, isLowStock, sort } = req.query;
     const filters: StockFilters = {
@@ -27,6 +28,9 @@ export const getStocks = async (req: Request, res: Response) => {
       sortBy: sort === 'price' ? 'price' : 'created_at',
       sortOrder: sort === 'price' ? 'ASC' : 'DESC',
     };
+    if (req.user?.role === 'sub_admin' && req.user.branch_id) {
+      filters.branchId = req.user.branch_id;
+    }
     const stocks = await getStocksRepo(filters);
     const transformedStocks = stocks.map(transformStock);
     res.set('Content-Range', `stocks 0-${transformedStocks.length}/${transformedStocks.length}`);
@@ -38,7 +42,7 @@ export const getStocks = async (req: Request, res: Response) => {
   }
 };
 
-export const getStock = async (req: Request, res: Response) => {
+export const getStock = async (req: AuthRequest, res: Response) => {
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) {
@@ -48,6 +52,10 @@ export const getStock = async (req: Request, res: Response) => {
     const stock = await findStockById(id);
     if (!stock) {
       res.status(404).json({ message: 'Stock item not found' });
+      return;
+    }
+    if (req.user?.role === 'sub_admin' && req.user.branch_id && stock.branch_id !== req.user.branch_id) {
+      res.status(403).json({ message: 'Access denied to this stock' });
       return;
     }
     res.json(transformStock(stock));
@@ -77,6 +85,7 @@ export const createStock = async (req: AuthRequest, res: Response) => {
       category,
       is_active: isActive !== undefined ? Boolean(isActive) : true,
       minimum_threshold: threshold,
+      branch_id: req.user?.role === 'sub_admin' ? req.user.branch_id ?? undefined : undefined,
     });
 
     // Create initial transaction
@@ -128,6 +137,12 @@ export const updateStock = async (req: AuthRequest, res: Response) => {
     const currentStock = await findStockById(id);
     if (!currentStock) {
       res.status(404).json({ message: 'Stock item not found' });
+      return;
+    }
+
+    // Enforce branch scoping for sub-admin
+    if (req.user?.role === 'sub_admin' && req.user.branch_id && currentStock.branch_id !== req.user.branch_id) {
+      res.status(403).json({ message: 'Access denied to this stock' });
       return;
     }
 
@@ -183,13 +198,26 @@ export const updateStock = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const deleteStock = async (req: Request, res: Response) => {
+export const deleteStock = async (req: AuthRequest, res: Response) => {
   try {
     const id = Number(req.params.id);
     if (isNaN(id)) {
       res.status(400).json({ message: 'Invalid stock id' });
       return;
     }
+
+    // Check stock exists and enforce branch scoping for sub-admin
+    const stock = await findStockById(id);
+    if (!stock) {
+      res.status(404).json({ message: 'Stock item not found' });
+      return;
+    }
+
+    if (req.user?.role === 'sub_admin' && req.user.branch_id && stock.branch_id !== req.user.branch_id) {
+      res.status(403).json({ message: 'Access denied to this stock' });
+      return;
+    }
+
     const deleted = await deleteStockRepo(id);
     if (!deleted) {
       res.status(404).json({ message: 'Stock item not found' });
@@ -212,51 +240,71 @@ export const updateStockQuantity = async (req: AuthRequest, res: Response) => {
       return;
     }
 
-    const currentStock = await findStockById(id);
-    if (!currentStock) {
-      res.status(404).json({ message: 'Stock item not found' });
-      return;
-    }
-
     const userId = req.user?.id;
-    const stock = await adjustStockQuantityRepo(id, adjustment);
-    if (!stock) {
-      res.status(400).json({ message: 'Stock item not found or insufficient stock' });
-      return;
-    }
+    const stock = await withTransaction(async (client) => {
+      const currentStock = await findStockById(id, client);
+      if (!currentStock) {
+        throw new Error('STOCK_NOT_FOUND');
+      }
 
-    // Create transaction record
-    try {
-      await createStockTransaction({
-        stock_id: id,
-        transaction_type: adjustment > 0 ? 'in' : adjustment < 0 ? 'out' : 'adjustment',
-        quantity_change: adjustment,
-        quantity_before: currentStock.quantity,
-        quantity_after: stock.quantity,
-        performed_by: userId,
-        reason: reason || 'Quantity adjustment',
-      });
+      // Enforce branch scoping for sub-admin
+      if (req.user?.role === 'sub_admin' && req.user.branch_id && currentStock.branch_id !== req.user.branch_id) {
+        throw new Error('ACCESS_DENIED');
+      }
 
-      await createActivityLog({
-        user_id: userId,
-        action_type: 'stock_quantity_adjusted',
-        entity_type: 'stock',
-        entity_id: id,
-        details: {
-          product_name: stock.product_name,
-          adjustment,
+      const updatedStock = await adjustStockQuantityRepo(id, adjustment, client);
+      if (!updatedStock) {
+        throw new Error('INSUFFICIENT_STOCK');
+      }
+
+      await createStockTransaction(
+        {
+          stock_id: id,
+          transaction_type: adjustment > 0 ? 'in' : adjustment < 0 ? 'out' : 'adjustment',
+          quantity_change: adjustment,
           quantity_before: currentStock.quantity,
-          quantity_after: stock.quantity,
-          reason,
+          quantity_after: updatedStock.quantity,
+          performed_by: userId,
+          reason: reason || 'Quantity adjustment',
         },
-      });
-    } catch (logError) {
-      logger.warn('Failed to create transaction/log:', logError);
-    }
+        client
+      );
+
+      await createActivityLog(
+        {
+          user_id: userId,
+          action_type: 'stock_quantity_adjusted',
+          entity_type: 'stock',
+          entity_id: id,
+          details: {
+            product_name: updatedStock.product_name,
+            adjustment,
+            quantity_before: currentStock.quantity,
+            quantity_after: updatedStock.quantity,
+            reason,
+          },
+        },
+        client
+      );
+
+      return updatedStock;
+    });
 
     logger.info(`Stock quantity updated: ${stock.product_name} (${adjustment > 0 ? '+' : ''}${adjustment}) by ${userId ?? 'unknown'}`);
     res.json(transformStock(stock));
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.message === 'STOCK_NOT_FOUND') {
+      res.status(404).json({ message: 'Stock item not found' });
+      return;
+    }
+    if (error?.message === 'ACCESS_DENIED') {
+      res.status(403).json({ message: 'Access denied to this stock' });
+      return;
+    }
+    if (error?.message === 'INSUFFICIENT_STOCK') {
+      res.status(400).json({ message: 'Stock item not found or insufficient stock' });
+      return;
+    }
     logger.error('Update stock quantity error:', error);
     res.status(500).json({ message: 'Server error' });
   }
@@ -307,9 +355,10 @@ export const getStockTransactionsHandler = async (req: Request, res: Response) =
   }
 };
 
-export const getLowStockItemsHandler = async (req: Request, res: Response) => {
+export const getLowStockItemsHandler = async (req: AuthRequest, res: Response) => {
   try {
-    const items = await getLowStockItems();
+    const branchId = req.user?.role === 'sub_admin' ? req.user.branch_id : undefined;
+    const items = await getLowStockItems(branchId);
     res.json(items.map(transformStock));
   } catch (error) {
     logger.error('Get low stock items error:', error);

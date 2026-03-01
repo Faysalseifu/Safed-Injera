@@ -18,12 +18,14 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HistoryIcon from '@mui/icons-material/History';
+import AssignmentIcon from '@mui/icons-material/Assignment';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SearchIcon from '@mui/icons-material/Search';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import StorefrontIcon from '@mui/icons-material/Storefront';
 import { DarkModeContext } from '../App';
 
 const menuItemStyles = {
@@ -335,37 +337,59 @@ const CustomMenu = () => {
       <Menu sx={menuItemStyles}>
         <MenuItemLink
           to="/"
-          primaryText="Dashboard"
-          leftIcon={<DashboardIcon />}
+          primaryText={user.role === 'sub_admin' ? 'My Branch Dashboard' : 'Dashboard'}
+          leftIcon={user.role === 'sub_admin' ? <StorefrontIcon /> : <DashboardIcon />}
           sidebarIsOpen={open}
         />
+        {(user.role === 'admin' || user.role === 'staff') && (
+          <MenuItemLink
+            to="/branch-dashboard"
+            primaryText="Branch Dashboard"
+            leftIcon={<StorefrontIcon />}
+            sidebarIsOpen={open}
+          />
+        )}
         <MenuItemLink
           to="/stocks"
           primaryText="Stock"
           leftIcon={<InventoryIcon />}
           sidebarIsOpen={open}
         />
-        <MenuItemLink
-          to="/orders"
-          primaryText="Orders"
-          leftIcon={<ShoppingCartIcon />}
-          sidebarIsOpen={open}
-        />
-        <MenuItemLink
-          to="/analytics"
-          primaryText="Analytics"
-          leftIcon={<BarChartIcon />}
-          sidebarIsOpen={open}
-        />
-        <MenuItemLink
-          to="/stock-settings"
-          primaryText="Stock Settings"
-          leftIcon={<SettingsIcon />}
-          sidebarIsOpen={open}
-        />
+        {user.role !== 'sub_admin' && (
+          <MenuItemLink
+            to="/orders"
+            primaryText="Orders"
+            leftIcon={<ShoppingCartIcon />}
+            sidebarIsOpen={open}
+          />
+        )}
+        {user.role !== 'sub_admin' && (
+          <MenuItemLink
+            to="/analytics"
+            primaryText="Analytics"
+            leftIcon={<BarChartIcon />}
+            sidebarIsOpen={open}
+          />
+        )}
+        {user.role !== 'sub_admin' && (
+          <MenuItemLink
+            to="/branch-reports"
+            primaryText="Branch Reports"
+            leftIcon={<AssignmentIcon />}
+            sidebarIsOpen={open}
+          />
+        )}
+        {user.role !== 'sub_admin' && (
+          <MenuItemLink
+            to="/stock-settings"
+            primaryText="Stock Settings"
+            leftIcon={<SettingsIcon />}
+            sidebarIsOpen={open}
+          />
+        )}
         <MenuItemLink
           to="/activity-logs"
-          primaryText="Activity Logs"
+          primaryText={user.role === 'sub_admin' ? 'My Branch Activity' : 'Activity Logs'}
           leftIcon={<HistoryIcon />}
           sidebarIsOpen={open}
         />

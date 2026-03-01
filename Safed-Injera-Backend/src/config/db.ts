@@ -85,6 +85,66 @@ const schemaStatements = [
     updated_by UUID REFERENCES users(id),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   );`,
+  `CREATE TABLE IF NOT EXISTS branches (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    location TEXT NOT NULL,
+    is_main_hub BOOLEAN NOT NULL DEFAULT false,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );`,
+  `CREATE TABLE IF NOT EXISTS stock_transfers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    from_branch_id UUID REFERENCES branches(id),
+    to_branch_id UUID REFERENCES branches(id),
+    product_name TEXT NOT NULL,
+    category TEXT NOT NULL,
+    quantity INTEGER NOT NULL CHECK (quantity > 0),
+    unit TEXT NOT NULL,
+    status TEXT NOT NULL CHECK (status IN ('pending', 'in_transit', 'received', 'cancelled')),
+    dispatched_by UUID REFERENCES users(id),
+    dispatched_at TIMESTAMPTZ,
+    received_by UUID REFERENCES users(id),
+    received_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );`,
+  `CREATE TABLE IF NOT EXISTS customers (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    name TEXT NOT NULL,
+    phone TEXT,
+    delivery_frequency TEXT NOT NULL CHECK (delivery_frequency IN ('daily', 'every_2_days', 'every_3_days', 'weekly', 'biweekly')),
+    quantity_per_delivery INTEGER NOT NULL CHECK (quantity_per_delivery > 0),
+    product TEXT NOT NULL DEFAULT 'Injera',
+    branch_id UUID REFERENCES branches(id) NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );`,
+  `CREATE TABLE IF NOT EXISTS daily_reports (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    branch_id UUID REFERENCES branches(id) NOT NULL,
+    report_date DATE NOT NULL,
+    received_injera INTEGER NOT NULL DEFAULT 0,
+    sold_injera INTEGER NOT NULL CHECK (sold_injera >= 0),
+    remaining_injera INTEGER NOT NULL CHECK (remaining_injera >= 0),
+    wasted_injera INTEGER NOT NULL DEFAULT 0 CHECK (wasted_injera >= 0),
+    total_revenue NUMERIC(12,2) NOT NULL CHECK (total_revenue >= 0),
+    submitted_by UUID REFERENCES users(id) NOT NULL,
+    notes TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE(branch_id, report_date)
+  );`,
+  `CREATE TABLE IF NOT EXISTS customer_checklists (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    report_id UUID REFERENCES daily_reports(id) ON DELETE CASCADE NOT NULL,
+    customer_id UUID REFERENCES customers(id) NOT NULL,
+    delivered BOOLEAN NOT NULL,
+    quantity_delivered INTEGER NOT NULL CHECK (quantity_delivered >= 0),
+    comment TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );`,
 ];
 
 const ensureSchema = async (): Promise<void> => {
@@ -96,7 +156,7 @@ const ensureSchema = async (): Promise<void> => {
       const statement = schemaStatements[i];
       try {
         await pool.query(statement);
-        const tableNames = ['users', 'stocks', 'orders', 'stock_transactions', 'activity_logs', 'stock_settings'];
+        const tableNames = ['users', 'stocks', 'orders', 'stock_transactions', 'activity_logs', 'stock_settings', 'branches', 'stock_transfers', 'customers', 'daily_reports', 'customer_checklists'];
         if (i < tableNames.length) {
           logger.info(`✓ Table '${tableNames[i]}' ensured`);
         }
@@ -140,6 +200,24 @@ const ensureSchema = async (): Promise<void> => {
           ALTER TABLE orders ADD COLUMN status_history JSONB DEFAULT '[]'::jsonb;
         END IF;
       END $$;`,
+      // Add branch_id to users
+      `DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='branch_id') THEN
+          ALTER TABLE users ADD COLUMN branch_id UUID REFERENCES branches(id);
+        END IF;
+      END $$;`,
+      // Add branch_id to stocks
+      `DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='stocks' AND column_name='branch_id') THEN
+          ALTER TABLE stocks ADD COLUMN branch_id UUID REFERENCES branches(id);
+        END IF;
+      END $$;`,
+      // Add transfer_id to stock_transactions
+      `DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='stock_transactions' AND column_name='transfer_id') THEN
+          ALTER TABLE stock_transactions ADD COLUMN transfer_id UUID REFERENCES stock_transfers(id);
+        END IF;
+      END $$;`,
     ];
     
     for (const statement of migrationStatements) {
@@ -160,6 +238,13 @@ const ensureSchema = async (): Promise<void> => {
       `CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at DESC);`,
       `CREATE INDEX IF NOT EXISTS idx_stocks_is_low_stock ON stocks(is_low_stock) WHERE is_low_stock = true;`,
       `CREATE INDEX IF NOT EXISTS idx_orders_updated_by ON orders(updated_by);`,
+      `CREATE INDEX IF NOT EXISTS idx_customers_branch_id ON customers(branch_id);`,
+      `CREATE INDEX IF NOT EXISTS idx_customers_is_active ON customers(is_active) WHERE is_active = true;`,
+      `CREATE INDEX IF NOT EXISTS idx_daily_reports_branch_id ON daily_reports(branch_id);`,
+      `CREATE INDEX IF NOT EXISTS idx_daily_reports_report_date ON daily_reports(report_date DESC);`,
+      `CREATE INDEX IF NOT EXISTS idx_daily_reports_branch_date ON daily_reports(branch_id, report_date DESC);`,
+      `CREATE INDEX IF NOT EXISTS idx_customer_checklists_report_id ON customer_checklists(report_id);`,
+      `CREATE INDEX IF NOT EXISTS idx_customer_checklists_customer_id ON customer_checklists(customer_id);`,
     ];
     
     for (const statement of indexStatements) {
@@ -174,6 +259,7 @@ const ensureSchema = async (): Promise<void> => {
     const defaultSettings = [
       { category: 'Injera', threshold: 200 },
       { category: 'Teff Flour', threshold: 100 },
+      { category: 'Pure Teff', threshold: 50 },
       { category: 'Packaging', threshold: 500 },
       { category: 'Other', threshold: 50 },
     ];
@@ -189,6 +275,20 @@ const ensureSchema = async (): Promise<void> => {
       } catch (error: any) {
         logger.warn(`Default setting insertion warning:`, error.message);
       }
+    }
+
+    // Seed default Main Hub branch if none exists
+    try {
+      const { rows } = await pool.query(`SELECT id FROM branches WHERE is_main_hub = true LIMIT 1`);
+      if (rows.length === 0) {
+        await pool.query(
+          `INSERT INTO branches (name, location, is_main_hub)
+           VALUES ('Main Hub', 'Addis Ababa', true)`
+        );
+        logger.info('Default Main Hub branch seeded');
+      }
+    } catch (error: any) {
+      logger.warn('Main Hub seed warning:', error.message);
     }
     
     logger.info('Database schema verified successfully');

@@ -9,6 +9,7 @@
     "build": "tsc",
     "watch": "tsc -w",
     "seed:admin": "ts-node src/scripts/seedAdmin.ts",
+    "seed:subadmins": "ts-node src/scripts/createDemoSubAdmins.ts",
     "test:login": "ts-node src/scripts/testLogin.ts",
     "check:user": "ts-node src/scripts/checkUser.ts",
     "test:api": "ts-node src/scripts/testLoginAPI.ts"

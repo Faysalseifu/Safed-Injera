@@ -1,22 +1,25 @@
 import { useState, useEffect } from 'react';
 import { useNotify, useRefresh } from 'react-admin';
-import { Box, Typography, Button, Card, CardContent, Grid, TextField } from '@mui/material';
+import { Box, Typography, Button, Card, CardContent, Grid, TextField, Avatar } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+// Design tokens - Safed Injera Branding
 const colors = {
-  sidebar: '#3F4F51',
-  cream: '#F5F3EE',
+  sidebar: '#4E1815',
+  cream: '#F9F9F7',
   paper: '#FFFFFF',
-  gold: '#E6B54D',
-  goldDark: '#C99B39',
-  teal: '#5DB5A4',
-  textPrimary: '#2D3739',
+  gold: '#B56A3A',
+  goldDark: '#A85A2A',
+  teal: '#A89688',
+  textPrimary: '#4E1815',
   textSecondary: '#6B7B7D',
   success: '#4CAF50',
   warning: '#FF9800',
   error: '#F44336',
+  darkBg: '#3A120F',
+  darkCard: '#4A2A1F',
 };
 
 export const StockSettings = () => {
@@ -94,7 +97,16 @@ export const StockSettings = () => {
     >
       <Box sx={{ maxWidth: '1200px', margin: '0 auto', width: '100%' }}>
         <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 }, display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, flexWrap: 'wrap' }}>
-          <SettingsIcon sx={{ fontSize: { xs: 24, sm: 28, md: 32 }, color: colors.gold }} />
+          <Avatar
+            sx={{
+              width: { xs: 48, sm: 56 },
+              height: { xs: 48, sm: 56 },
+              background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+              boxShadow: '0 4px 12px rgba(181, 106, 58, 0.3)',
+            }}
+          >
+            <SettingsIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
+          </Avatar>
           <Box>
             <Typography 
               variant="h4" 
@@ -124,9 +136,23 @@ export const StockSettings = () => {
               <Card
                 sx={{
                   borderRadius: { xs: '16px', sm: '20px' },
-                  boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
-                  border: '1px solid rgba(63, 79, 81, 0.06)',
-                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
+                  boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)',
+                  border: '1px solid rgba(78, 24, 21, 0.06)',
+                  background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 249, 247, 0.9) 100%)',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  '&::before': {
+                    content: '""',
+                    position: 'absolute',
+                    top: 0,
+                    right: 0,
+                    width: '150px',
+                    height: '150px',
+                    background: 'radial-gradient(circle, rgba(181, 106, 58, 0.05) 0%, transparent 70%)',
+                    borderRadius: '50%',
+                    transform: 'translate(30%, -30%)',
+                    pointerEvents: 'none',
+                  },
                   transition: 'all 0.2s ease',
                   '&:hover': {
                     transform: 'translateY(-2px)',
@@ -166,11 +192,11 @@ export const StockSettings = () => {
                           variant="contained"
                           onClick={() => handleUpdate(setting.category)}
                           sx={{
-                            background: 'linear-gradient(135deg, #E6B54D 0%, #C99B39 100%)',
+                            background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
                             color: '#FFFFFF',
                             flex: { xs: '1 1 100%', sm: '1 1 auto' },
                             '&:hover': { 
-                              background: 'linear-gradient(135deg, #C99B39 0%, #B88A2E 100%)',
+                              background: 'linear-gradient(135deg, #A85A2A 0%, #985020 100%)',
                               transform: 'translateY(-1px)',
                             },
                             transition: 'all 0.2s ease',
@@ -229,7 +255,7 @@ export const StockSettings = () => {
                           width: { xs: '100%', sm: 'auto' },
                           '&:hover': { 
                             borderColor: colors.goldDark, 
-                            background: 'linear-gradient(135deg, rgba(230, 181, 77, 0.1) 0%, rgba(201, 155, 57, 0.05) 100%)',
+                            background: 'linear-gradient(135deg, rgba(181, 106, 58, 0.1) 0%, rgba(168, 90, 42, 0.05) 100%)',
                             transform: 'translateY(-1px)',
                           },
                           transition: 'all 0.2s ease',

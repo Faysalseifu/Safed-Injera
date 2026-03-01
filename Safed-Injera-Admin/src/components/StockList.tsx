@@ -21,26 +21,29 @@ import {
   useNotify,
   useRefresh,
 } from 'react-admin';
-import { Box, Typography, Chip, IconButton, Tooltip, Button } from '@mui/material';
+import { Box, Typography, Chip, IconButton, Tooltip, Button, Avatar } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 import HistoryIcon from '@mui/icons-material/History';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import { useState } from 'react';
 
-// Design tokens
+// Design tokens - Safed Injera Branding
 const colors = {
-  sidebar: '#3F4F51',
-  cream: '#F5F3EE',
+  sidebar: '#4E1815',
+  cream: '#F9F9F7',
   paper: '#FFFFFF',
-  gold: '#E6B54D',
-  goldDark: '#C99B39',
-  teal: '#5DB5A4',
-  textPrimary: '#2D3739',
+  gold: '#B56A3A',
+  goldDark: '#A85A2A',
+  teal: '#A89688',
+  textPrimary: '#4E1815',
   textSecondary: '#6B7B7D',
   success: '#4CAF50',
   warning: '#FF9800',
   error: '#F44336',
+  darkBg: '#3A120F',
+  darkCard: '#4A2A1F',
 };
 
 const StockFilter = (props: any) => (
@@ -61,6 +64,7 @@ const StockFilter = (props: any) => (
       choices={[
         { id: 'Injera', name: 'Injera' },
         { id: 'Teff Flour', name: 'Teff Flour' },
+        { id: 'Pure Teff', name: 'Pure Teff' },
         { id: 'Packaging', name: 'Packaging' },
         { id: 'Other', name: 'Other' },
       ]}
@@ -86,27 +90,43 @@ const ListWrapper = ({ children }: { children: React.ReactNode }) => (
     }}
   >
     <Box sx={{ maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
-      <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 } }}>
-        <Typography
-          variant="h4"
+      <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 }, display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, flexWrap: 'wrap' }}>
+        <Box
           sx={{
-            fontWeight: 700,
-            color: colors.textPrimary,
-            mb: 0.5,
-            fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+            width: { xs: 40, sm: 48 },
+            height: { xs: 40, sm: 48 },
+            borderRadius: '12px',
+            background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 4px 12px rgba(181, 106, 58, 0.3)',
           }}
         >
-          Stock Inventory
-        </Typography>
-        <Typography 
-          variant="body2" 
-          sx={{ 
-            color: colors.textSecondary,
-            fontSize: { xs: '0.813rem', sm: '0.875rem' },
-          }}
-        >
-          Manage your product inventory and track stock levels.
-        </Typography>
+          <InventoryIcon sx={{ color: 'white', fontSize: { xs: 20, sm: 24 } }} />
+        </Box>
+        <Box>
+          <Typography
+            variant="h4"
+            sx={{
+              fontWeight: 700,
+              color: colors.textPrimary,
+              mb: 0.5,
+              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+            }}
+          >
+            Stock Inventory
+          </Typography>
+          <Typography 
+            variant="body2" 
+            sx={{ 
+              color: colors.textSecondary,
+              fontSize: { xs: '0.813rem', sm: '0.875rem' },
+            }}
+          >
+            Manage your product inventory and track stock levels.
+          </Typography>
+        </Box>
       </Box>
       {children}
     </Box>
@@ -298,7 +318,7 @@ const TransactionHistoryButton = ({ record }: any) => {
         <IconButton
           size="small"
           onClick={handleClick}
-          sx={{ color: colors.teal, '&:hover': { bgcolor: 'rgba(93, 181, 164, 0.1)' } }}
+          sx={{ color: colors.teal, '&:hover': { bgcolor: 'rgba(168, 150, 136, 0.1)' } }}
         >
           <HistoryIcon fontSize="small" />
         </IconButton>
@@ -386,10 +406,10 @@ export const StockList = (props: any) => (
       sx={{
         width: '100%',
         '& .RaList-content': {
-          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(245, 243, 238, 0.9) 100%)',
+          background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 249, 247, 0.9) 100%)',
           borderRadius: { xs: '16px', sm: '20px' },
-          boxShadow: '0 4px 20px rgba(63, 79, 81, 0.08)',
-          border: '1px solid rgba(63, 79, 81, 0.06)',
+          boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)',
+          border: '1px solid rgba(78, 24, 21, 0.06)',
           overflow: 'hidden',
           position: 'relative',
           width: '100%',
@@ -400,7 +420,7 @@ export const StockList = (props: any) => (
             right: 0,
             width: { xs: '150px', sm: '200px' },
             height: { xs: '150px', sm: '200px' },
-            background: 'radial-gradient(circle, rgba(33, 150, 243, 0.05) 0%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(181, 106, 58, 0.05) 0%, transparent 70%)',
             borderRadius: '50%',
             transform: 'translate(30%, -30%)',
             pointerEvents: 'none',
@@ -409,25 +429,25 @@ export const StockList = (props: any) => (
         '& .MuiTableCell-head': {
           fontWeight: 600,
           color: colors.textSecondary,
-          bgcolor: 'rgba(63, 79, 81, 0.02)',
-          borderBottom: `1px solid rgba(63, 79, 81, 0.08)`,
+          bgcolor: 'rgba(78, 24, 21, 0.02)',
+          borderBottom: `1px solid rgba(78, 24, 21, 0.08)`,
           textTransform: 'uppercase',
           fontSize: { xs: '0.688rem', sm: '0.75rem' },
           letterSpacing: '0.05em',
           padding: { xs: '8px 4px', sm: '12px 8px' },
         },
         '& .MuiTableCell-body': {
-          borderBottom: `1px solid rgba(63, 79, 81, 0.06)`,
+          borderBottom: `1px solid rgba(78, 24, 21, 0.06)`,
           color: colors.textPrimary,
           padding: { xs: '12px 4px', sm: '16px 8px' },
           fontSize: { xs: '0.813rem', sm: '0.875rem' },
         },
         '& .MuiTableRow-root:hover': {
-          background: 'linear-gradient(90deg, rgba(230, 181, 77, 0.08) 0%, rgba(230, 181, 77, 0.02) 100%)',
+          background: 'linear-gradient(90deg, rgba(181, 106, 58, 0.08) 0%, rgba(168, 90, 42, 0.02) 100%)',
           transition: 'all 0.2s ease',
         },
         '& .RaDatagrid-clickableRow:hover': {
-          background: 'linear-gradient(90deg, rgba(230, 181, 77, 0.08) 0%, rgba(230, 181, 77, 0.02) 100%)',
+          background: 'linear-gradient(90deg, rgba(181, 106, 58, 0.08) 0%, rgba(168, 90, 42, 0.02) 100%)',
         },
         '& .MuiToolbar-root': {
           padding: { xs: '12px 16px', sm: '16px 24px' },
@@ -469,7 +489,7 @@ export const StockList = (props: any) => (
         sx={{
           color: colors.gold,
           '&:hover': { 
-            background: 'linear-gradient(135deg, rgba(230, 181, 77, 0.15) 0%, rgba(201, 155, 57, 0.1) 100%)',
+            background: 'linear-gradient(135deg, rgba(181, 106, 58, 0.15) 0%, rgba(168, 90, 42, 0.1) 100%)',
             transform: 'scale(1.1)',
           },
         }}
@@ -533,6 +553,7 @@ export const StockCreate = (props: any) => (
         choices={[
           { id: 'Injera', name: 'Injera' },
           { id: 'Teff Flour', name: 'Teff Flour' },
+          { id: 'Pure Teff', name: 'Pure Teff' },
           { id: 'Packaging', name: 'Packaging' },
           { id: 'Other', name: 'Other' },
         ]}
@@ -588,6 +609,7 @@ export const StockEdit = (props: any) => (
         choices={[
           { id: 'Injera', name: 'Injera' },
           { id: 'Teff Flour', name: 'Teff Flour' },
+          { id: 'Pure Teff', name: 'Pure Teff' },
           { id: 'Packaging', name: 'Packaging' },
           { id: 'Other', name: 'Other' },
         ]}

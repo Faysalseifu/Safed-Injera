@@ -14,6 +14,7 @@ import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
 import GalleryPage from './pages/GalleryPage';
 import PricingPage from './pages/PricingPage';
+import ErrorBoundary from './components/ErrorBoundary';
 import './styles/globals.css';
 import './styles/nightmode.css';
 
@@ -37,36 +38,38 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <div className={`min-h-screen flex flex-col transition-colors duration-500 ${nightMode ? 'night-mode' : ''}`}>
-        <Header />
-        <main className="flex-grow">
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <>
-                  <Hero />
-                  <AISection />
-                  <About />
-                  <Products />
-                  <Process />
-                  <Distribution />
-                  <Clients />
-                  <Gallery />
-                  <Contact />
-                </>
-              }
-            />
-            <Route path="/about" element={<AboutPage />} />
-            <Route path="/contact" element={<ContactPage />} />
-            <Route path="/gallery" element={<GalleryPage />} />
-            <Route path="/pricing" element={<PricingPage />} />
-          </Routes>
-        </main>
-        <Footer />
-      </div>
-    </Router>
+    <ErrorBoundary>
+      <Router>
+        <div className={`min-h-screen flex flex-col transition-colors duration-500 ${nightMode ? 'night-mode' : ''}`}>
+          <Header />
+          <main className="flex-grow">
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  <>
+                    <Hero />
+                    <AISection />
+                    <About />
+                    <Products />
+                    <Process />
+                    <Distribution />
+                    <Clients />
+                    <Gallery />
+                    <Contact />
+                  </>
+                }
+              />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/contact" element={<ContactPage />} />
+              <Route path="/gallery" element={<GalleryPage />} />
+              <Route path="/pricing" element={<PricingPage />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </Router>
+    </ErrorBoundary>
   );
 }
 

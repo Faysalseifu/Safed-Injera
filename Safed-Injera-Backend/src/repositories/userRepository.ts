@@ -5,7 +5,8 @@ export interface UserRecord {
   username: string;
   email: string;
   password: string;
-  role: 'admin' | 'staff';
+  role: 'admin' | 'staff' | 'sub_admin';
+  branch_id: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -15,7 +16,8 @@ export interface CreateUserInput {
   username: string;
   email: string;
   password: string;
-  role: 'admin' | 'staff';
+  role: 'admin' | 'staff' | 'sub_admin';
+  branch_id?: string | null;
 }
 
 export const findUserByUsernameOrEmail = async (identifier: string): Promise<UserRecord | null> => {
@@ -28,7 +30,7 @@ export const findUserByUsernameOrEmail = async (identifier: string): Promise<Use
 
 export const findUserById = async (id: string): Promise<Omit<UserRecord, 'password'> | null> => {
   const { rows } = await pool.query<UserRecord>(
-    `SELECT id, username, email, role, created_at, updated_at FROM users WHERE id = $1 LIMIT 1`,
+    `SELECT id, username, email, role, branch_id, created_at, updated_at FROM users WHERE id = $1 LIMIT 1`,
     [id]
   );
   return rows[0] ?? null;
@@ -36,10 +38,10 @@ export const findUserById = async (id: string): Promise<Omit<UserRecord, 'passwo
 
 export const createUser = async (user: CreateUserInput): Promise<UserRecord> => {
   const { rows } = await pool.query<UserRecord>(
-    `INSERT INTO users (id, username, email, password, role)
-     VALUES ($1, $2, $3, $4, $5)
+    `INSERT INTO users (id, username, email, password, role, branch_id)
+     VALUES ($1, $2, $3, $4, $5, $6)
      RETURNING *`,
-    [user.id, user.username, user.email, user.password, user.role]
+    [user.id, user.username, user.email, user.password, user.role, user.branch_id ?? null]
   );
   return rows[0];
 };

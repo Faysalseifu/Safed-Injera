@@ -35,6 +35,7 @@ const authProvider: AuthProvider = {
         username: data.username,
         email: data.email,
         role: data.role,
+        branchId: data.branchId ?? null,
       }));
     } catch (error: any) {
       // Handle network errors
@@ -67,8 +68,8 @@ const authProvider: AuthProvider = {
   getPermissions: () => {
     const user = localStorage.getItem('user');
     if (user) {
-      const { role } = JSON.parse(user);
-      return Promise.resolve(role);
+      const { role, branchId } = JSON.parse(user);
+      return Promise.resolve({ role, branchId });
     }
     return Promise.reject();
   },

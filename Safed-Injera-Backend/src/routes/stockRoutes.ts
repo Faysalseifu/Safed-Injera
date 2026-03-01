@@ -10,7 +10,7 @@ import {
   getStockTransactionsHandler,
   getLowStockItemsHandler,
 } from '../controllers/stockController';
-import { protect, adminOnly } from '../middleware/authMiddleware';
+import { protect } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
@@ -26,7 +26,7 @@ router.get('/low-stock', getLowStockItemsHandler);
 router.route('/:id')
   .get(getStock)
   .put(updateStock)
-  .delete(adminOnly, deleteStock);
+  .delete(deleteStock); // Sub-admin can delete, but controller enforces branch scoping
 
 router.patch('/:id/quantity', updateStockQuantity);
 router.post('/:id/quick-adjust', quickAdjustStock);
