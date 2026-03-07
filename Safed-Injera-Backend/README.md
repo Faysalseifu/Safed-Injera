@@ -15,7 +15,7 @@ Backend API for Safed Injera - Stock management, orders, and analytics.
 
 - Node.js with Express.js
 - TypeScript
-- MongoDB with Mongoose
+- PostgreSQL (via `pg`)
 - JWT Authentication
 - Nodemailer for emails
 - PDFKit, XLSX for exports
@@ -26,8 +26,8 @@ Backend API for Safed Injera - Stock management, orders, and analytics.
 ### Prerequisites
 
 - Node.js 18+
-- MongoDB (Atlas or local)
 - npm or yarn
+- PostgreSQL (local or hosted)
 
 ### Installation
 
@@ -39,10 +39,11 @@ npm install
 2. Configure environment variables:
 ```bash
 # Copy .env.example to .env and update values
-cp .env.example .env
+# (On Windows PowerShell)
+Copy-Item .env.example .env
 ```
 
-3. Update `.env` with your MongoDB Atlas connection string and other settings.
+3. Update `.env` with your PostgreSQL connection string and other settings.
 
 4. Start development server:
 ```bash
@@ -84,12 +85,12 @@ npm start
 ## Environment Variables
 
 ```
-DB_URI=mongodb+srv://...
+DATABASE_URL=postgresql://USER:PASSWORD@HOST:PORT/DATABASE
 JWT_SECRET=your-secret-key
 EMAIL_USER=your-email@gmail.com
 EMAIL_PASS=your-app-password
 PORT=5000
-FRONTEND_URL=http://localhost:3000
+FRONTEND_URL=http://localhost:3001
 ADMIN_URL=http://localhost:5173
 ```
 

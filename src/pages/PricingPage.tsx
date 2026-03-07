@@ -31,7 +31,7 @@ const PricingPage = () => {
       <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
         {/* Pattern overlays - Using actual PNG images as overlays */}
         {/* Centered large pattern */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] opacity-22 pointer-events-none pattern-pricing-center-light night-mode:hidden"
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] opacity-22 pointer-events-none pattern-pricing-center-light dark:hidden"
           style={{
             backgroundImage: 'url(/images 2/pattern white.png.png)',
             backgroundRepeat: 'no-repeat',
@@ -39,7 +39,7 @@ const PricingPage = () => {
             backgroundPosition: 'center',
             mixBlendMode: 'multiply'
           }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] opacity-28 pointer-events-none pattern-pricing-center-dark hidden night-mode:block"
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[650px] opacity-28 pointer-events-none pattern-pricing-center-dark hidden dark:block"
           style={{
             backgroundImage: 'url(/images 2/pattern brown.png)',
             backgroundRepeat: 'no-repeat',
@@ -49,14 +49,14 @@ const PricingPage = () => {
           }} />
 
         {/* Repeated background */}
-        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-pricing-bg-light night-mode:hidden"
+        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-pricing-bg-light dark:hidden"
           style={{
             backgroundImage: 'url(/images 2/pattern white.png.png)',
             backgroundRepeat: 'repeat',
             backgroundSize: '300px',
             mixBlendMode: 'soft-light'
           }} />
-        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-pricing-bg-dark hidden night-mode:block"
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-pricing-bg-dark hidden dark:block"
           style={{
             backgroundImage: 'url(/images 2/pattern brown.png)',
             backgroundRepeat: 'repeat',

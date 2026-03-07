@@ -57,15 +57,13 @@ class ApiClient {
     } = options;
 
     const url = `${this.baseURL}${endpoint}`;
-    const requestHeaders: HeadersInit = {
-      'Content-Type': 'application/json',
-      ...headers,
-    };
+    const requestHeaders = new Headers(headers);
+    requestHeaders.set('Content-Type', 'application/json');
 
     if (requireAuth) {
       const token = this.getAuthToken();
       if (token) {
-        requestHeaders['Authorization'] = `Bearer ${token}`;
+        requestHeaders.set('Authorization', `Bearer ${token}`);
       } else {
         throw new ApiClientError('Authentication required', 401);
       }

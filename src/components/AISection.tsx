@@ -20,7 +20,7 @@ const AISection = () => {
                         className="space-y-6"
                     >
                         <div className="inline-block px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/30 text-amber-400 font-semibold text-sm tracking-wide">
-                            Future of Tradition
+                            Future of Injera
                         </div>
 
                         <h2 className="text-4xl md:text-5xl font-bold leading-tight">
@@ -28,14 +28,14 @@ const AISection = () => {
                         </h2>
 
                         <p className="text-lg text-gray-300 leading-relaxed">
-                            At Safed Injera, we combine centuries-old recipes with cutting-edge monitoring systems. Our smart sensors ensure optimal fermentation temperatures and consistent bacterial cultures, guaranteeing the perfect taste and texture in every batch.
+                            At Safed Injera, we protect the tradition behind real teff injera while producing at scale. Smart sensors track fermentation temperature and timing to keep the starter culture stable, so every injera comes out with the same aroma, softness, and signature “eyes”.
                         </p>
 
                         <div className="space-y-4 pt-4">
                             {[
-                                "Automated Temperature Control",
-                                "Precise Fermentation Monitoring",
-                                "Consistent Quality Assurance"
+                                "Automated Fermentation Temperature Control",
+                                "Real-time Fermentation Timing & Stability",
+                                "Consistent Taste, Texture, and 'Eyes'",
                             ].map((item, index) => (
                                 <motion.div
                                     key={index}

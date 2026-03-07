@@ -29,14 +29,14 @@ const GalleryPage = () => {
       <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
         {/* Pattern overlays - Using actual PNG images as overlays */}
         {/* Corner accent patterns */}
-        <div className="absolute top-0 left-0 w-[400px] h-[400px] opacity-18 pointer-events-none pattern-gallery-corner-light night-mode:hidden" 
+        <div className="absolute top-0 left-0 w-[400px] h-[400px] opacity-18 pointer-events-none pattern-gallery-corner-light dark:hidden" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern white.png.png)', 
                backgroundRepeat: 'no-repeat', 
                backgroundSize: 'contain',
                mixBlendMode: 'multiply'
              }} />
-        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] opacity-18 pointer-events-none pattern-gallery-corner-dark hidden night-mode:block" 
+        <div className="absolute bottom-0 right-0 w-[400px] h-[400px] opacity-18 pointer-events-none pattern-gallery-corner-dark hidden dark:block" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern brown.png)', 
                backgroundRepeat: 'no-repeat', 
@@ -45,14 +45,14 @@ const GalleryPage = () => {
              }} />
         
         {/* Repeated background */}
-        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-gallery-bg-light night-mode:hidden" 
+        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-gallery-bg-light dark:hidden" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern white.png.png)', 
                backgroundRepeat: 'repeat', 
                backgroundSize: '280px',
                mixBlendMode: 'soft-light'
              }} />
-        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-gallery-bg-dark hidden night-mode:block" 
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-gallery-bg-dark hidden dark:block" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern brown.png)', 
                backgroundRepeat: 'repeat', 

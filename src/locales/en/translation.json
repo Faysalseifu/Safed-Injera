@@ -8,7 +8,9 @@
     "clients": "Clients",
     "gallery": "Gallery",
     "contact": "Contact",
-    "pricing": "Pricing"
+    "pricing": "Pricing",
+    "signIn": "Sign in",
+    "signUp": "Sign up"
   },
   "hero": {
     "title": "Safed Injera",

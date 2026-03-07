@@ -80,18 +80,18 @@ const Contact = () => {
   return (
     <section id="contact" className="relative section-container py-24 overflow-hidden">
       {/* Background Ambience */}
-      <div className="absolute inset-0 bg-gradient-to-tr from-sefed-sand/10 via-white to-injera-maroon/5 night-mode:from-transparent night-mode:via-transparent night-mode:to-transparent pointer-events-none -z-10 transition-colors duration-300" />
+      <div className="absolute inset-0 bg-gradient-to-tr from-sefed-sand/10 via-white to-injera-maroon/5 dark:from-transparent dark:via-transparent dark:to-transparent pointer-events-none -z-10 transition-colors duration-300" />
       
       {/* Pattern overlays - Using actual PNG images as overlays */}
       {/* Decorative corner patterns */}
-      <div className="absolute top-0 left-0 w-[400px] h-[400px] opacity-20 pointer-events-none pattern-contact-corner-light night-mode:hidden -z-5" 
+      <div className="absolute top-0 left-0 w-[400px] h-[400px] opacity-20 pointer-events-none pattern-contact-corner-light dark:hidden -z-5" 
            style={{ 
              backgroundImage: 'url(/images 2/pattern white.png.png)', 
              backgroundRepeat: 'no-repeat', 
              backgroundSize: 'contain',
              mixBlendMode: 'multiply'
            }} />
-      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] opacity-20 pointer-events-none pattern-contact-corner-dark hidden night-mode:block -z-5" 
+      <div className="absolute bottom-0 right-0 w-[400px] h-[400px] opacity-20 pointer-events-none pattern-contact-corner-dark hidden dark:block -z-5" 
            style={{ 
              backgroundImage: 'url(/images 2/pattern brown.png)', 
              backgroundRepeat: 'no-repeat', 
@@ -100,14 +100,14 @@ const Contact = () => {
            }} />
       
       {/* Repeated background */}
-      <div className="absolute inset-0 opacity-12 pointer-events-none pattern-contact-bg-light night-mode:hidden -z-5" 
+      <div className="absolute inset-0 opacity-12 pointer-events-none pattern-contact-bg-light dark:hidden -z-5" 
            style={{ 
              backgroundImage: 'url(/images 2/pattern white.png.png)', 
              backgroundRepeat: 'repeat', 
              backgroundSize: '300px',
              mixBlendMode: 'soft-light'
            }} />
-      <div className="absolute inset-0 opacity-15 pointer-events-none pattern-contact-bg-dark hidden night-mode:block -z-5" 
+      <div className="absolute inset-0 opacity-15 pointer-events-none pattern-contact-bg-dark hidden dark:block -z-5" 
            style={{ 
              backgroundImage: 'url(/images 2/pattern brown.png)', 
              backgroundRepeat: 'repeat', 
@@ -123,8 +123,8 @@ const Contact = () => {
         className="text-center mb-16 relative z-10"
       >
         <span className="text-amber-glow font-bold tracking-widest text-sm uppercase mb-2 block">Get in Touch</span>
-        <h2 className="section-title text-4xl md:text-5xl font-black text-ethiopian-earth mb-4">{t('contact.title')}</h2>
-        <p className="text-lg text-coffee-brown/80 max-w-xl mx-auto font-light">{t('contact.subtitle')}</p>
+        <h2 className="section-title text-4xl md:text-5xl font-black text-ethiopian-earth dark:text-injera-white mb-4">{t('contact.title')}</h2>
+        <p className="text-lg text-coffee-brown/80 dark:text-injera-white/80 max-w-xl mx-auto font-light">{t('contact.subtitle')}</p>
       </motion.div>
 
       <div className="max-w-6xl mx-auto grid md:grid-cols-5 gap-12 items-start">
@@ -134,29 +134,29 @@ const Contact = () => {
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4 }}
-          className="md:col-span-3 bg-white/70 backdrop-blur-xl border border-white/60 p-8 sm:p-10 rounded-3xl shadow-xl relative z-10"
+          className="md:col-span-3 bg-white/70 backdrop-blur-xl border border-white/60 p-8 sm:p-10 rounded-3xl shadow-xl relative z-10 dark:bg-white/10 dark:border-white/10"
         >
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
             <div className="grid sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label htmlFor="name" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.name')}</label>
+                <label htmlFor="name" className="text-sm font-semibold text-ethiopian-earth dark:text-injera-white/90 ml-1">{t('contact.name')}</label>
                 <input
                   id="name"
                   type="text"
                   {...register('name', { required: true })}
-                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all dark:bg-white/5 dark:border-white/10 dark:text-injera-white dark:placeholder:text-injera-white/40"
                   placeholder="John Doe"
                 />
                 {errors.name && <p className="text-red-500 text-xs ml-1">Required</p>}
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.email')}</label>
+                <label htmlFor="email" className="text-sm font-semibold text-ethiopian-earth dark:text-injera-white/90 ml-1">{t('contact.email')}</label>
                 <input
                   id="email"
                   type="email"
                   {...register('email', { required: true, pattern: /^\S+@\S+$/i })}
-                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all dark:bg-white/5 dark:border-white/10 dark:text-injera-white dark:placeholder:text-injera-white/40"
                   placeholder="john@example.com"
                 />
                 {errors.email && <p className="text-red-500 text-xs ml-1">Valid email required</p>}
@@ -164,23 +164,23 @@ const Contact = () => {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="phone" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.phone')}</label>
+              <label htmlFor="phone" className="text-sm font-semibold text-ethiopian-earth dark:text-injera-white/90 ml-1">{t('contact.phone')}</label>
               <input
                 id="phone"
                 type="tel"
                 {...register('phone')}
-                className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+                className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all dark:bg-white/5 dark:border-white/10 dark:text-injera-white dark:placeholder:text-injera-white/40"
                 placeholder="+251 ..."
               />
             </div>
 
             <div className="grid sm:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <label htmlFor="businessType" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.businessType')}</label>
+                <label htmlFor="businessType" className="text-sm font-semibold text-ethiopian-earth dark:text-injera-white/90 ml-1">{t('contact.businessType')}</label>
                 <select
                   id="businessType"
                   {...register('businessType', { required: true })}
-                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all dark:bg-white/5 dark:border-white/10 dark:text-injera-white"
                 >
                   <option value="">{t('contact.businessTypePlaceholder')}</option>
                   <option value="hotel">{t('contact.hotel')}</option>
@@ -192,11 +192,11 @@ const Contact = () => {
                 {errors.businessType && <p className="text-red-500 text-xs ml-1">Required</p>}
               </div>
               <div className="space-y-2">
-                <label htmlFor="product" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.product') || 'Product'}</label>
+                <label htmlFor="product" className="text-sm font-semibold text-ethiopian-earth dark:text-injera-white/90 ml-1">{t('contact.product') || 'Product'}</label>
                 <select
                   id="product"
                   {...register('product')}
-                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+                  className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all dark:bg-white/5 dark:border-white/10 dark:text-injera-white"
                 >
                   <option value="Pure Teff Injera">Pure Teff Injera</option>
                   <option value="Mixed Grain Injera">Mixed Grain Injera</option>
@@ -206,24 +206,24 @@ const Contact = () => {
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="quantity" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.quantity')}</label>
+              <label htmlFor="quantity" className="text-sm font-semibold text-ethiopian-earth dark:text-injera-white/90 ml-1">{t('contact.quantity')}</label>
               <input
                 id="quantity"
                 type="number"
                 min="1"
                 defaultValue={1}
                 {...register('quantity', { min: 1, valueAsNumber: true })}
-                className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all"
+                className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all dark:bg-white/5 dark:border-white/10 dark:text-injera-white"
               />
             </div>
 
             <div className="space-y-2">
-              <label htmlFor="message" className="text-sm font-semibold text-ethiopian-earth ml-1">{t('contact.message')}</label>
+              <label htmlFor="message" className="text-sm font-semibold text-ethiopian-earth dark:text-injera-white/90 ml-1">{t('contact.message')}</label>
               <textarea
                 id="message"
                 rows={4}
                 {...register('message')}
-                className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all resize-none"
+                className="w-full px-4 py-3 bg-white/50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-amber-glow/50 focus:border-amber-glow/50 transition-all resize-none dark:bg-white/5 dark:border-white/10 dark:text-injera-white dark:placeholder:text-injera-white/40"
                 placeholder={t('contact.messagePlaceholder')}
               />
             </div>

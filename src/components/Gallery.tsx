@@ -19,17 +19,17 @@ const Gallery = () => {
   ];
 
   return (
-    <section id="gallery" className="section-container bg-gradient-to-b from-cloud-white to-sefed-sand/10 night-mode:from-transparent night-mode:to-transparent transition-colors duration-300 relative overflow-hidden">
+    <section id="gallery" className="section-container bg-gradient-to-b from-cloud-white to-sefed-sand/10 dark:from-transparent dark:to-transparent transition-colors duration-300 relative overflow-hidden">
       {/* Pattern overlays - Using actual PNG images as overlays */}
       {/* Repeated background */}
-      <div className="absolute inset-0 opacity-12 pointer-events-none pattern-gallery-section-bg-light night-mode:hidden" 
+      <div className="absolute inset-0 opacity-12 pointer-events-none pattern-gallery-section-bg-light dark:hidden" 
            style={{ 
              backgroundImage: 'url(/images 2/pattern white.png.png)', 
              backgroundRepeat: 'repeat', 
              backgroundSize: '250px',
              mixBlendMode: 'soft-light'
            }} />
-      <div className="absolute inset-0 opacity-15 pointer-events-none pattern-gallery-section-bg-dark hidden night-mode:block" 
+      <div className="absolute inset-0 opacity-15 pointer-events-none pattern-gallery-section-bg-dark hidden dark:block" 
            style={{ 
              backgroundImage: 'url(/images 2/pattern brown.png)', 
              backgroundRepeat: 'repeat', 
@@ -43,8 +43,8 @@ const Gallery = () => {
         transition={{ duration: 0.4 }}
         className="text-center mb-12 relative z-10"
       >
-        <h2 className="section-title">{t('gallery.title')}</h2>
-        <p className="section-subtitle">{t('gallery.subtitle')}</p>
+        <h2 className="section-title dark:text-injera-white">{t('gallery.title')}</h2>
+        <p className="section-subtitle text-coffee-brown/80 dark:text-injera-white/80">{t('gallery.subtitle')}</p>
       </motion.div>
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 relative z-10">
@@ -55,7 +55,7 @@ const Gallery = () => {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: index * 0.03 }}
-            className="relative aspect-square overflow-hidden rounded-xl cursor-pointer group card-glass p-0"
+            className="relative aspect-square overflow-hidden rounded-2xl cursor-pointer group card-glass p-0"
             onClick={() => setSelectedImage(index)}
           >
             <img

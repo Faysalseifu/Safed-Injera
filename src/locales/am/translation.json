@@ -8,7 +8,9 @@
     "clients": "ደንበኞች",
     "gallery": "ጋለሪ",
     "contact": "አግኙን",
-    "pricing": "ዋጋ"
+    "pricing": "ዋጋ",
+    "signIn": "ይግቡ",
+    "signUp": "ተመዝገቡ"
   },
   "hero": {
     "title": "ሳፈድ እንጀራ",

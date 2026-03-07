@@ -7,11 +7,12 @@ dotenv.config();
 const connectionString = process.env.DATABASE_URL;
 
 if (!connectionString) {
-  logger.error('PostgreSQL connection error: DATABASE_URL is not set');
-  process.exit(1);
+  logger.warn(
+    'DATABASE_URL is not set. Falling back to PG* environment variables (PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD) or local defaults.'
+  );
 }
 
-const pool = new Pool({ connectionString });
+const pool = connectionString ? new Pool({ connectionString }) : new Pool();
 
 const schemaStatements = [
   `CREATE TABLE IF NOT EXISTS users (
@@ -311,7 +312,9 @@ const connectDB = async (): Promise<void> => {
     logger.info('Database initialization complete');
   } catch (error: any) {
     logger.error('PostgreSQL connection error:', error.message || error);
-    logger.error('Failed to connect to database. Please check your DATABASE_URL environment variable.');
+    logger.error(
+      'Failed to connect to database. Set DATABASE_URL (recommended) or PGHOST/PGPORT/PGDATABASE/PGUSER/PGPASSWORD.'
+    );
     process.exit(1);
   }
 };

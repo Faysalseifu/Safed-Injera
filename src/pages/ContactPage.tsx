@@ -72,7 +72,7 @@ const ContactPage = () => {
       <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
         {/* Pattern overlays - Using actual PNG images as overlays */}
         {/* Large decorative pattern */}
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-20 pointer-events-none pattern-contactpage-decor-light night-mode:hidden" 
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-20 pointer-events-none pattern-contactpage-decor-light dark:hidden" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern white.png.png)', 
                backgroundRepeat: 'no-repeat', 
@@ -80,7 +80,7 @@ const ContactPage = () => {
                backgroundPosition: 'center top',
                mixBlendMode: 'overlay'
              }} />
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-25 pointer-events-none pattern-contactpage-decor-dark hidden night-mode:block" 
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] opacity-25 pointer-events-none pattern-contactpage-decor-dark hidden dark:block" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern brown.png)', 
                backgroundRepeat: 'no-repeat', 
@@ -90,14 +90,14 @@ const ContactPage = () => {
              }} />
         
         {/* Repeated background */}
-        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-contactpage-bg-light night-mode:hidden" 
+        <div className="absolute inset-0 opacity-12 pointer-events-none pattern-contactpage-bg-light dark:hidden" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern white.png.png)', 
                backgroundRepeat: 'repeat', 
                backgroundSize: '280px',
                mixBlendMode: 'soft-light'
              }} />
-        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-contactpage-bg-dark hidden night-mode:block" 
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-contactpage-bg-dark hidden dark:block" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern brown.png)', 
                backgroundRepeat: 'repeat', 

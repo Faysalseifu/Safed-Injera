@@ -42,7 +42,7 @@ const AboutPage = () => {
         
         {/* Pattern overlays - Using actual PNG images as overlays */}
         {/* Large centered pattern */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] opacity-25 pointer-events-none pattern-aboutpage-center-light night-mode:hidden" 
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] opacity-25 pointer-events-none pattern-aboutpage-center-light dark:hidden" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern white.png.png)', 
                backgroundRepeat: 'no-repeat', 
@@ -50,7 +50,7 @@ const AboutPage = () => {
                backgroundPosition: 'center',
                mixBlendMode: 'overlay'
              }} />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] opacity-30 pointer-events-none pattern-aboutpage-center-dark hidden night-mode:block" 
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] opacity-30 pointer-events-none pattern-aboutpage-center-dark hidden dark:block" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern brown.png)', 
                backgroundRepeat: 'no-repeat', 
@@ -60,14 +60,14 @@ const AboutPage = () => {
              }} />
         
         {/* Repeated background */}
-        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-aboutpage-bg-light night-mode:hidden" 
+        <div className="absolute inset-0 opacity-15 pointer-events-none pattern-aboutpage-bg-light dark:hidden" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern white.png.png)', 
                backgroundRepeat: 'repeat', 
                backgroundSize: '300px',
                mixBlendMode: 'soft-light'
              }} />
-        <div className="absolute inset-0 opacity-18 pointer-events-none pattern-aboutpage-bg-dark hidden night-mode:block" 
+        <div className="absolute inset-0 opacity-18 pointer-events-none pattern-aboutpage-bg-dark hidden dark:block" 
              style={{ 
                backgroundImage: 'url(/images 2/pattern brown.png)', 
                backgroundRepeat: 'repeat', 
