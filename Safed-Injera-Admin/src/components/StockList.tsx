@@ -29,6 +29,8 @@ import HistoryIcon from '@mui/icons-material/History';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import { useState } from 'react';
 
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
 // Design tokens - Safed Injera Branding
 const colors = {
   sidebar: '#4E1815',
@@ -185,7 +187,7 @@ const StockQuantityField = ({ record }: any) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/stocks/${record.id}/quick-adjust`, {
+      const response = await fetch(`${API_URL}/stocks/${record.id}/quick-adjust`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -294,7 +296,7 @@ const TransactionHistoryButton = ({ record }: any) => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await fetch(`http://localhost:5000/api/stocks/${record.id}/transactions`, {
+      const response = await fetch(`${API_URL}/stocks/${record.id}/transactions`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

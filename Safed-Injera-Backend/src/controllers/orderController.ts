@@ -12,7 +12,9 @@ import {
 import {
   adjustStockQuantity,
   findStockByName,
+  findStockByProductAndBranch,
 } from '../repositories/stockRepository';
+import { getMainHubBranch } from '../repositories/branchRepository';
 import { createStockTransaction } from '../repositories/stockTransactionRepository';
 import { sendOrderNotification } from '../utils/email';
 import { withTransaction } from '../utils/transaction';
@@ -29,6 +31,8 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
     const {
       status,
       businessType,
+      search,
+      customerName,
       sort,
       _sort,
       _order,
@@ -39,9 +43,12 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
     const parsedStart = _start ? Number(_start) : undefined;
     const parsedEnd = _end ? Number(_end) : undefined;
 
+    const searchTerm = typeof search === 'string' ? search : (typeof customerName === 'string' ? customerName : undefined);
+
     const options = {
       status: typeof status === 'string' ? status : undefined,
       businessType: typeof businessType === 'string' ? businessType : undefined,
+      search: searchTerm,
       sort: _sort ? String(_sort) : undefined,
       order: (typeof _order === 'string' && (_order === 'ASC' || _order === 'DESC') ? _order : undefined) as 'ASC' | 'DESC' | undefined,
       _start: typeof parsedStart === 'number' ? parsedStart : undefined,
@@ -105,7 +112,10 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
     const productName = typeof product === 'string' && product.trim().length > 0 ? product : 'Pure Teff Injera';
 
     const order = await withTransaction(async (client) => {
-      const stockItem = await findStockByName(productName, client);
+      const mainHub = await getMainHubBranch();
+      const stockItem = mainHub
+        ? await findStockByProductAndBranch(productName, mainHub.id, client)
+        : await findStockByName(productName, client);
       const totalPrice = stockItem ? Number(Number(stockItem.price) * quantityNumber) : undefined;
 
       if (stockItem && stockItem.quantity < quantityNumber) {
@@ -211,7 +221,10 @@ export const deleteOrder = async (req: Request, res: Response): Promise<void> =>
         throw new Error('ORDER_NOT_FOUND');
       }
 
-      const stockItem = await findStockByName(order.product, client);
+      const mainHub = await getMainHubBranch();
+      const stockItem = mainHub
+        ? await findStockByProductAndBranch(order.product, mainHub.id, client)
+        : await findStockByName(order.product, client);
       if (stockItem && order.quantity > 0) {
         const updatedStock = await adjustStockQuantity(stockItem.id, order.quantity, client);
         if (updatedStock) {

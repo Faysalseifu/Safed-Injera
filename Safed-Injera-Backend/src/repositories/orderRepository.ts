@@ -21,6 +21,7 @@ export interface OrderRecord {
 export interface OrderQueryOptions {
   status?: string;
   businessType?: string;
+  search?: string;
   sort?: string;
   order?: 'ASC' | 'DESC';
   _start?: number;
@@ -40,7 +41,7 @@ const sortColumnMap: Record<string, string> = {
 export const getOrders = async (
   options: OrderQueryOptions = {}
 ): Promise<{ rows: OrderRecord[]; total: number }> => {
-  const { status, businessType, sort, order, _start, _end } = options;
+  const { status, businessType, search, sort, order, _start, _end } = options;
   const filters: string[] = [];
   const values: (string | number)[] = [];
 
@@ -52,6 +53,11 @@ export const getOrders = async (
   if (businessType) {
     values.push(businessType);
     filters.push(`business_type = $${values.length}`);
+  }
+
+  if (search && search.trim()) {
+    values.push(`%${search.trim()}%`);
+    filters.push(`customer_name ILIKE $${values.length}`);
   }
 
   const whereClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';

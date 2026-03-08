@@ -10,8 +10,10 @@ import {
   countOrders,
   countOrdersByStatus,
   countOrdersSince,
+  getOrders as getOrdersRepo,
 } from '../repositories/orderRepository';
-import { getStocks, findStockById } from '../repositories/stockRepository';
+import { getStocks, getLowStockItems } from '../repositories/stockRepository';
+import { transformOrder, transformStock } from '../utils/transform';
 
 // @desc    Get sales analysis
 // @route   GET /api/analytics/sales
@@ -63,10 +65,10 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const weekOrders = await countOrdersSince(weekAgo);
-    const stocks = await getStocks({ isActive: true });
-    const lowStockItems = stocks.filter(s => s.quantity < 50);
+    const lowStockItems = await getLowStockItems();
     const revenue = await getRevenueSince(['confirmed', 'processing', 'shipped', 'delivered']);
-    const recentOrders = await getRecentOrders();
+    const recentOrders = (await getRecentOrders()).map(transformOrder);
+    const transformedLowStockItems = lowStockItems.map(transformStock);
     res.json({
       orders: {
         total: totalOrders,
@@ -76,8 +78,8 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
         thisWeek: weekOrders,
       },
       revenue,
-      lowStockAlerts: lowStockItems.length,
-      lowStockItems,
+      lowStockAlerts: transformedLowStockItems.length,
+      lowStockItems: transformedLowStockItems,
       recentOrders,
     });
   } catch (error) {
@@ -94,11 +96,11 @@ export const exportData = async (req: Request, res: Response): Promise<void> => 
     const { format, type } = req.query; // format: csv, pdf, excel; type: orders, stock
     let data: any[];
     if (type === 'stock') {
-      data = await getStocks({});
+      const stocks = await getStocks({});
+      data = stocks.map(transformStock);
     } else {
-      // Use getOrdersRepo to fetch all orders for export
-      const { rows } = await require('../repositories/orderRepository').getOrders({});
-      data = rows;
+      const { rows } = await getOrdersRepo({});
+      data = rows.map(transformOrder);
     }
     const filename = `safed-injera-${type || 'orders'}-${new Date().toISOString().split('T')[0]}`;
     switch (format) {
