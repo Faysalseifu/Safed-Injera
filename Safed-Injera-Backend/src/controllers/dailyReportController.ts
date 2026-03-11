@@ -82,6 +82,10 @@ export const getReportPreparationData = async (req: AuthRequest, res: Response):
     // Check if report already exists for today
     const existingReport = await getDailyReportByBranchAndDate(targetBranchId, targetDate);
 
+    // #region agent log
+    try{require('fs').appendFileSync(require('path').resolve(__dirname,'../../debug-9a5054.log'),JSON.stringify({sessionId:'9a5054',location:'dailyReportController.ts:prep',message:'preparation data sent to frontend',data:{targetBranchId,currentStock,receivedToday,todayTransfersCount:todayTransfers.length,todayTransfersStatuses:todayTransfers.map((t:any)=>t.status),existingReport:!!existingReport},timestamp:Date.now(),hypothesisId:'H1,H2'})+'\n');}catch(_){}
+    // #endregion
+
     res.json({
       dueCustomers,
       currentStock,
@@ -146,6 +150,13 @@ export const submitDailyReport = async (req: AuthRequest, res: Response): Promis
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayReport = await getDailyReportByBranchAndDate(targetBranchId, yesterday);
     const startingStock = yesterdayReport?.remaining_injera || 0;
+
+    // #region agent log
+    const _liveStockSummary = await getBranchStockSummary(targetBranchId);
+    const _liveInjeraStock = _liveStockSummary.category_breakdown.find(cat => cat.category === 'Injera');
+    const _liveCurrentStock = _liveInjeraStock?.total_quantity || 0;
+    try{require('fs').appendFileSync(require('path').resolve(__dirname,'../../debug-9a5054.log'),JSON.stringify({sessionId:'9a5054',location:'dailyReportController.ts:submit-validation',message:'submit validation values',data:{targetBranchId,receivedInjera,startingStock,yesterdayReportFound:!!yesterdayReport,yesterdayRemaining:yesterdayReport?.remaining_injera,liveCurrentStock:_liveCurrentStock,soldInjera,wastedInjera,remainingInjera,reportDate:reportDateObj.toISOString(),yesterdayDate:yesterday.toISOString(),reqBodyChecklists:checklists?.slice?.(0,2)},timestamp:Date.now(),hypothesisId:'H1,H3,H5'})+'\n');}catch(_){}
+    // #endregion
 
     const expectedTotal = receivedInjera + startingStock;
     const actualTotal = soldInjera + wastedInjera + remainingInjera;

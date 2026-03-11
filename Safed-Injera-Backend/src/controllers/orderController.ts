@@ -8,6 +8,7 @@ import {
   getOrderById,
   getOrders as getOrdersRepo,
   updateOrder as updateOrderRecord,
+  type OrderRecord,
 } from '../repositories/orderRepository';
 import {
   adjustStockQuantity,
@@ -191,9 +192,45 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
+    const newStatus = req.body?.status;
+    const existingOrder = await getOrderById(orderId);
+    if (!existingOrder) {
+      res.status(404).json({ message: 'Order not found' });
+      return;
+    }
+
     // Transform input from camelCase to snake_case for database
     const dbInput = transformOrderInput(req.body);
-    const updated = await updateOrderRecord(orderId, dbInput);
+
+    let updated: OrderRecord | null;
+    if (newStatus === 'cancelled' && existingOrder.status !== 'cancelled') {
+      updated = await withTransaction(async (client) => {
+        const mainHub = await getMainHubBranch();
+        const stockItem = mainHub
+          ? await findStockByProductAndBranch(existingOrder.product, mainHub.id, client)
+          : await findStockByName(existingOrder.product, client);
+        if (stockItem && existingOrder.quantity > 0) {
+          const updatedStock = await adjustStockQuantity(stockItem.id, existingOrder.quantity, client);
+          if (updatedStock) {
+            await createStockTransaction(
+              {
+                stock_id: stockItem.id,
+                transaction_type: 'in',
+                quantity_change: existingOrder.quantity,
+                quantity_before: stockItem.quantity,
+                quantity_after: updatedStock.quantity,
+                reason: `Order #${orderId} cancelled - stock restored`,
+              },
+              client
+            );
+          }
+        }
+        return updateOrderRecord(orderId, dbInput, client);
+      });
+    } else {
+      updated = await updateOrderRecord(orderId, dbInput);
+    }
+
     if (!updated) {
       res.status(404).json({ message: 'Order not found' });
       return;

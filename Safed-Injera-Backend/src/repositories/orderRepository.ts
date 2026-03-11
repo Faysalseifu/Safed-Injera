@@ -160,8 +160,10 @@ export interface UpdateOrderInput {
 
 export const updateOrder = async (
   id: number,
-  updates: UpdateOrderInput
+  updates: UpdateOrderInput,
+  client?: PoolClient
 ): Promise<OrderRecord | null> => {
+  const db = client ?? pool;
   const setClauses: string[] = [];
   const values: (string | number)[] = [];
 
@@ -173,13 +175,13 @@ export const updateOrder = async (
   });
 
   if (setClauses.length === 0) {
-    return getOrderById(id);
+    return getOrderById(id, client);
   }
 
   const finalValues = [...values, id];
   const setClause = `${setClauses.join(', ')}, updated_at = now()`;
 
-  const { rows } = await pool.query<OrderRecord>(
+  const { rows } = await db.query<OrderRecord>(
     `UPDATE orders SET ${setClause} WHERE id = $${finalValues.length} RETURNING *`,
     finalValues
   );
@@ -302,8 +304,10 @@ export const getRecentOrders = async (): Promise<Pick<OrderRecord, 'id' | 'custo
   const { rows } = await pool.query<Pick<OrderRecord, 'id' | 'customer_name' | 'business_type' | 'quantity' | 'status' | 'order_date'>>(
     `SELECT id, customer_name, business_type, quantity, status, order_date
      FROM orders
+     WHERE order_date >= NOW() - INTERVAL '3 days'
+       AND NOT (status = 'delivered' AND updated_at < NOW() - INTERVAL '1 day')
      ORDER BY order_date DESC
-     LIMIT 5`
+     LIMIT 15`
   );
   return rows;
 };

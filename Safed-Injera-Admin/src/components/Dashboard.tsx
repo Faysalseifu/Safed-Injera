@@ -343,7 +343,7 @@ const RecentOrdersCard = ({
             Last Orders
           </Typography>
           <Typography variant="body2" sx={{ color: colors.textSecondary }}>
-            Overview of latest orders
+            Last 3 days (delivered orders removed after 1 day)
           </Typography>
         </Box>
       </Box>
