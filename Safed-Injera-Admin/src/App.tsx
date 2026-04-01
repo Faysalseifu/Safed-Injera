@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Admin, Resource, CustomRoutes } from 'react-admin';
-import { Route } from 'react-router-dom';
+import { Route, useParams } from 'react-router-dom';
 import { ThemeProvider } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import InventoryIcon from '@mui/icons-material/Inventory';
@@ -23,6 +23,11 @@ import { BranchReports } from './components/BranchReports';
 import ErrorBoundary from './components/ErrorBoundary';
 import { lightTheme, darkTheme } from './theme';
 import './styles/globals.css';
+
+const DashboardBranchRoute = () => {
+  const { branchId } = useParams<{ branchId: string }>();
+  return <DashboardBranch branchId={branchId} />;
+};
 
 // Dark mode context
 export const DarkModeContext = React.createContext({
@@ -75,7 +80,7 @@ function App() {
             />
             <CustomRoutes>
               <Route path="/branch-dashboard" element={<BranchDashboard />} />
-              <Route path="/dashboard/branch/:branchId" element={<DashboardBranch />} />
+              <Route path="/dashboard/branch/:branchId" element={<DashboardBranchRoute />} />
               <Route path="/branch-reports" element={<BranchReports />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/stock-settings" element={<StockSettings />} />

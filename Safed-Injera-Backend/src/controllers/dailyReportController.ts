@@ -1,9 +1,7 @@
 import { Response } from 'express';
 import { AuthRequest } from '../middleware/authMiddleware';
 import {
-  getDailyReportById,
   getDailyReportByBranchAndDate,
-  getDailyReportsByBranch,
   getAllDailyReports,
   createDailyReportWithChecklists,
   getDailyReportWithChecklists,
@@ -14,7 +12,7 @@ import {
   adjustStockQuantity,
   findStockByProductAndBranch,
 } from '../repositories/stockRepository';
-import { getPendingTransfersForBranch } from '../repositories/stockTransferRepository';
+import { getReceivedTransfersForBranchOnDate } from '../repositories/stockTransferRepository';
 import { createStockTransaction } from '../repositories/stockTransactionRepository';
 import { createActivityLog } from '../repositories/activityLogRepository';
 import { getDueCustomersForDate } from '../repositories/customerRepository';
@@ -69,26 +67,25 @@ export const getReportPreparationData = async (req: AuthRequest, res: Response):
     const injeraStock = stockSummary.category_breakdown.find((cat) => cat.category === 'Injera');
     const currentStock = injeraStock?.total_quantity || 0;
 
-    // Get received injera from transfers today
-    const todayTransfers = await getPendingTransfersForBranch(targetBranchId);
-    const today = new Date().toISOString().split('T')[0];
-    const receivedToday = todayTransfers
-      .filter((t) => {
-        const transferDate = new Date(t.created_at).toISOString().split('T')[0];
-        return transferDate === today && t.status === 'received';
-      })
-      .reduce((sum, t) => sum + (t.category === 'Injera' ? t.quantity : 0), 0);
+    // Get received injera from transfers on the target date
+    const receivedTransfers = await getReceivedTransfersForBranchOnDate(targetBranchId, targetDate);
+    const receivedToday = receivedTransfers
+      .filter((t) => t.category === 'Injera')
+      .reduce((sum, t) => sum + t.quantity, 0);
 
-    // Check if report already exists for today
+    // Determine starting stock: yesterday's remaining or live stock as fallback
+    const yesterday = new Date(targetDate);
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayReport = await getDailyReportByBranchAndDate(targetBranchId, yesterday);
+    const startingStock = yesterdayReport ? yesterdayReport.remaining_injera : currentStock;
+
+    // Check if report already exists for the target date
     const existingReport = await getDailyReportByBranchAndDate(targetBranchId, targetDate);
-
-    // #region agent log
-    try{require('fs').appendFileSync(require('path').resolve(__dirname,'../../debug-9a5054.log'),JSON.stringify({sessionId:'9a5054',location:'dailyReportController.ts:prep',message:'preparation data sent to frontend',data:{targetBranchId,currentStock,receivedToday,todayTransfersCount:todayTransfers.length,todayTransfersStatuses:todayTransfers.map((t:any)=>t.status),existingReport:!!existingReport},timestamp:Date.now(),hypothesisId:'H1,H2'})+'\n');}catch(_){}
-    // #endregion
 
     res.json({
       dueCustomers,
       currentStock,
+      startingStock,
       receivedToday,
       existingReport: existingReport ? { id: existingReport.id, submittedAt: existingReport.created_at } : null,
     });
@@ -144,19 +141,19 @@ export const submitDailyReport = async (req: AuthRequest, res: Response): Promis
     }
 
     // Validate: sold + wasted + remaining should equal received + starting stock
-    // Get starting stock (from previous day's remaining or current stock)
     const reportDateObj = reportDate ? new Date(reportDate) : new Date();
     const yesterday = new Date(reportDateObj);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayReport = await getDailyReportByBranchAndDate(targetBranchId, yesterday);
-    const startingStock = yesterdayReport?.remaining_injera || 0;
 
-    // #region agent log
-    const _liveStockSummary = await getBranchStockSummary(targetBranchId);
-    const _liveInjeraStock = _liveStockSummary.category_breakdown.find(cat => cat.category === 'Injera');
-    const _liveCurrentStock = _liveInjeraStock?.total_quantity || 0;
-    try{require('fs').appendFileSync(require('path').resolve(__dirname,'../../debug-9a5054.log'),JSON.stringify({sessionId:'9a5054',location:'dailyReportController.ts:submit-validation',message:'submit validation values',data:{targetBranchId,receivedInjera,startingStock,yesterdayReportFound:!!yesterdayReport,yesterdayRemaining:yesterdayReport?.remaining_injera,liveCurrentStock:_liveCurrentStock,soldInjera,wastedInjera,remainingInjera,reportDate:reportDateObj.toISOString(),yesterdayDate:yesterday.toISOString(),reqBodyChecklists:checklists?.slice?.(0,2)},timestamp:Date.now(),hypothesisId:'H1,H3,H5'})+'\n');}catch(_){}
-    // #endregion
+    let startingStock: number;
+    if (yesterdayReport) {
+      startingStock = yesterdayReport.remaining_injera;
+    } else {
+      const liveStockSummary = await getBranchStockSummary(targetBranchId);
+      const liveInjeraStock = liveStockSummary.category_breakdown.find(cat => cat.category === 'Injera');
+      startingStock = liveInjeraStock?.total_quantity || 0;
+    }
 
     const expectedTotal = receivedInjera + startingStock;
     const actualTotal = soldInjera + wastedInjera + remainingInjera;
@@ -190,7 +187,12 @@ export const submitDailyReport = async (req: AuthRequest, res: Response): Promis
           total_revenue: totalRevenue,
           submitted_by: userId,
           notes: notes || null,
-          checklists: checklists || [],
+          checklists: (checklists || []).map((c: any) => ({
+            customer_id: c.customer_id || c.customerId,
+            delivered: c.delivered,
+            quantity_delivered: c.quantity_delivered ?? c.quantityDelivered ?? 0,
+            comment: c.comment,
+          })),
         },
         client
       );

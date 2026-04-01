@@ -19,7 +19,7 @@ const generateToken = (id: string): string => {
 
 // @desc    Register a new admin user
 // @route   POST /api/auth/register
-// @access  Public (should be restricted in production)
+// @access  First user: public (bootstrap). After that: admin-only.
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
     const { username, email, password, role, branchId } = req.body;
@@ -29,7 +29,18 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    const resolvedRole = role === 'sub_admin' ? 'sub_admin' : role === 'staff' ? 'staff' : 'admin';
+    const userCount = await countUsers();
+    const isBootstrap = userCount === 0;
+
+    if (!isBootstrap) {
+      const authUser = (req as any).user;
+      if (!authUser || authUser.role !== 'admin') {
+        res.status(403).json({ message: 'Only admins can register new users' });
+        return;
+      }
+    }
+
+    const resolvedRole = isBootstrap ? 'admin' : (role === 'sub_admin' ? 'sub_admin' : role === 'staff' ? 'staff' : 'admin');
     if (resolvedRole === 'sub_admin' && !branchId) {
       res.status(400).json({ message: 'Branch is required for sub-admin role' });
       return;

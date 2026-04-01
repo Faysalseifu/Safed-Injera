@@ -17,6 +17,7 @@ import {
   useDataProvider,
   useNotify,
   useRefresh,
+  useRecordContext,
   Button,
 } from 'react-admin';
 import { Box, Typography, Chip, IconButton, Tooltip, Avatar } from '@mui/material';
@@ -457,6 +458,29 @@ export const OrderList = (props: any) => (
   </Box>
 );
 
+const OrderStatusHistory = () => {
+  const record = useRecordContext();
+  if (!record?.statusHistory || record.statusHistory.length === 0) return null;
+
+  return (
+    <Box sx={{ p: 2, bgcolor: 'rgba(63, 79, 81, 0.02)', borderRadius: '8px', mb: 2, width: '100%' }}>
+      <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
+        Status History
+      </Typography>
+      {record.statusHistory.map((entry: any, index: number) => (
+        <Box key={index} sx={{ mb: 1 }}>
+          <Typography variant="body2">
+            {entry.from} → {entry.to}
+          </Typography>
+          <Typography variant="caption" sx={{ color: colors.textSecondary }}>
+            {new Date(entry.changedAt).toLocaleString()}
+          </Typography>
+        </Box>
+      ))}
+    </Box>
+  );
+};
+
 export const OrderEdit = (props: any) => (
   <Edit
     {...props}
@@ -517,23 +541,7 @@ export const OrderEdit = (props: any) => (
       <NumberInput source="quantity" disabled />
       <NumberInput source="totalPrice" label="Total Price (ETB)" />
       <SelectInput source="status" choices={statusChoices} />
-      {record?.statusHistory && record.statusHistory.length > 0 && (
-        <Box sx={{ p: 2, bgcolor: 'rgba(63, 79, 81, 0.02)', borderRadius: '8px', mb: 2 }}>
-          <Typography variant="subtitle2" sx={{ fontWeight: 600, mb: 1 }}>
-            Status History
-          </Typography>
-          {record.statusHistory.map((entry: any, index: number) => (
-            <Box key={index} sx={{ mb: 1 }}>
-              <Typography variant="body2">
-                {entry.from} → {entry.to}
-              </Typography>
-              <Typography variant="caption" sx={{ color: colors.textSecondary }}>
-                {new Date(entry.changedAt).toLocaleString()}
-              </Typography>
-            </Box>
-          ))}
-        </Box>
-      )}
+      <OrderStatusHistory />
       <TextInput source="message" multiline rows={3} disabled fullWidth />
       <TextInput source="notes" multiline rows={3} fullWidth label="Admin Notes" />
     </SimpleForm>

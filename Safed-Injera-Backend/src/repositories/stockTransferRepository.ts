@@ -75,6 +75,22 @@ export const getPendingTransfersForBranch = async (
   return rows;
 };
 
+export const getReceivedTransfersForBranchOnDate = async (
+  toBranchId: string,
+  date: Date
+): Promise<StockTransferRecord[]> => {
+  const dateStr = date.toISOString().split('T')[0];
+  const { rows } = await pool.query<StockTransferRecord>(
+    `SELECT * FROM stock_transfers
+     WHERE to_branch_id = $1
+       AND status = 'received'
+       AND received_at::date = $2::date
+     ORDER BY received_at DESC`,
+    [toBranchId, dateStr]
+  );
+  return rows;
+};
+
 export const updateStockTransferStatus = async (
   id: string,
   status: 'received' | 'cancelled',

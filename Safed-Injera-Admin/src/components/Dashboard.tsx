@@ -1748,7 +1748,7 @@ const Dashboard = () => {
               const payload = {
                 customerName: (document.getElementById('cust-name') as HTMLInputElement).value,
                 phone: (document.getElementById('cust-phone') as HTMLInputElement).value,
-                email: (document.getElementById('cust-email') as HTMLInputElement).value || 'phone-order@safedinjer.com',
+                email: (document.getElementById('cust-email') as HTMLInputElement).value || 'phone-order@safedinjera.com',
                 businessType: (document.getElementById('cust-biz-type') as HTMLSelectElement).value,
                 product: (document.getElementById('order-product') as HTMLSelectElement).value,
                 quantity: Number((document.getElementById('order-qty') as HTMLInputElement).value),

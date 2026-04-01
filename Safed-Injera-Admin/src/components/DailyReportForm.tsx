@@ -45,6 +45,7 @@ interface DueCustomer {
 interface PreparationData {
   dueCustomers: DueCustomer[];
   currentStock: number;
+  startingStock: number;
   receivedToday: number;
   existingReport: { id: string; submittedAt: string } | null;
 }
@@ -138,16 +139,16 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
   };
 
   const validateStock = () => {
-    const startingStock = preparationData?.currentStock || 0;
+    const starting = preparationData?.startingStock ?? preparationData?.currentStock ?? 0;
     const received = formData.receivedInjera;
     const sold = formData.soldInjera;
     const wasted = formData.wastedInjera;
     const remaining = formData.remainingInjera;
 
-    const expectedTotal = received + startingStock;
+    const expectedTotal = received + starting;
     const actualTotal = sold + wasted + remaining;
 
-    return Math.abs(expectedTotal - actualTotal) <= 1; // Allow 1 unit difference
+    return Math.abs(expectedTotal - actualTotal) <= 1;
   };
 
   const handleSubmit = async () => {
@@ -159,12 +160,12 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
 
     // Validate stock calculations
     if (!validateStock()) {
-      const startingStock = preparationData?.currentStock || 0;
-      const expectedTotal = formData.receivedInjera + startingStock;
+      const starting = preparationData?.startingStock ?? preparationData?.currentStock ?? 0;
+      const expectedTotal = formData.receivedInjera + starting;
       const actualTotal = formData.soldInjera + formData.wastedInjera + formData.remainingInjera;
       setSnackbar({
         open: true,
-        message: `Stock validation failed: Expected ${expectedTotal} (received: ${formData.receivedInjera} + starting: ${startingStock}), but got ${actualTotal} (sold: ${formData.soldInjera} + wasted: ${formData.wastedInjera} + remaining: ${formData.remainingInjera})`,
+        message: `Stock validation failed: Expected ${expectedTotal} (received: ${formData.receivedInjera} + starting: ${starting}), but got ${actualTotal} (sold: ${formData.soldInjera} + wasted: ${formData.wastedInjera} + remaining: ${formData.remainingInjera})`,
         severity: 'error',
       });
       return;
@@ -248,7 +249,7 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
     );
   }
 
-  const startingStock = preparationData.currentStock;
+  const startingStock = preparationData.startingStock ?? preparationData.currentStock;
   const expectedTotal = formData.receivedInjera + startingStock;
   const actualTotal = formData.soldInjera + formData.wastedInjera + formData.remainingInjera;
   const stockValid = validateStock();
