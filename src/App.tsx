@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import Footer from './components/Footer';
 import Hero from './components/Hero';
-import AISection from './components/AISection';
 import About from './components/About';
 import Products from './components/Products';
 import Process from './components/Process';
@@ -49,12 +48,17 @@ function App() {
                 element={
                   <>
                     <Hero />
-                    <AISection />
-                    <About />
-                    <Products />
-                    <Process />
-                    <Distribution />
-                    <Clients />
+                    <div className="home-mid-shell">
+                      <div className="home-mid-bg" aria-hidden="true">
+                        <div className="home-mid-bg-light dark:hidden" />
+                        <div className="home-mid-bg-dark hidden dark:block" />
+                      </div>
+                      <About />
+                      <Products />
+                      <Process />
+                      <Distribution />
+                      <Clients />
+                    </div>
                     <Gallery />
                     <Contact />
                   </>

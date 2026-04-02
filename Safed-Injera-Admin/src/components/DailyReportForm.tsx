@@ -83,6 +83,8 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
     notes: '',
   });
 
+  const [soldManuallyEdited, setSoldManuallyEdited] = useState(false);
+
   const [checklists, setChecklists] = useState<ChecklistItem[]>([]);
 
   const fetchPreparationData = async () => {
@@ -108,6 +110,7 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
         comment: '',
       }));
       setChecklists(initialChecklists);
+      setSoldManuallyEdited(false);
 
       // Pre-populate received injera
       setFormData((prev) => ({
@@ -137,6 +140,17 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
       .filter((c) => c.delivered)
       .reduce((sum, c) => sum + c.quantityDelivered, 0);
   };
+
+  useEffect(() => {
+    if (soldManuallyEdited) {
+      return;
+    }
+    const deliveredTotal = calculateTotalDelivered();
+    setFormData((prev) => ({
+      ...prev,
+      soldInjera: deliveredTotal,
+    }));
+  }, [checklists, soldManuallyEdited]);
 
   const validateStock = () => {
     const starting = preparationData?.startingStock ?? preparationData?.currentStock ?? 0;
@@ -331,6 +345,7 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
                 onChange={(e) =>
                   setFormData({ ...formData, soldInjera: parseInt(e.target.value) || 0 })
                 }
+                onFocus={() => setSoldManuallyEdited(true)}
                 fullWidth
                 required
                 inputProps={{ min: 0 }}

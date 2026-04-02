@@ -17,14 +17,14 @@ const Process = () => {
   return (
     <section
       id="process"
-      className="section-container relative overflow-hidden bg-injera-white dark:bg-transparent transition-colors duration-300"
+      className="section-container process-shell relative overflow-hidden bg-injera-white dark:bg-transparent transition-colors duration-300"
     >
       {/* Background ambience */}
-      <div className="absolute inset-0 bg-gradient-to-b from-cloud-white via-injera-white to-sefed-sand/10 dark:from-transparent dark:via-transparent dark:to-transparent pointer-events-none -z-10 transition-colors duration-300" />
+      <div className="process-ambience absolute inset-0 bg-gradient-to-b from-cloud-white via-injera-white to-sefed-sand/10 dark:from-transparent dark:via-transparent dark:to-transparent pointer-events-none -z-10 transition-colors duration-300" />
 
       {/* Pattern overlays */}
       <div
-        className="absolute inset-0 opacity-10 pointer-events-none dark:hidden"
+        className="process-pattern-light absolute inset-0 opacity-10 pointer-events-none dark:hidden"
         style={{
           backgroundImage: 'url(/images 2/pattern white.png.png)',
           backgroundRepeat: 'repeat',
@@ -33,7 +33,7 @@ const Process = () => {
         }}
       />
       <div
-        className="absolute inset-0 opacity-12 pointer-events-none hidden dark:block"
+        className="process-pattern-dark absolute inset-0 opacity-12 pointer-events-none hidden dark:block"
         style={{
           backgroundImage: 'url(/images 2/pattern brown.png)',
           backgroundRepeat: 'repeat',
@@ -59,7 +59,7 @@ const Process = () => {
 
       <div className="relative z-10">
         {/* Timeline line */}
-        <div className="hidden md:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-accent-gray/30 dark:bg-white/10" />
+        <div className="process-line hidden md:block absolute left-1/2 transform -translate-x-1/2 w-1 h-full bg-accent-gray/30 dark:bg-white/10" />
 
         <div className="space-y-12 md:space-y-16">
           {steps.map((step, index) => (
@@ -74,13 +74,13 @@ const Process = () => {
               }`}
             >
               {/* Step number and icon */}
-              <div className="flex-shrink-0 w-24 h-24 rounded-full bg-white/80 backdrop-blur-md border border-white/70 text-4xl flex items-center justify-center shadow-lg relative z-10 hover:scale-105 hover:shadow-amber-glow transition-all duration-300 dark:bg-white/10 dark:border-white/10">
+              <div className="process-icon flex-shrink-0 w-24 h-24 rounded-full bg-white/80 backdrop-blur-md border border-white/70 text-4xl flex items-center justify-center shadow-lg relative z-10 hover:scale-105 hover:shadow-amber-glow transition-all duration-300 dark:bg-white/10 dark:border-white/10">
                 {step.icon}
               </div>
 
               {/* Content */}
               <div
-                className={`flex-1 card-modern ${
+                className={`process-card flex-1 card-modern ${
                   index % 2 === 0 ? 'md:text-left' : 'md:text-right'
                 } rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-xl p-6 sm:p-8 dark:bg-white/10 dark:border-white/10`}
               >

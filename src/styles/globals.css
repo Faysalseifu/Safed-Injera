@@ -15,7 +15,7 @@
   }
   
   body {
-    @apply bg-cloud-white text-ethiopian-earth antialiased;
+    @apply bg-white text-ethiopian-earth antialiased;
     font-family: 'Poppins', system-ui, sans-serif;
   }
 
@@ -99,6 +99,19 @@
     @apply bg-gradient-to-br from-cloud-white to-cloud-white/80 backdrop-blur-xl rounded-2xl p-6 sm:p-8 border border-sefed-sand/20 shadow-2xl transition-all duration-500 hover:shadow-[0_30px_80px_rgba(78,24,21,0.15)] hover:-translate-y-3;
   }
 
+  /* Team cards */
+  .team-avatar-ring {
+    transform: translateY(-14px);
+  }
+
+  .team-card-front {
+    background-color: rgba(255, 255, 255, 0.98);
+  }
+
+  .team-card-back {
+    box-shadow: 0 24px 60px rgba(10, 6, 5, 0.35);
+  }
+
   /* Gradient backgrounds - Inspired by image's sophisticated gradients */
   .gradient-primary {
     background: linear-gradient(135deg, #4E1815 0%, #6B2A25 25%, #4E1815 50%, #3A120F 75%, #4E1815 100%);
@@ -151,7 +164,7 @@
     transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter, backdrop-filter;
     transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   }
-
+ 
   /* Link hovers brand tone */
   a:hover { color: var(--amber-glow); }
 
@@ -160,6 +173,47 @@
 
   /* Ensure body covers entire viewport nicely */
   body, #root { min-height: 100vh; }
+
+  /* Shared background for About through Clients */
+  .home-mid-shell {
+    position: relative;
+  }
+
+  .home-mid-bg {
+    position: absolute;
+    inset: 0;
+    z-index: -10;
+    pointer-events: none;
+  }
+
+  .home-mid-bg-light,
+  .home-mid-bg-dark {
+    position: absolute;
+    inset: 0;
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+  }
+
+  .home-mid-bg-light {
+    background-color: #FFFFFF;
+    background-image:
+      radial-gradient(900px 480px at 50% 40%, rgba(181, 106, 58, 0.12), transparent 62%),
+      radial-gradient(1400px 800px at 15% 15%, rgba(181, 106, 58, 0.08), transparent 68%),
+      radial-gradient(1400px 800px at 85% 85%, rgba(0, 0, 0, 0.08), transparent 72%),
+      radial-gradient(1000px 700px at 50% 50%, rgba(0, 0, 0, 0.1), transparent 78%);
+    opacity: 1;
+  }
+
+  .home-mid-bg-dark {
+    background-color: #3A120F;
+    background-image:
+      radial-gradient(900px 480px at 50% 40%, rgba(181, 106, 58, 0.3), transparent 62%),
+      radial-gradient(1400px 800px at 15% 15%, rgba(181, 106, 58, 0.16), transparent 68%),
+      radial-gradient(1400px 800px at 85% 85%, rgba(0, 0, 0, 0.3), transparent 72%),
+      radial-gradient(1000px 700px at 50% 50%, rgba(0, 0, 0, 0.32), transparent 78%);
+    opacity: 1;
+  }
 
   /* Shimmer scan line for hero card */
   @keyframes shimmerLine {

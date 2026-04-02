@@ -2,6 +2,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useEffect } from 'react';
 import Team from '../components/Team';
+import SplitHero from '../components/SplitHero';
 
 const AboutPage = () => {
   const { t } = useTranslation();
@@ -26,6 +27,14 @@ const AboutPage = () => {
       text: t('about.heritageText'),
       icon: '🏛️',
     },
+  ];
+
+  const heroImages = [
+    { src: '/images/safed in cup.jpg', alt: 'Safed Injera in cup' },
+    { src: '/images/safed packaged.jpg', alt: 'Safed Injera packaged' },
+    { src: '/images/sefed A3 promo.jpg', alt: 'Safed Injera promo' },
+    { src: '/images/sefed cloth.jpg', alt: 'Safed Injera cloth' },
+    { src: '/images/safed rollup.jpg', alt: 'Safed Injera rollup' },
   ];
 
   return (
@@ -75,27 +84,13 @@ const AboutPage = () => {
                mixBlendMode: 'soft-light'
              }} />
         <div className="section-container relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center text-cloud-white relative z-10"
-          >
-            <motion.span
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-              className="inline-block py-1 px-3 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-sefed-sand text-sm font-medium tracking-widest uppercase mb-4"
-            >
-              Building the Future of Injera
-            </motion.span>
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-black mb-6 tracking-tight">
-              {t('about.title')}
-            </h1>
-            <p className="text-lg sm:text-xl md:text-2xl text-sefed-sand/90 max-w-3xl mx-auto font-light leading-relaxed">
-              {t('about.subtitle')}
-            </p>
-          </motion.div>
+          <SplitHero
+            eyebrow="Building the Future of Injera"
+            title={t('about.title')}
+            subtitle={t('about.subtitle')}
+            images={heroImages}
+            initialIndex={0}
+          />
         </div>
       </section>
 

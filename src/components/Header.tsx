@@ -13,7 +13,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const ADMIN_DEV_URL = import.meta.env.VITE_ADMIN_URL || 'http://localhost:5173/';
+  const ADMIN_DEV_URL = 'http://localhost:5173/';
 
   useEffect(() => {
     const handleScroll = () => {

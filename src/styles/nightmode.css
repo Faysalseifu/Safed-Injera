@@ -1,10 +1,9 @@
 /* Night mode styles for Sefed Injera brand */
+/* Full-page dark mode base */
 .night-mode {
-  background: radial-gradient(1200px 600px at 20% 10%, rgba(181, 106, 58, 0.15), transparent 60%),
-              radial-gradient(1000px 500px at 80% 80%, rgba(90, 15, 18, 0.25), transparent 60%),
-              linear-gradient(135deg, #4A2A1F 0%, #5A0F12 50%, #4A2A1F 100%);
+  background: #3A120F;
   color: #F9F9F7 !important;
-  transition: background 0.8s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
+  transition: background-color 0.6s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
   position: relative;
 }
 
@@ -12,65 +11,170 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 30% 20%, rgba(181,106,58,0.15), transparent 40%),
-              radial-gradient(circle at 70% 80%, rgba(255,255,255,0.04), transparent 45%);
+  background: radial-gradient(1200px 600px at 20% 10%, rgba(181, 106, 58, 0.18), transparent 60%),
+              radial-gradient(1000px 500px at 80% 80%, rgba(90, 15, 18, 0.35), transparent 60%);
   pointer-events: none;
-  animation: nmFloat 12s ease-in-out infinite;
+  opacity: 0.9;
 }
 
 @keyframes nmFloat {
   0%, 100% { transform: translateY(0); opacity: 1; }
   50% { transform: translateY(-10px); opacity: 0.9; }
 }
-.night-mode .bg-injera-white {
-  background-color: #1a1412 !important;
-  transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
+/* Ensure whole page stays brown */
+.night-mode,
+.night-mode body,
+.night-mode #root,
+.night-mode .min-h-screen {
+  background-color: #3A120F !important;
+  color: #F9F9F7 !important;
 }
+
+/* Brand text colors in night mode */
+.night-mode .text-ethiopian-earth,
+.night-mode .text-coffee-brown,
+.night-mode .text-sefed-sand,
 .night-mode .text-injera-maroon {
   color: #F9F9F7 !important;
-  transition: color 0.5s cubic-bezier(.4,0,.2,1);
+}
+
+.night-mode .text-amber-glow,
+.night-mode a:hover,
+.night-mode .text-gradient {
+  color: #F2C36B !important;
+}
+
+.night-mode .bg-injera-white {
+  background-color: #2A0E0C !important;
+  transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
 }
 .night-mode .bg-injera-maroon {
   background-color: #5A0F12 !important;
   transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
 }
-.night-mode .text-coffee-brown {
-  color: #CFCFCF !important;
-  transition: color 0.5s cubic-bezier(.4,0,.2,1);
-}
 .night-mode .bg-accent-gray {
-  background-color: #222 !important;
+  background-color: #2F1411 !important;
   transition: background-color 0.5s cubic-bezier(.4,0,.2,1);
 }
-.night-mode .card-modern {
-  background-color: #3b221b !important;
+/* Cards and sections */
+.night-mode .card-modern,
+.night-mode .card-glass,
+.night-mode .glass-card,
+.night-mode .glass {
+  background: linear-gradient(155deg, rgba(42, 14, 12, 0.96), rgba(58, 18, 15, 0.9)) !important;
   color: #F9F9F7 !important;
-  border-color: rgba(181, 106, 58, 0.35) !important;
+  border-color: rgba(242, 195, 107, 0.35) !important;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45) !important;
   transition: background-color 0.5s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1), border-color 0.5s cubic-bezier(.4,0,.2,1);
 }
-.night-mode .section-title, .night-mode .section-subtitle {
-  color: #F9F9F7 !important;
-  transition: color 0.5s cubic-bezier(.4,0,.2,1);
+
+.night-mode .team-card-front {
+  background: linear-gradient(160deg, rgba(42, 14, 12, 0.96), rgba(74, 42, 31, 0.9)) !important;
+  border-color: rgba(242, 195, 107, 0.28) !important;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5) !important;
 }
+
+.night-mode .team-card-back {
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.55) !important;
+}
+
+.night-mode .section-title,
+.night-mode .section-subtitle,
+.night-mode h1,
+.night-mode h2,
+.night-mode h3,
+.night-mode h4,
+.night-mode h5,
+.night-mode h6,
+.night-mode p,
+.night-mode span,
+.night-mode li {
+  color: #F9F9F7 !important;
+}
+
 .night-mode .shadow-amber-glow {
-  box-shadow: 0 0 24px 0 #B56A3A !important;
+  box-shadow: 0 0 24px 0 rgba(181, 106, 58, 0.7) !important;
   transition: box-shadow 0.5s cubic-bezier(.4,0,.2,1);
 }
+
 .night-mode .btn-primary {
   background-color: #5A0F12 !important;
   color: #F9F9F7 !important;
   transition: background-color 0.5s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
 }
+
 .night-mode .btn-outline {
-  border-color: #B56A3A !important;
-  color: #B56A3A !important;
+  border-color: #F2C36B !important;
+  color: #F2C36B !important;
   transition: border-color 0.5s cubic-bezier(.4,0,.2,1), color 0.5s cubic-bezier(.4,0,.2,1);
 }
 
 /* Header glass variants in night mode */
-.night-mode .glass { background-color: rgba(58, 18, 15, 0.5) !important; border-color: rgba(181,106,58,0.25) !important; }
-.night-mode .glass-card { background-color: rgba(58, 18, 15, 0.9) !important; border-color: rgba(181,106,58,0.35) !important; }
+/* Header glass variants in night mode */
+.night-mode .glass { background-color: rgba(58, 18, 15, 0.75) !important; border-color: rgba(181,106,58,0.35) !important; }
+.night-mode .glass-card { background-color: rgba(42, 14, 12, 0.95) !important; border-color: rgba(181,106,58,0.45) !important; }
 
 /* Footer base */
-.night-mode footer { background: linear-gradient(180deg, #4A2A1F 0%, #5A0F12 100%) !important; color: #F9F9F7 !important; }
-.night-mode footer a:hover { color: #B56A3A !important; }
+.night-mode footer { background: #3A120F !important; color: #F9F9F7 !important; }
+.night-mode footer a:hover { color: #F2C36B !important; }
+
+/* Process section night mode */
+.night-mode #process.process-shell {
+  background-color: #2A0E0C !important;
+  border-radius: 24px;
+}
+
+.night-mode #process.process-shell::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(900px 480px at 50% 20%, rgba(242, 195, 107, 0.16), transparent 60%),
+    radial-gradient(1200px 700px at 15% 85%, rgba(181, 106, 58, 0.18), transparent 70%),
+    radial-gradient(1200px 700px at 85% 85%, rgba(0, 0, 0, 0.45), transparent 72%);
+  opacity: 0.95;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.night-mode #process .process-ambience {
+  background: transparent !important;
+}
+
+.night-mode #process .process-pattern-light {
+  display: none !important;
+}
+
+.night-mode #process .process-pattern-dark {
+  opacity: 0.08 !important;
+  mix-blend-mode: screen;
+}
+
+.night-mode #process .process-line {
+  background: linear-gradient(180deg, rgba(242, 195, 107, 0.45), rgba(242, 195, 107, 0.08)) !important;
+  box-shadow: 0 0 20px rgba(242, 195, 107, 0.2);
+}
+
+.night-mode #process .process-icon {
+  background: radial-gradient(circle at 30% 25%, rgba(242, 195, 107, 0.18), rgba(42, 14, 12, 0.9) 65%) !important;
+  border-color: rgba(242, 195, 107, 0.3) !important;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5) !important;
+}
+
+.night-mode #process .process-card {
+  background: linear-gradient(135deg, rgba(42, 14, 12, 0.88), rgba(58, 18, 15, 0.78)) !important;
+  border-color: rgba(242, 195, 107, 0.28) !important;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(16px) !important;
+}
+
+.night-mode #process h2,
+.night-mode #process h3 {
+  color: #FFF2DB !important;
+  text-shadow: 0 8px 20px rgba(0, 0, 0, 0.45);
+}
+
+.night-mode #process p,
+.night-mode #process span {
+  color: rgba(249, 249, 247, 0.82) !important;
+}

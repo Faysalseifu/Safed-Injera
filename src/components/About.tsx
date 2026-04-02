@@ -6,6 +6,7 @@ const About = () => {
 
   const features = [
     {
+    {
       title: t('about.mission'),
       text: t('about.missionText'),
       icon: '🎯',
@@ -71,12 +72,13 @@ const About = () => {
         {features.map((feature, index) => (
           <motion.div
             key={index}
-            initial={{ opacity: 0, y: 30 }}
+            {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6, delay: index * 0.2 }}
+            className="group relative rounded-3xl bg-white/70 backdrop-blur-xl border border-white/70 shadow-xl p-6 sm:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-amber-glow dark:bg-white/10 dark:border-white/10"
             className="group relative rounded-3xl bg-white/10 dark:bg-white/5 backdrop-blur-2xl border border-white/40 dark:border-white/10 shadow-[0_25px_80px_rgba(0,0,0,0.35)] p-6 sm:p-8 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_35px_120px_rgba(0,0,0,0.65)] overflow-hidden"
-          >
+            <div className="text-5xl sm:text-6xl mb-4 sm:mb-6 transform group-hover:scale-110 transition-transform duration-300">
             <div className="absolute -inset-0.5 rounded-[1.75rem] bg-gradient-to-br from-white/40 via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 mix-blend-screen pointer-events-none" />
 
             {/* Floating accent gradient */}
@@ -99,9 +101,13 @@ const About = () => {
               </div>
             </div>
 
+            <p className="relative text-coffee-brown dark:text-injera-white/80 leading-relaxed text-sm sm:text-base">
+            </h3>
             <p className="text-coffee-brown dark:text-injera-white/80 leading-relaxed text-sm sm:text-base">
               {feature.text}
             </p>
+            <div className="pointer-events-none absolute -inset-10 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+              <div className="absolute inset-0 bg-gradient-to-r from-sefed-sand/20 via-amber-glow/15 to-injera-maroon/20 blur-3xl" />
             <div className="absolute -inset-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
               <div className="absolute inset-0 bg-gradient-to-r from-sefed-sand/20 via-amber-glow/10 to-injera-maroon/10 blur-3xl" />
             </div>

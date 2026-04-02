@@ -53,9 +53,9 @@ const Team = () => {
                     >
                         <div className="relative w-full h-full transition-all duration-500 transform-style-3d group-hover:rotate-y-180">
                             {/* Front Side */}
-                            <div className="absolute inset-0 w-full h-full bg-white rounded-2xl shadow-xl overflow-hidden backface-hidden flex flex-col items-center justify-center p-6 border border-gray-100">
+                            <div className="team-card-front absolute inset-0 w-full h-full bg-white rounded-2xl shadow-xl overflow-hidden backface-hidden flex flex-col items-center justify-center p-6 border border-gray-100">
                                 <div className={`absolute top-0 w-full h-32 bg-gradient-to-br ${member.color} opacity-10`}></div>
-                                <div className="relative z-10 w-32 h-32 rounded-full p-1 bg-gradient-to-br from-amber-glow to-transparent mb-6">
+                                <div className="team-avatar-ring relative z-10 w-32 h-32 rounded-full p-1 bg-gradient-to-br from-amber-glow to-transparent mb-6">
                                     <img
                                         src={member.image}
                                         alt={member.name}
@@ -71,7 +71,7 @@ const Team = () => {
                             </div>
 
                             {/* Back Side */}
-                            <div className={`absolute inset-0 w-full h-full bg-gradient-to-br ${member.color} rounded-2xl shadow-xl overflow-hidden backface-hidden rotate-y-180 flex flex-col items-center justify-center p-8 text-white text-center`}>
+                            <div className={`team-card-back absolute inset-0 w-full h-full bg-gradient-to-br ${member.color} rounded-2xl shadow-xl overflow-hidden backface-hidden rotate-y-180 flex flex-col items-center justify-center p-8 text-white text-center`}>
                                 <h3 className="text-2xl font-bold mb-2">{member.name}</h3>
                                 <p className="text-white/80 font-medium mb-6 uppercase text-sm border-b border-white/20 pb-2">{member.role}</p>
                                 <p className="text-lg leading-relaxed font-light">

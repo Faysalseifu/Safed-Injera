@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -19,6 +19,33 @@ const Contact = () => {
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+
+  const testimonials = [
+    {
+      name: 'Liya T.',
+      role: 'Cafe Owner',
+      quote: 'Our customers ask for Safed Injera by name. The texture is perfect every time, and the taste feels like home.',
+    },
+    {
+      name: 'Daniel M.',
+      role: 'Restaurant Manager',
+      quote: 'Reliable delivery, consistent quality, and our kitchen team loves how easy it is to plate.',
+    },
+    {
+      name: 'Samira K.',
+      role: 'Retail Buyer',
+      quote: 'The packaging looks premium and the product sells fast. We keep increasing our orders.',
+    },
+  ];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => {
+      setActiveTestimonial((prev) => (prev + 1) % testimonials.length);
+    }, 5000);
+
+    return () => window.clearInterval(timer);
+  }, [testimonials.length]);
 
   const {
     register,
@@ -299,6 +326,63 @@ const Contact = () => {
             </div>
           </div>
         </motion.div>
+      </div>
+
+      <div className="max-w-4xl mx-auto mt-16 relative z-10">
+        <div className="bg-white/70 backdrop-blur-xl border border-white/60 rounded-3xl p-8 sm:p-10 shadow-xl dark:bg-white/10 dark:border-white/10">
+          <div className="flex items-center justify-center gap-3 text-amber-glow uppercase tracking-widest text-xs font-bold">
+            <span className="w-8 h-px bg-amber-glow/60" />
+            Testimonials
+            <span className="w-8 h-px bg-amber-glow/60" />
+          </div>
+
+          <div className="mt-6 min-h-[180px]">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTestimonial}
+                initial={{ opacity: 0, x: 40 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -40 }}
+                transition={{ duration: 0.5 }}
+                className="text-center"
+              >
+                <p className="text-xl sm:text-2xl font-light text-ethiopian-earth dark:text-injera-white/90 leading-relaxed">
+                  "{testimonials[activeTestimonial].quote}"
+                </p>
+                <div className="mt-6 flex flex-col items-center gap-2">
+                  <div className="w-12 h-12 rounded-full bg-amber-glow/20 text-ethiopian-earth dark:text-injera-white/90 flex items-center justify-center font-bold">
+                    {testimonials[activeTestimonial].name
+                      .split(' ')
+                      .map((part) => part[0])
+                      .join('')}
+                  </div>
+                  <div className="text-sm font-semibold text-ethiopian-earth dark:text-injera-white/90">
+                    {testimonials[activeTestimonial].name}
+                  </div>
+                  <div className="text-xs uppercase tracking-widest text-amber-glow">
+                    {testimonials[activeTestimonial].role}
+                  </div>
+                </div>
+              </motion.div>
+            </AnimatePresence>
+          </div>
+
+          <div className="mt-6 flex items-center justify-center gap-2">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setActiveTestimonial(index)}
+                className={`h-2.5 w-2.5 rounded-full transition-all ${
+                  index === activeTestimonial
+                    ? 'bg-amber-glow scale-110'
+                    : 'bg-amber-glow/30 hover:bg-amber-glow/60'
+                }`}
+                aria-label={`Show testimonial ${index + 1}`}
+              />
+            ))}
+          </div>
+        </div>
       </div>
     </section>
   );

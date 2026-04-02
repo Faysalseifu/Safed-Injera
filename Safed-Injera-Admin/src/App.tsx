@@ -20,6 +20,7 @@ import { ActivityLogs, ActivityLogShow } from './components/ActivityLogs';
 import { BranchDashboard } from './components/BranchDashboard';
 import { DashboardBranch } from './components/DashboardBranch';
 import { BranchReports } from './components/BranchReports';
+import LoginPage from './components/LoginPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import { lightTheme, darkTheme } from './theme';
 import './styles/globals.css';
@@ -61,6 +62,7 @@ function App() {
             authProvider={authProvider}
             dataProvider={dataProvider}
             layout={CustomLayout}
+            loginPage={LoginPage}
             title="Safed Injera Admin"
           >
             <Resource

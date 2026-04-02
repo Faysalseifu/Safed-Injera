@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useForm } from 'react-hook-form';
 import { motion } from 'framer-motion';
+import SplitHero from '../components/SplitHero';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
@@ -23,6 +24,14 @@ const ContactPage = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  const heroImages = [
+    { src: '/images/safed rollup.jpg', alt: 'Safed Injera rollup' },
+    { src: '/images/safed in cup.jpg', alt: 'Safed Injera in cup' },
+    { src: '/images/sefed cloth.jpg', alt: 'Safed Injera cloth' },
+    { src: '/images/safed packaged.jpg', alt: 'Safed Injera packaged' },
+    { src: '/images/sefed A3 promo.jpg', alt: 'Safed Injera promo' },
+  ];
 
   const {
     register,
@@ -105,19 +114,12 @@ const ContactPage = () => {
                mixBlendMode: 'soft-light'
              }} />
         <div className="section-container relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center text-cloud-white"
-          >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
-              {t('contact.title')}
-            </h1>
-            <p className="text-lg sm:text-xl text-sefed-sand max-w-2xl mx-auto">
-              {t('contact.subtitle')}
-            </p>
-          </motion.div>
+          <SplitHero
+            title={t('contact.title')}
+            subtitle={t('contact.subtitle')}
+            images={heroImages}
+            initialIndex={3}
+          />
         </div>
       </section>
 

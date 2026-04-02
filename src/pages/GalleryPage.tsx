@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
+import SplitHero from '../components/SplitHero';
 
 const GalleryPage = () => {
   const { t } = useTranslation();
@@ -21,6 +22,14 @@ const GalleryPage = () => {
     { id: 7, src: '/images/safed packaged.jpg', alt: 'Safed Injera Packaged' },
     { id: 8, src: '/images/safed in cup.jpg', alt: 'Safed Injera in Cup' },
     { id: 9, src: '/images/safed rollup.jpg', alt: 'Safed Injera Rollup' },
+  ];
+
+  const heroImages = [
+    { src: '/images/sefed A3 promo.jpg', alt: 'Safed Injera promo' },
+    { src: '/images/safed rollup.jpg', alt: 'Safed Injera rollup' },
+    { src: '/images/safed in cup.jpg', alt: 'Safed Injera in cup' },
+    { src: '/images/sefed cloth.jpg', alt: 'Safed Injera cloth' },
+    { src: '/images/safed packaged.jpg', alt: 'Safed Injera packaged' },
   ];
 
   return (
@@ -60,19 +69,12 @@ const GalleryPage = () => {
                mixBlendMode: 'soft-light'
              }} />
         <div className="section-container relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="text-center text-cloud-white"
-          >
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4">
-              {t('gallery.title')}
-            </h1>
-            <p className="text-lg sm:text-xl text-sefed-sand max-w-2xl mx-auto">
-              {t('gallery.subtitle')}
-            </p>
-          </motion.div>
+          <SplitHero
+            title={t('gallery.title')}
+            subtitle={t('gallery.subtitle')}
+            images={heroImages}
+            initialIndex={2}
+          />
         </div>
       </section>
 
