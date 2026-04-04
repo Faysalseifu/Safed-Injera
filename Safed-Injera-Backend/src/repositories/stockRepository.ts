@@ -24,12 +24,16 @@ export interface StockFilters {
   branchId?: string | null;
   sortBy?: 'price' | 'created_at';
   sortOrder?: 'ASC' | 'DESC';
+  limit?: number;
+  offset?: number;
 }
 
-export const getStocks = async (filters: StockFilters = {}): Promise<StockRecord[]> => {
-  const { category, isActive, isLowStock, branchId, sortBy, sortOrder } = filters;
+export const getStocks = async (
+  filters: StockFilters = {}
+): Promise<{ rows: StockRecord[]; total: number }> => {
+  const { category, isActive, isLowStock, branchId, sortBy, sortOrder, limit, offset } = filters;
   const conditions: string[] = [];
-  const values: (string | boolean)[] = [];
+  const values: (string | boolean | number)[] = [];
 
   if (category) {
     values.push(category);
@@ -59,12 +63,27 @@ export const getStocks = async (filters: StockFilters = {}): Promise<StockRecord
     ? `ORDER BY ${sortBy === 'price' ? 'price' : 'created_at'} ${sortOrder ?? 'DESC'}`
     : 'ORDER BY created_at DESC';
 
-  const { rows } = await pool.query<StockRecord>(
-    `SELECT * FROM stocks ${whereClause} ${orderClause}`,
+  const { rows: countRows } = await pool.query<{ total: number }>(
+    `SELECT COUNT(*)::int AS total FROM stocks ${whereClause}`,
     values
   );
+  const total = countRows[0]?.total ?? 0;
 
-  return rows;
+  const pagValues = [...values];
+  let paginationClause = '';
+  if (limit !== undefined && offset !== undefined) {
+    const baseLen = values.length;
+    pagValues.push(limit);
+    pagValues.push(offset);
+    paginationClause = `LIMIT $${baseLen + 1} OFFSET $${baseLen + 2}`;
+  }
+
+  const { rows } = await pool.query<StockRecord>(
+    `SELECT * FROM stocks ${whereClause} ${orderClause} ${paginationClause}`,
+    pagValues
+  );
+
+  return { rows, total };
 };
 
 export const getLowStockItems = async (branchId?: string | null): Promise<StockRecord[]> => {
@@ -103,10 +122,23 @@ export const findStockByName = async (
   client?: PoolClient
 ): Promise<StockRecord | null> => {
   const db = client ?? pool;
-  const { rows } = await db.query<StockRecord>(
+  
+  // Exact match
+  let { rows } = await db.query<StockRecord>(
     `SELECT * FROM stocks WHERE product_name = $1 LIMIT 1`,
     [productName]
   );
+  
+  if (rows.length === 0) {
+    // Fuzzy match (split by words and find something similar like "Mixed Injera" vs "Mixed Grain Injera")
+    const shortName = productName.replace(/(Grain|Injera|Pure|Premium|\s)/gi, '').trim() || productName.split(' ')[0];
+    const fuzzySearch = await db.query<StockRecord>(
+      `SELECT * FROM stocks WHERE product_name ILIKE $1 LIMIT 1`,
+      [`%${shortName}%`]
+    );
+    rows = fuzzySearch.rows;
+  }
+  
   return rows[0] ?? null;
 };
 
@@ -116,12 +148,62 @@ export const findStockByProductAndBranch = async (
   client?: PoolClient
 ): Promise<StockRecord | null> => {
   const db = client ?? pool;
-  const { rows } = await db.query<StockRecord>(
+  
+  let { rows } = await db.query<StockRecord>(
     branchId === null
       ? `SELECT * FROM stocks WHERE product_name = $1 AND branch_id IS NULL LIMIT 1`
       : `SELECT * FROM stocks WHERE product_name = $1 AND branch_id = $2 LIMIT 1`,
     branchId === null ? [productName] : [productName, branchId]
   );
+  
+  if (rows.length === 0) {
+    const shortName = productName.replace(/(Grain|Injera|Pure|Premium|\s)/gi, '').trim() || productName.split(' ')[0];
+    const fuzzySearch = await db.query<StockRecord>(
+      branchId === null
+        ? `SELECT * FROM stocks WHERE product_name ILIKE $1 AND branch_id IS NULL LIMIT 1`
+        : `SELECT * FROM stocks WHERE product_name ILIKE $1 AND branch_id = $2 LIMIT 1`,
+      branchId === null ? [`%${shortName}%`] : [`%${shortName}%`, branchId]
+    );
+    rows = fuzzySearch.rows;
+  }
+  
+  return rows[0] ?? null;
+};
+
+/**
+ * Hub/direct orders: stock may be on the main hub branch row or legacy rows with branch_id NULL.
+ */
+export const findStockForHubOrder = async (
+  productName: string,
+  mainHubId: string,
+  client?: PoolClient
+): Promise<StockRecord | null> => {
+  const name = productName.trim();
+  const db = client ?? pool;
+
+  let { rows } = await db.query<StockRecord>(
+    `SELECT * FROM stocks
+     WHERE product_name = $1
+       AND (branch_id IS NULL OR branch_id = $2)
+     ORDER BY CASE WHEN branch_id = $2 THEN 0 ELSE 1 END
+     LIMIT 1`,
+    [name, mainHubId]
+  );
+
+  if (rows.length === 0) {
+    const shortName =
+      name.replace(/(Grain|Injera|Pure|Premium|\s)/gi, '').trim() || name.split(' ')[0];
+    const fuzzySearch = await db.query<StockRecord>(
+      `SELECT * FROM stocks
+       WHERE product_name ILIKE $1
+         AND (branch_id IS NULL OR branch_id = $2)
+       ORDER BY CASE WHEN branch_id = $2 THEN 0 ELSE 1 END
+       LIMIT 1`,
+      [`%${shortName}%`, mainHubId]
+    );
+    rows = fuzzySearch.rows;
+  }
+
   return rows[0] ?? null;
 };
 

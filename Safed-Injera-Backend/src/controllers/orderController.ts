@@ -1,4 +1,5 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import type { PoolClient } from 'pg';
 import {
   countOrders,
   countOrdersByStatus,
@@ -14,6 +15,8 @@ import {
   adjustStockQuantity,
   findStockByName,
   findStockByProductAndBranch,
+  findStockForHubOrder,
+  type StockRecord,
 } from '../repositories/stockRepository';
 import { getMainHubBranch } from '../repositories/branchRepository';
 import { createStockTransaction } from '../repositories/stockTransactionRepository';
@@ -21,13 +24,84 @@ import { sendOrderNotification } from '../utils/email';
 import { withTransaction } from '../utils/transaction';
 import logger from '../utils/logger';
 import { transformOrder, transformOrderInput } from '../utils/transform';
+import { AuthRequest } from '../middleware/authMiddleware';
+import { DEFAULT_ORDER_LIST_DAYS } from '../constants/orderConstants';
 
 const parseOrderId = (idParam: string): number | null => {
   const parsed = Number(idParam);
   return Number.isNaN(parsed) ? null : parsed;
 };
 
-export const getOrders = async (req: Request, res: Response): Promise<void> => {
+/** Stock row used when marking an order delivered / reverting */
+async function resolveStockForOrderFulfillment(
+  product: string,
+  orderBranchId: string | null,
+  client?: PoolClient
+): Promise<StockRecord | null> {
+  const name = typeof product === 'string' ? product.trim() : product;
+  if (orderBranchId) {
+    return findStockByProductAndBranch(name, orderBranchId, client);
+  }
+  const mainHub = await getMainHubBranch();
+  if (mainHub) {
+    return findStockForHubOrder(name, mainHub.id, client);
+  }
+  return findStockByName(name, client);
+}
+
+function parseOrderListDateFilters(req: AuthRequest): {
+  orderDateFrom?: Date;
+  orderDateTo?: Date;
+} {
+  const includeAll = req.query.includeAll === 'true' || req.query.includeAll === '1';
+  const fromDateStr = typeof req.query.fromDate === 'string' ? req.query.fromDate : undefined;
+  const toDateStr = typeof req.query.toDate === 'string' ? req.query.toDate : undefined;
+  const maxAgeDaysRaw = req.query.maxAgeDays;
+  const maxAgeDays =
+    typeof maxAgeDaysRaw === 'string' && maxAgeDaysRaw !== '' ? Number(maxAgeDaysRaw) : undefined;
+
+  if (includeAll) {
+    return {};
+  }
+
+  let orderDateFrom: Date | undefined;
+  let orderDateTo: Date | undefined;
+
+  if (fromDateStr) {
+    orderDateFrom = new Date(fromDateStr);
+    orderDateFrom.setHours(0, 0, 0, 0);
+  } else if (maxAgeDays !== undefined && !Number.isNaN(maxAgeDays) && maxAgeDays >= 0) {
+    const d = new Date();
+    d.setDate(d.getDate() - maxAgeDays);
+    d.setHours(0, 0, 0, 0);
+    orderDateFrom = d;
+  } else {
+    const d = new Date();
+    d.setDate(d.getDate() - DEFAULT_ORDER_LIST_DAYS);
+    d.setHours(0, 0, 0, 0);
+    orderDateFrom = d;
+  }
+
+  if (toDateStr) {
+    orderDateTo = new Date(toDateStr);
+    orderDateTo.setHours(23, 59, 59, 999);
+  }
+
+  return { orderDateFrom, orderDateTo };
+}
+
+function canAccessOrder(req: AuthRequest, order: OrderRecord): boolean {
+  if (req.user?.role !== 'sub_admin') {
+    return true;
+  }
+  const bid = req.user.branch_id;
+  if (!bid) {
+    return false;
+  }
+  return order.branch_id === bid;
+}
+
+export const getOrders = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const {
       status,
@@ -39,21 +113,42 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
       _order,
       _start,
       _end,
+      branchId: branchIdQuery,
     } = req.query;
 
     const parsedStart = _start ? Number(_start) : undefined;
     const parsedEnd = _end ? Number(_end) : undefined;
 
-    const searchTerm = typeof search === 'string' ? search : (typeof customerName === 'string' ? customerName : undefined);
+    const searchTerm =
+      typeof search === 'string' ? search : typeof customerName === 'string' ? customerName : undefined;
+
+    const { orderDateFrom, orderDateTo } = parseOrderListDateFilters(req);
+
+    let branchFilter: string | undefined;
+    if (req.user?.role === 'sub_admin') {
+      branchFilter = req.user.branch_id ?? undefined;
+      if (!branchFilter) {
+        res.status(403).json({ message: 'Sub-admin must be assigned to a branch' });
+        return;
+      }
+    } else if (typeof branchIdQuery === 'string' && branchIdQuery.trim()) {
+      branchFilter = branchIdQuery.trim();
+    }
 
     const options = {
       status: typeof status === 'string' ? status : undefined,
       businessType: typeof businessType === 'string' ? businessType : undefined,
       search: searchTerm,
       sort: _sort ? String(_sort) : undefined,
-      order: (typeof _order === 'string' && (_order === 'ASC' || _order === 'DESC') ? _order : undefined) as 'ASC' | 'DESC' | undefined,
+      order: (typeof _order === 'string' && (_order === 'ASC' || _order === 'DESC') ? _order : undefined) as
+        | 'ASC'
+        | 'DESC'
+        | undefined,
       _start: typeof parsedStart === 'number' ? parsedStart : undefined,
       _end: typeof parsedEnd === 'number' ? parsedEnd : undefined,
+      branchId: branchFilter,
+      orderDateFrom,
+      orderDateTo,
     };
 
     if (!options.sort && sort === 'date') {
@@ -76,7 +171,7 @@ export const getOrders = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const getOrder = async (req: Request, res: Response): Promise<void> => {
+export const getOrder = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const orderId = parseOrderId(req.params.id);
     if (!orderId) {
@@ -89,6 +184,10 @@ export const getOrder = async (req: Request, res: Response): Promise<void> => {
       res.status(404).json({ message: 'Order not found' });
       return;
     }
+    if (!canAccessOrder(req, order)) {
+      res.status(403).json({ message: 'Access denied' });
+      return;
+    }
 
     res.json(transformOrder(order));
   } catch (error) {
@@ -97,7 +196,7 @@ export const getOrder = async (req: Request, res: Response): Promise<void> => {
   }
 };
 
-export const createOrder = async (req: Request, res: Response): Promise<void> => {
+export const createOrder = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const {
       customerName,
@@ -107,10 +206,22 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
       product,
       quantity,
       message,
+      branchId: branchIdBody,
     } = req.body;
 
     const quantityNumber = Math.max(Number(quantity) || 1, 1);
     const productName = typeof product === 'string' && product.trim().length > 0 ? product : 'Pure Teff Injera';
+
+    let branchId: string | null = null;
+    if (req.user?.role === 'sub_admin' && req.user.branch_id) {
+      branchId = req.user.branch_id;
+    } else if (
+      (req.user?.role === 'admin' || req.user?.role === 'staff') &&
+      typeof branchIdBody === 'string' &&
+      branchIdBody.trim()
+    ) {
+      branchId = branchIdBody.trim();
+    }
 
     const order = await withTransaction(async (client) => {
       const mainHub = await getMainHubBranch();
@@ -118,10 +229,6 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         ? await findStockByProductAndBranch(productName, mainHub.id, client)
         : await findStockByName(productName, client);
       const totalPrice = stockItem ? Number(Number(stockItem.price) * quantityNumber) : undefined;
-
-      if (stockItem && stockItem.quantity < quantityNumber) {
-        throw new Error(`INSUFFICIENT_STOCK:${productName}:${stockItem.quantity}:${quantityNumber}`);
-      }
 
       const payload = {
         customer_name: customerName,
@@ -132,26 +239,10 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
         quantity: quantityNumber,
         message,
         total_price: totalPrice,
+        branch_id: branchId,
       };
 
       const createdOrder = await insertOrder(payload, client);
-
-      if (stockItem && stockItem.quantity >= quantityNumber) {
-        const updatedStock = await adjustStockQuantity(stockItem.id, -quantityNumber, client);
-        if (updatedStock) {
-          await createStockTransaction(
-            {
-              stock_id: stockItem.id,
-              transaction_type: 'out',
-              quantity_change: -quantityNumber,
-              quantity_before: stockItem.quantity,
-              quantity_after: updatedStock.quantity,
-              reason: `Order #${createdOrder.id} - ${productName}`,
-            },
-            client
-          );
-        }
-      }
 
       return createdOrder;
     });
@@ -184,7 +275,7 @@ export const createOrder = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-export const updateOrder = async (req: Request, res: Response): Promise<void> => {
+export const updateOrder = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const orderId = parseOrderId(req.params.id);
     if (!orderId) {
@@ -198,37 +289,91 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
       res.status(404).json({ message: 'Order not found' });
       return;
     }
+    if (!canAccessOrder(req, existingOrder)) {
+      res.status(403).json({ message: 'Access denied' });
+      return;
+    }
 
-    // Transform input from camelCase to snake_case for database
     const dbInput = transformOrderInput(req.body);
 
     let updated: OrderRecord | null;
-    if (newStatus === 'cancelled' && existingOrder.status !== 'cancelled') {
+
+    try {
       updated = await withTransaction(async (client) => {
-        const mainHub = await getMainHubBranch();
-        const stockItem = mainHub
-          ? await findStockByProductAndBranch(existingOrder.product, mainHub.id, client)
-          : await findStockByName(existingOrder.product, client);
-        if (stockItem && existingOrder.quantity > 0) {
-          const updatedStock = await adjustStockQuantity(stockItem.id, existingOrder.quantity, client);
-          if (updatedStock) {
-            await createStockTransaction(
-              {
-                stock_id: stockItem.id,
-                transaction_type: 'in',
-                quantity_change: existingOrder.quantity,
-                quantity_before: stockItem.quantity,
-                quantity_after: updatedStock.quantity,
-                reason: `Order #${orderId} cancelled - stock restored`,
-              },
-              client
-            );
+        const stockItem = await resolveStockForOrderFulfillment(
+          existingOrder.product,
+          existingOrder.branch_id,
+          client
+        );
+        const qty = existingOrder.quantity;
+
+        if (newStatus === 'delivered' && existingOrder.status !== 'delivered' && qty > 0) {
+          if (!stockItem) {
+            throw new Error('NO_STOCK_ROW');
           }
+          if (stockItem.quantity < qty) {
+            throw new Error('INSUFFICIENT_STOCK');
+          }
+          const updatedStock = await adjustStockQuantity(stockItem.id, -qty, client);
+          if (!updatedStock) {
+            throw new Error('INSUFFICIENT_STOCK');
+          }
+          await createStockTransaction(
+            {
+              stock_id: stockItem.id,
+              transaction_type: 'out',
+              quantity_change: -qty,
+              quantity_before: stockItem.quantity,
+              quantity_after: updatedStock.quantity,
+              reason: `Order #${orderId} delivered - stock deducted`,
+            },
+            client
+          );
         }
+
+        if (existingOrder.status === 'delivered' && newStatus !== 'delivered' && newStatus !== undefined && qty > 0) {
+          if (!stockItem) {
+            throw new Error('NO_STOCK_ROW');
+          }
+          const updatedStock = await adjustStockQuantity(stockItem.id, qty, client);
+          if (!updatedStock) {
+            throw new Error('STOCK_ADJUST_FAILED');
+          }
+          await createStockTransaction(
+            {
+              stock_id: stockItem.id,
+              transaction_type: 'in',
+              quantity_change: qty,
+              quantity_before: stockItem.quantity,
+              quantity_after: updatedStock.quantity,
+              reason: `Order #${orderId} reverted from delivered - stock restored`,
+            },
+            client
+          );
+        }
+
         return updateOrderRecord(orderId, dbInput, client);
       });
-    } else {
-      updated = await updateOrderRecord(orderId, dbInput);
+    } catch (e: any) {
+      if (e?.message === 'INSUFFICIENT_STOCK') {
+        res.status(400).json({
+          message: 'Insufficient stock to mark this order as delivered',
+        });
+        return;
+      }
+      if (e?.message === 'NO_STOCK_ROW') {
+        res.status(400).json({
+          message:
+            'No stock line item matches this order product at the hub or branch. ' +
+            'Ensure the product name matches a stock row (or add stock / transfer from hub), then try again.',
+        });
+        return;
+      }
+      if (e?.message === 'STOCK_ADJUST_FAILED') {
+        res.status(500).json({ message: 'Could not adjust stock' });
+        return;
+      }
+      throw e;
     }
 
     if (!updated) {
@@ -244,11 +389,17 @@ export const updateOrder = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-export const deleteOrder = async (req: Request, res: Response): Promise<void> => {
+export const deleteOrder = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const orderId = parseOrderId(req.params.id);
     if (!orderId) {
       res.status(400).json({ message: 'Invalid order id' });
+      return;
+    }
+
+    const existing = await getOrderById(orderId);
+    if (existing && !canAccessOrder(req, existing)) {
+      res.status(403).json({ message: 'Access denied' });
       return;
     }
 
@@ -258,11 +409,9 @@ export const deleteOrder = async (req: Request, res: Response): Promise<void> =>
         throw new Error('ORDER_NOT_FOUND');
       }
 
-      const mainHub = await getMainHubBranch();
-      const stockItem = mainHub
-        ? await findStockByProductAndBranch(order.product, mainHub.id, client)
-        : await findStockByName(order.product, client);
-      if (stockItem && order.quantity > 0) {
+      const stockItem = await resolveStockForOrderFulfillment(order.product, order.branch_id, client);
+
+      if (stockItem && order.quantity > 0 && order.status === 'delivered') {
         const updatedStock = await adjustStockQuantity(stockItem.id, order.quantity, client);
         if (updatedStock) {
           await createStockTransaction(
@@ -297,21 +446,27 @@ export const deleteOrder = async (req: Request, res: Response): Promise<void> =>
   }
 };
 
-export const getOrderStats = async (req: Request, res: Response): Promise<void> => {
+export const getOrderStats = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const totalOrders = await countOrders();
-    const pendingOrders = await countOrdersByStatus('pending');
-    const confirmedOrders = await countOrdersByStatus('confirmed');
-    const shippedOrders = await countOrdersByStatus('shipped');
-    const deliveredOrders = await countOrdersByStatus('delivered');
+    const branchId = req.user?.role === 'sub_admin' ? req.user.branch_id ?? undefined : undefined;
+    if (req.user?.role === 'sub_admin' && !branchId) {
+      res.status(403).json({ message: 'Sub-admin must be assigned to a branch' });
+      return;
+    }
+
+    const totalOrders = await countOrders(branchId);
+    const pendingOrders = await countOrdersByStatus('pending', branchId);
+    const confirmedOrders = await countOrdersByStatus('confirmed', branchId);
+    const shippedOrders = await countOrdersByStatus('shipped', branchId);
+    const deliveredOrders = await countOrdersByStatus('delivered', branchId);
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayOrders = await countOrdersSince(today);
+    const todayOrders = await countOrdersSince(today, branchId);
 
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekOrders = await countOrdersSince(weekAgo);
+    const weekOrders = await countOrdersSince(weekAgo, branchId);
 
     res.json({
       totalOrders,

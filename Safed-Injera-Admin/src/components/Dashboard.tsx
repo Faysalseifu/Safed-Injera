@@ -1245,7 +1245,16 @@ const Dashboard = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update status');
+        let detail = 'Failed to update status';
+        try {
+          const errBody = await response.json();
+          if (errBody?.message) {
+            detail = String(errBody.message);
+          }
+        } catch {
+          /* ignore */
+        }
+        throw new Error(detail);
       }
 
       // Update local state to reflect change immediately
@@ -1263,7 +1272,7 @@ const Dashboard = () => {
       fetchStocks();
     } catch (err) {
       console.error(err);
-      setError('Failed to update order status');
+      setError(err instanceof Error ? err.message : 'Failed to update order status');
     }
   };
 
@@ -1732,8 +1741,14 @@ const Dashboard = () => {
               <FormControl sx={{ flex: 2 }}>
                 <InputLabel>Product</InputLabel>
                 <Select native label="Product" id="order-product">
-                  <option value="Pure Teff Injera">Pure Teff Injera</option>
-                  <option value="Mixed Injera">Mixed Injera</option>
+                  {allStocks.map((stock) => (
+                    <option key={stock.id} value={stock.productName}>
+                      {stock.productName} ({stock.quantity} available)
+                    </option>
+                  ))}
+                  {allStocks.length === 0 && (
+                    <option value="Pure Teff Injera">Pure Teff Injera</option>
+                  )}
                 </Select>
               </FormControl>
               <TextField id="order-qty" label="Quantity" type="number" sx={{ flex: 1 }} defaultValue={1} />
@@ -1765,6 +1780,7 @@ const Dashboard = () => {
                 setOrderDialogOpen(false);
                 showSuccess('Phone order registered successfully');
                 fetchData();
+                fetchStocks();
               }
             }}
             sx={{ bgcolor: colors.sidebar, '&:hover': { bgcolor: colors.darkBg } }}

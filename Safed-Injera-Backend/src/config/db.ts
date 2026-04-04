@@ -201,6 +201,11 @@ const ensureSchema = async (): Promise<void> => {
           ALTER TABLE orders ADD COLUMN status_history JSONB DEFAULT '[]'::jsonb;
         END IF;
       END $$;`,
+      `DO $$ BEGIN
+        IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='orders' AND column_name='branch_id') THEN
+          ALTER TABLE orders ADD COLUMN branch_id UUID REFERENCES branches(id);
+        END IF;
+      END $$;`,
       // Add branch_id to users
       `DO $$ BEGIN
         IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='branch_id') THEN
@@ -239,6 +244,8 @@ const ensureSchema = async (): Promise<void> => {
       `CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at DESC);`,
       `CREATE INDEX IF NOT EXISTS idx_stocks_is_low_stock ON stocks(is_low_stock) WHERE is_low_stock = true;`,
       `CREATE INDEX IF NOT EXISTS idx_orders_updated_by ON orders(updated_by);`,
+      `CREATE INDEX IF NOT EXISTS idx_orders_branch_id ON orders(branch_id);`,
+      `CREATE INDEX IF NOT EXISTS idx_orders_order_date ON orders(order_date DESC);`,
       `CREATE INDEX IF NOT EXISTS idx_customers_branch_id ON customers(branch_id);`,
       `CREATE INDEX IF NOT EXISTS idx_customers_is_active ON customers(is_active) WHERE is_active = true;`,
       `CREATE INDEX IF NOT EXISTS idx_daily_reports_branch_id ON daily_reports(branch_id);`,

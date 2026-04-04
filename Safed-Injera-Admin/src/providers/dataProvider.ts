@@ -20,27 +20,35 @@ const dataProvider: DataProvider = {
     const { page, perPage } = params.pagination || { page: 1, perPage: 10 };
     const { field, order } = params.sort || { field: 'id', order: 'ASC' };
     
-    // Handle activity-logs resource name conversion
     const resourcePath = resource === 'activity-logs' ? 'activity-logs' : resource;
     
-    // Convert filter params to query params
-    const query: Record<string, any> = {
-      limit: perPage,
-      offset: (page - 1) * perPage,
-    };
+    const query: Record<string, any> = {};
+
+    if (resource === 'activity-logs') {
+      query.limit = perPage;
+      query.offset = (page - 1) * perPage;
+    } else {
+      query._start = (page - 1) * perPage;
+      query._end = page * perPage;
+      query._sort = field;
+      query._order = order;
+    }
     
-    // Add filters
     if (params.filter) {
       Object.entries(params.filter).forEach(([key, value]) => {
         if (value !== undefined && value !== null && value !== '') {
-          // Map react-admin filter keys to API query params
           if (key === 'q') {
-            // Search query - backend should handle this
             query.search = value;
           } else if (key === 'entityType') {
             query.entityType = value;
           } else if (key === 'actionType') {
             query.actionType = value;
+          } else if (key === 'orderRange') {
+            if (value === 'all') {
+              query.includeAll = 'true';
+            } else {
+              query.maxAgeDays = String(value);
+            }
           } else {
             query[key] = value;
           }
@@ -75,7 +83,6 @@ const dataProvider: DataProvider = {
   },
 
   getOne: async (resource, params) => {
-    // Handle activity-logs resource name conversion
     const resourcePath = resource === 'activity-logs' ? 'activity-logs' : resource;
     const { json } = await httpClient(`${API_URL}/${resourcePath}/${params.id}`);
     return { data: { ...json, id: json._id || json.id || json.id } };
@@ -126,7 +133,8 @@ const dataProvider: DataProvider = {
       method: 'POST',
       body: JSON.stringify(params.data),
     });
-    return { data: { ...json, id: json._id || json.id } };
+    const base = resource === 'orders' && json.order ? json.order : json;
+    return { data: { ...base, id: base.id ?? json.id } };
   },
 
   update: async (resource, params) => {
@@ -169,5 +177,4 @@ const dataProvider: DataProvider = {
 };
 
 export default dataProvider;
-
 

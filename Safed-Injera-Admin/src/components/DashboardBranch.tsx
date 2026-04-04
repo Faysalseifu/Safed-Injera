@@ -8,6 +8,7 @@ import {
   CardContent,
   Button,
   Table,
+  TableContainer,
   TableBody,
   TableCell,
   TableRow,
@@ -489,6 +490,7 @@ export const DashboardBranch = ({ branchId }: DashboardBranchProps) => {
                   <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: colors.textPrimary }}>
                     Pending Transfers to Receive
                   </Typography>
+                <TableContainer sx={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', mx: -2, width: 'calc(100% + 32px)', px: 2 }}>
                   <Table size="small">
                     <TableHead>
                       <TableRow>
@@ -535,6 +537,7 @@ export const DashboardBranch = ({ branchId }: DashboardBranchProps) => {
                       ))}
                     </TableBody>
                   </Table>
+                  </TableContainer>
                 </CardContent>
               </Card>
             </Grid>

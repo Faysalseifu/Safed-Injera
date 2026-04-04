@@ -9,6 +9,7 @@ import {
   CardContent,
   Button,
   Table,
+  TableContainer,
   TableBody,
   TableCell,
   TableRow,
@@ -262,8 +263,9 @@ export const DashboardAdmin = ({ onViewBranch }: DashboardAdminProps) => {
               <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: colors.textPrimary }}>
                 All Branches Summary
               </Typography>
-              <Table size="small">
-                <TableHead>
+              <TableContainer sx={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', mx: -2, width: 'calc(100% + 32px)', px: 2 }}>
+                <Table size="small">
+                  <TableHead>
                   <TableRow>
                     <TableCell sx={{ fontWeight: 600 }}>Branch</TableCell>
                     <TableCell sx={{ fontWeight: 600 }} align="right">Total Stock</TableCell>
@@ -335,6 +337,7 @@ export const DashboardAdmin = ({ onViewBranch }: DashboardAdminProps) => {
                   ))}
                 </TableBody>
               </Table>
+              </TableContainer>
             </CardContent>
           </Card>
         )}

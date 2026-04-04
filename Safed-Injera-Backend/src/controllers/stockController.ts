@@ -31,9 +31,17 @@ export const getStocks = async (req: AuthRequest, res: Response) => {
     if (req.user?.role === 'sub_admin' && req.user.branch_id) {
       filters.branchId = req.user.branch_id;
     }
-    const stocks = await getStocksRepo(filters);
+    const _start = req.query._start ? Number(req.query._start) : undefined;
+    const _end = req.query._end ? Number(req.query._end) : undefined;
+    if (_start !== undefined && _end !== undefined && !Number.isNaN(_start) && !Number.isNaN(_end)) {
+      filters.offset = _start;
+      filters.limit = Math.max(_end - _start, 1);
+    }
+    const { rows: stocks, total } = await getStocksRepo(filters);
     const transformedStocks = stocks.map(transformStock);
-    res.set('Content-Range', `stocks 0-${transformedStocks.length}/${transformedStocks.length}`);
+    const startIx = filters.offset ?? 0;
+    const endIx = transformedStocks.length ? startIx + transformedStocks.length - 1 : startIx;
+    res.set('Content-Range', `stocks ${startIx}-${endIx}/${total}`);
     res.set('Access-Control-Expose-Headers', 'Content-Range');
     res.json(transformedStocks);
   } catch (error) {

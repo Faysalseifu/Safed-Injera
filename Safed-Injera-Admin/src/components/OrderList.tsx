@@ -1,6 +1,6 @@
 import {
   List,
-  Datagrid,
+  Datagrid, SimpleList,
   TextField,
   EmailField,
   NumberField,
@@ -20,7 +20,7 @@ import {
   useRecordContext,
   Button,
 } from 'react-admin';
-import { Box, Typography, Chip, IconButton, Tooltip, Avatar } from '@mui/material';
+import { Box, useMediaQuery, useTheme, Typography, Chip, IconButton, Tooltip, Avatar, Button as MuiButton } from '@mui/material';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import SendIcon from '@mui/icons-material/Send';
 import CancelIcon from '@mui/icons-material/Cancel';
@@ -64,6 +64,13 @@ const businessTypeChoices = [
   { id: 'other', name: 'Other' },
 ];
 
+const orderRangeChoices = [
+  { id: '5', name: 'Last 5 days (default)' },
+  { id: '30', name: 'Last 30 days' },
+  { id: '90', name: 'Last 90 days' },
+  { id: 'all', name: 'All orders' },
+];
+
 const OrderFilter = (props: any) => (
   <Filter {...props}>
     <TextInput
@@ -74,6 +81,17 @@ const OrderFilter = (props: any) => (
         '& .MuiOutlinedInput-root': {
           borderRadius: '12px',
           bgcolor: colors.paper,
+        },
+      }}
+    />
+    <SelectInput
+      source="orderRange"
+      label="Order date range"
+      choices={orderRangeChoices}
+      alwaysOn
+      sx={{
+        '& .MuiOutlinedInput-root': {
+          borderRadius: '12px',
         },
       }}
     />
@@ -146,11 +164,14 @@ const QuickStatusButtons = ({ record }: any) => {
       await dataProvider.update('orders', {
         id: record.id,
         data: { status: newStatus },
+        previousData: record,
       });
       notify(`Order status updated to ${newStatus}`, { type: 'success' });
       refresh();
-    } catch (error) {
-      notify('Failed to update order status', { type: 'error' });
+    } catch (error: unknown) {
+      const e = error as { body?: { message?: string }; message?: string };
+      const msg = e?.body?.message || e?.message || 'Failed to update order status';
+      notify(String(msg), { type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -291,7 +312,7 @@ const StatusHistoryViewer = ({ record }: any) => {
               <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 Status History
               </Typography>
-              <Button onClick={() => setOpen(false)}>Close</Button>
+              <MuiButton onClick={() => setOpen(false)}>Close</MuiButton>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
               {record.statusHistory.map((entry: any, index: number) => (
@@ -354,6 +375,7 @@ export const OrderList = (props: any) => (
       <List
         {...props}
         filters={<OrderFilter />}
+        filterDefaultValues={{ orderRange: '5' }}
         sort={{ field: 'orderDate', order: 'DESC' }}
         sx={{
           width: '100%',

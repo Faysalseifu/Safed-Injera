@@ -14,6 +14,7 @@ export interface OrderRecord {
   total_price: number | null;
   order_date: Date;
   notes: string | null;
+  branch_id: string | null;
   created_at: Date;
   updated_at: Date;
 }
@@ -26,9 +27,16 @@ export interface OrderQueryOptions {
   order?: 'ASC' | 'DESC';
   _start?: number;
   _end?: number;
+  /** Filter orders for this branch (sub_admin) */
+  branchId?: string;
+  /** Inclusive lower bound on order_date */
+  orderDateFrom?: Date;
+  /** Inclusive upper bound on order_date (end of day) */
+  orderDateTo?: Date;
 }
 
 const sortColumnMap: Record<string, string> = {
+  id: 'id',
   orderDate: 'order_date',
   customerName: 'customer_name',
   businessType: 'business_type',
@@ -41,9 +49,9 @@ const sortColumnMap: Record<string, string> = {
 export const getOrders = async (
   options: OrderQueryOptions = {}
 ): Promise<{ rows: OrderRecord[]; total: number }> => {
-  const { status, businessType, search, sort, order, _start, _end } = options;
+  const { status, businessType, search, sort, order, _start, _end, branchId, orderDateFrom, orderDateTo } = options;
   const filters: string[] = [];
-  const values: (string | number)[] = [];
+  const values: (string | number | Date)[] = [];
 
   if (status) {
     values.push(status);
@@ -58,6 +66,21 @@ export const getOrders = async (
   if (search && search.trim()) {
     values.push(`%${search.trim()}%`);
     filters.push(`customer_name ILIKE $${values.length}`);
+  }
+
+  if (branchId) {
+    values.push(branchId);
+    filters.push(`branch_id = $${values.length}`);
+  }
+
+  if (orderDateFrom) {
+    values.push(orderDateFrom);
+    filters.push(`order_date >= $${values.length}`);
+  }
+
+  if (orderDateTo) {
+    values.push(orderDateTo);
+    filters.push(`order_date <= $${values.length}`);
   }
 
   const whereClause = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
@@ -117,6 +140,7 @@ export interface CreateOrderInput {
   total_price?: number;
   status?: string;
   notes?: string;
+  branch_id?: string | null;
 }
 
 export const createOrder = async (
@@ -126,8 +150,8 @@ export const createOrder = async (
   const db = client ?? pool;
   const { rows } = await db.query<OrderRecord>(
     `INSERT INTO orders
-     (customer_name, email, phone, business_type, product, quantity, message, status, total_price, notes)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
+     (customer_name, email, phone, business_type, product, quantity, message, status, total_price, notes, branch_id)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
      RETURNING *`,
     [
       order.customer_name,
@@ -140,6 +164,7 @@ export const createOrder = async (
       order.status ?? 'pending',
       order.total_price ?? null,
       order.notes ?? null,
+      order.branch_id ?? null,
     ]
   );
   return rows[0];
@@ -156,7 +181,22 @@ export interface UpdateOrderInput {
   status?: string;
   total_price?: number;
   notes?: string;
+  branch_id?: string | null;
 }
+
+const UPDATE_ORDER_ALLOWED = new Set([
+  'customer_name',
+  'email',
+  'phone',
+  'business_type',
+  'product',
+  'quantity',
+  'message',
+  'status',
+  'total_price',
+  'notes',
+  'branch_id',
+]);
 
 export const updateOrder = async (
   id: number,
@@ -168,8 +208,8 @@ export const updateOrder = async (
   const values: (string | number)[] = [];
 
   Object.entries(updates).forEach(([key, value]) => {
-    if (value !== undefined) {
-      values.push(value);
+    if (value !== undefined && UPDATE_ORDER_ALLOWED.has(key)) {
+      values.push(value as string | number);
       setClauses.push(`${key} = $${values.length}`);
     }
   });
@@ -198,14 +238,24 @@ export const deleteOrder = async (
   return (result.rowCount ?? 0) > 0;
 };
 
-export const countOrders = async (): Promise<number> => {
+export const countOrders = async (branchId?: string | null): Promise<number> => {
+  const where = branchId ? 'WHERE branch_id = $1' : '';
+  const params = branchId ? [branchId] : [];
   const { rows } = await pool.query<{ total: number }>(
-    `SELECT COUNT(*)::int AS total FROM orders`
+    `SELECT COUNT(*)::int AS total FROM orders ${where}`,
+    params
   );
   return rows[0]?.total ?? 0;
 };
 
-export const countOrdersByStatus = async (status: string): Promise<number> => {
+export const countOrdersByStatus = async (status: string, branchId?: string | null): Promise<number> => {
+  if (branchId) {
+    const { rows } = await pool.query<{ total: number }>(
+      `SELECT COUNT(*)::int AS total FROM orders WHERE status = $1 AND branch_id = $2`,
+      [status, branchId]
+    );
+    return rows[0]?.total ?? 0;
+  }
   const { rows } = await pool.query<{ total: number }>(
     `SELECT COUNT(*)::int AS total FROM orders WHERE status = $1`,
     [status]
@@ -213,7 +263,14 @@ export const countOrdersByStatus = async (status: string): Promise<number> => {
   return rows[0]?.total ?? 0;
 };
 
-export const countOrdersSince = async (since: Date): Promise<number> => {
+export const countOrdersSince = async (since: Date, branchId?: string | null): Promise<number> => {
+  if (branchId) {
+    const { rows } = await pool.query<{ total: number }>(
+      `SELECT COUNT(*)::int AS total FROM orders WHERE order_date >= $1 AND branch_id = $2`,
+      [since, branchId]
+    );
+    return rows[0]?.total ?? 0;
+  }
   const { rows } = await pool.query<{ total: number }>(
     `SELECT COUNT(*)::int AS total FROM orders WHERE order_date >= $1`,
     [since]
@@ -236,23 +293,30 @@ export const countOrdersSinceWithStatuses = async (
 
 export const getSalesByProductSince = async (
   since: Date,
-  statuses: string[]
+  statuses: string[],
+  branchId?: string | null
 ): Promise<{
   product: string;
   total_quantity: number;
   total_revenue: number;
   order_count: number;
 }[]> => {
+  const params: unknown[] = [since, statuses];
+  let branchClause = '';
+  if (branchId) {
+    branchClause = ' AND branch_id = $3';
+    params.push(branchId);
+  }
   const { rows } = await pool.query(
     `SELECT product,
             SUM(quantity)::int AS total_quantity,
             SUM(total_price)::numeric(12,2) AS total_revenue,
             COUNT(*)::int AS order_count
      FROM orders
-     WHERE order_date >= $1 AND status = ANY($2)
+     WHERE order_date >= $1 AND status = ANY($2)${branchClause}
      GROUP BY product
      ORDER BY total_quantity DESC`,
-    [since, statuses]
+    params
   );
   return rows.map(row => ({
     product: row.product,
@@ -264,23 +328,30 @@ export const getSalesByProductSince = async (
 
 export const getDailyBreakdown = async (
   since: Date,
-  statuses: string[]
+  statuses: string[],
+  branchId?: string | null
 ): Promise<{
   period: string;
   total_quantity: number;
   total_revenue: number;
   order_count: number;
 }[]> => {
+  const params: unknown[] = [since, statuses];
+  let branchClause = '';
+  if (branchId) {
+    branchClause = ' AND branch_id = $3';
+    params.push(branchId);
+  }
   const { rows } = await pool.query(
     `SELECT to_char(order_date, 'YYYY-MM-DD') AS period,
             SUM(quantity)::int AS total_quantity,
             SUM(total_price)::numeric(12,2) AS total_revenue,
             COUNT(*)::int AS order_count
      FROM orders
-     WHERE order_date >= $1 AND status = ANY($2)
+     WHERE order_date >= $1 AND status = ANY($2)${branchClause}
      GROUP BY period
      ORDER BY period ASC`,
-    [since, statuses]
+    params
   );
   return rows.map(row => ({
     period: row.period,
@@ -290,24 +361,40 @@ export const getDailyBreakdown = async (
   }));
 };
 
-export const getRevenueSince = async (statuses: string[]): Promise<number> => {
+export const getRevenueSince = async (statuses: string[], branchId?: string | null): Promise<number> => {
+  const params: unknown[] = [statuses];
+  let branchClause = '';
+  if (branchId) {
+    branchClause = ' AND branch_id = $2';
+    params.push(branchId);
+  }
   const { rows } = await pool.query<{ total: number }>(
     `SELECT SUM(total_price)::numeric(12,2) AS total
      FROM orders
-     WHERE status = ANY($1) AND total_price IS NOT NULL`,
-    [statuses]
+     WHERE status = ANY($1) AND total_price IS NOT NULL${branchClause}`,
+    params
   );
   return Number(rows[0]?.total ?? 0);
 };
 
-export const getRecentOrders = async (): Promise<Pick<OrderRecord, 'id' | 'customer_name' | 'business_type' | 'quantity' | 'status' | 'order_date'>[]> => {
+export const getRecentOrders = async (
+  branchId?: string | null
+): Promise<Pick<OrderRecord, 'id' | 'customer_name' | 'business_type' | 'quantity' | 'status' | 'order_date'>[]> => {
+  const params: unknown[] = [];
+  let branchClause = '';
+  if (branchId) {
+    branchClause = ' AND branch_id = $1';
+    params.push(branchId);
+  }
   const { rows } = await pool.query<Pick<OrderRecord, 'id' | 'customer_name' | 'business_type' | 'quantity' | 'status' | 'order_date'>>(
     `SELECT id, customer_name, business_type, quantity, status, order_date
      FROM orders
      WHERE order_date >= NOW() - INTERVAL '3 days'
        AND NOT (status = 'delivered' AND updated_at < NOW() - INTERVAL '1 day')
+       ${branchClause}
      ORDER BY order_date DESC
-     LIMIT 15`
+     LIMIT 15`,
+    params
   );
   return rows;
 };

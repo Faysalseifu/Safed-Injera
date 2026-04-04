@@ -88,6 +88,7 @@ export const getReportPreparationData = async (req: AuthRequest, res: Response):
       startingStock,
       receivedToday,
       existingReport: existingReport ? { id: existingReport.id, submittedAt: existingReport.created_at } : null,
+      needsOpeningStockPrompt: !existingReport,
     });
   } catch (error) {
     logger.error('Get report preparation data error:', error);

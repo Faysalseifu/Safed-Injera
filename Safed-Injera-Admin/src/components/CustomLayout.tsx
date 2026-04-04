@@ -29,7 +29,7 @@ const CustomLayout = (props: LayoutProps) => {
         appBar={HiddenAppBar}
         sx={{
           '& .RaLayout-content': {
-            paddingBottom: { xs: '80px', md: '0' },
+            paddingBottom: { xs: '100px', md: '0' },
             backgroundColor: 'transparent',
             marginLeft: { xs: 0, md: '280px' },
             marginTop: '0',

@@ -1,6 +1,6 @@
 import { useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { BottomNavigation, BottomNavigationAction, Paper, useTheme, useMediaQuery } from '@mui/material';
+import { BottomNavigation, BottomNavigationAction, Paper, useTheme, useMediaQuery, Box } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import InventoryIcon from '@mui/icons-material/Inventory';
 import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
@@ -25,7 +25,7 @@ const MobileBottomNav = () => {
         return 0;
     };
 
-    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
+    const handleChange = (_event: React.SyntheticEvent, newValue: number) => {  
         const routes = ['/', '/stocks', '/orders', '/analytics'];
         navigate(routes[newValue]);
     };
@@ -34,14 +34,16 @@ const MobileBottomNav = () => {
         <Paper
             sx={{
                 position: 'fixed',
-                bottom: 0,
-                left: 0,
-                right: 0,
+                bottom: 16,
+                left: 16,
+                right: 16,
                 zIndex: 1200,
                 display: { xs: 'block', md: 'none' },
-                borderRadius: '20px 20px 0 0',
+                borderRadius: '24px',
                 overflow: 'hidden',
-                boxShadow: '0 -4px 24px rgba(0, 0, 0, 0.1)',
+                boxShadow: darkMode 
+                    ? '0 8px 32px rgba(0, 0, 0, 0.4)' 
+                    : '0 8px 32px rgba(0, 0, 0, 0.12)',
             }}
             elevation={0}
         >
@@ -49,36 +51,44 @@ const MobileBottomNav = () => {
                 value={getCurrentValue()}
                 onChange={handleChange}
                 sx={{
-                    height: 70,
-                    bgcolor: darkMode ? '#242a2c' : '#FFFFFF',
-                    borderTop: `1px solid ${darkMode ? 'rgba(255, 255, 255, 0.08)' : 'rgba(63, 79, 81, 0.08)'}`,
+                    height: 72,
+                    bgcolor: darkMode 
+                        ? 'rgba(26, 8, 7, 0.85)' 
+                        : 'rgba(255, 255, 255, 0.9)',
+                    backdropFilter: 'blur(12px)',
+                    border: `1px solid ${darkMode ? 'rgba(181, 106, 58, 0.2)' : 'rgba(230, 181, 77, 0.3)'}`,
+                    borderRadius: '24px',
                     '& .MuiBottomNavigationAction-root': {
                         minWidth: 'auto',
-                        padding: '8px 16px',
-                        color: darkMode ? 'rgba(255, 255, 255, 0.5)' : 'rgba(63, 79, 81, 0.5)',
-                        transition: 'all 0.2s ease',
+                        padding: '8px',
+                        color: darkMode ? 'rgba(255, 255, 255, 0.4)' : 'rgba(78, 24, 21, 0.5)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         '&.Mui-selected': {
-                            color: '#E6B54D',
+                            color: darkMode ? '#E6B54D' : '#4E1815',
                             '& .MuiSvgIcon-root': {
-                                transform: 'scale(1.1)',
+                                transform: 'translateY(-4px) scale(1.15)',
                             },
                         },
                         '&:hover': {
-                            color: '#E6B54D',
+                            color: darkMode ? '#E6B54D' : '#4E1815',
                         },
                     },
                     '& .MuiBottomNavigationAction-label': {
-                        fontSize: '0.688rem',
-                        fontWeight: 500,
-                        marginTop: '4px',
+                        fontSize: '0.65rem',
+                        fontWeight: 600,
+                        opacity: 0,
+                        transform: 'translateY(10px)',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                         '&.Mui-selected': {
-                            fontSize: '0.688rem',
-                            fontWeight: 600,
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            opacity: 1,
+                            transform: 'translateY(0)',
                         },
                     },
                     '& .MuiSvgIcon-root': {
-                        fontSize: '1.5rem',
-                        transition: 'transform 0.2s ease',
+                        fontSize: '1.6rem',
+                        transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
                     },
                 }}
             >

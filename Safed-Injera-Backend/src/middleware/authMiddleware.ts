@@ -13,6 +13,35 @@ export interface AuthRequest extends Request {
   };
 }
 
+/** Attach user when a valid Bearer token is present; otherwise continue without req.user */
+export const optionalAuth = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+): Promise<void> => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      next();
+      return;
+    }
+    const token = authHeader.split(' ')[1];
+    try {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as { id: string };
+      const user = await findUserById(decoded.id);
+      if (user) {
+        req.user = user;
+      }
+    } catch {
+      // invalid token — public handlers continue unauthenticated
+    }
+    next();
+  } catch (error) {
+    logger.error('Optional auth error:', error);
+    next();
+  }
+};
+
 export const protect = async (
   req: AuthRequest,
   res: Response,

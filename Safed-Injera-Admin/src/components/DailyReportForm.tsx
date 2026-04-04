@@ -48,6 +48,8 @@ interface PreparationData {
   startingStock: number;
   receivedToday: number;
   existingReport: { id: string; submittedAt: string } | null;
+  /** True when no report exists yet for the selected day — confirm opening stock & submit */
+  needsOpeningStockPrompt?: boolean;
 }
 
 interface ChecklistItem {
@@ -278,6 +280,13 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
               Submit Daily Report
             </Typography>
           </Box>
+
+          {preparationData.needsOpeningStockPrompt && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Start today with a clear baseline: confirm starting stock in the summary below, then complete
+              today&apos;s report so the hub receives your daily activity.
+            </Alert>
+          )}
 
           <Grid container spacing={3}>
             {/* Report Date */}

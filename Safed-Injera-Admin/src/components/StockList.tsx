@@ -1,6 +1,6 @@
 import {
   List,
-  Datagrid,
+  Datagrid, SimpleList,
   TextField,
   NumberField,
   BooleanField,
@@ -21,7 +21,7 @@ import {
   useNotify,
   useRefresh,
 } from 'react-admin';
-import { Box, Typography, Chip, IconButton, Tooltip, Button, Avatar } from '@mui/material';
+import { Box, useMediaQuery, useTheme, Typography, Chip, IconButton, Tooltip, Button, Avatar } from '@mui/material';
 import WarningIcon from '@mui/icons-material/Warning';
 import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
@@ -399,7 +399,11 @@ const TransactionHistoryButton = ({ record }: any) => {
   );
 };
 
-export const StockList = (props: any) => (
+export const StockList = (props: any) => {
+  const theme = useTheme();
+  const isSmall = useMediaQuery(theme.breakpoints.down('sm'));
+  
+  return (
   <Box sx={{ width: '100%' }}>
     <List
       {...props}
@@ -461,6 +465,18 @@ export const StockList = (props: any) => (
         },
       }}
     >
+      {isSmall ? (
+        <SimpleList
+          primaryText={(record) => record.productName}
+          secondaryText={(record) => `Qty: ${record.quantity}`}
+          tertiaryText={(record) => `Status: ${record.quantity <= record.minimumThreshold ? 'Deficient' : 'Normal'}`}
+          linkType="edit"
+          sx={{
+            padding: 2,
+            '& .MuiListItemHeader-root': { fontWeight: 'bold' }
+          }}
+        />
+      ) : (
       <Datagrid
         rowClick="edit"
         sx={{
@@ -506,9 +522,11 @@ export const StockList = (props: any) => (
         }}
       />
       </Datagrid>
+      )}
     </List>
   </Box>
-);
+  );
+};
 
 export const StockCreate = (props: any) => (
   <Create

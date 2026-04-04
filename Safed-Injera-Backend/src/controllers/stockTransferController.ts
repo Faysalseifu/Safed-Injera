@@ -244,7 +244,7 @@ export const getBranchDashboardStats = async (req: AuthRequest, res: Response): 
       return;
     }
 
-    const [stocks, pendingTransfers, dailyOut] = await Promise.all([
+    const [{ rows: stocks }, pendingTransfers, dailyOut] = await Promise.all([
       getStocks({ branchId }),
       getPendingTransfersForBranch(branchId),
       getBranchDailyOutQuantity(branchId, new Date()),

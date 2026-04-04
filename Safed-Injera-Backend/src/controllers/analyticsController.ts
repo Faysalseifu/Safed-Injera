@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import PDFDocument from 'pdfkit';
 import XLSX from 'xlsx';
 import logger from '../utils/logger';
@@ -14,13 +14,20 @@ import {
 } from '../repositories/orderRepository';
 import { getStocks, getLowStockItems } from '../repositories/stockRepository';
 import { transformOrder, transformStock } from '../utils/transform';
+import { AuthRequest } from '../middleware/authMiddleware';
+import { REVENUE_ORDER_STATUSES } from '../constants/orderConstants';
 
 // @desc    Get sales analysis
 // @route   GET /api/analytics/sales
 // @access  Private
-export const getSalesAnalysis = async (req: Request, res: Response): Promise<void> => {
+export const getSalesAnalysis = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { period } = req.query; // 'daily', 'weekly', 'monthly'
+    const branchId = req.user?.role === 'sub_admin' ? req.user.branch_id ?? undefined : undefined;
+    if (req.user?.role === 'sub_admin' && !branchId) {
+      res.status(403).json({ message: 'Sub-admin must be assigned to a branch' });
+      return;
+    }
     const now = new Date();
     let startDate: Date;
     switch (period) {
@@ -36,9 +43,13 @@ export const getSalesAnalysis = async (req: Request, res: Response): Promise<voi
         startDate.setHours(0, 0, 0, 0);
         break;
     }
-    const statuses = ['confirmed', 'processing', 'shipped', 'delivered'];
-    const sales = await getSalesByProductSince(startDate, statuses);
-    const dailyBreakdown = await getDailyBreakdown(new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000), statuses);
+    const statuses = [...REVENUE_ORDER_STATUSES];
+    const sales = await getSalesByProductSince(startDate, statuses, branchId);
+    const dailyBreakdown = await getDailyBreakdown(
+      new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
+      statuses,
+      branchId
+    );
     res.json({
       period,
       startDate,
@@ -54,20 +65,25 @@ export const getSalesAnalysis = async (req: Request, res: Response): Promise<voi
 // @desc    Get dashboard overview
 // @route   GET /api/analytics/dashboard
 // @access  Private
-export const getDashboard = async (req: Request, res: Response): Promise<void> => {
+export const getDashboard = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const totalOrders = await countOrders();
-    const pendingOrders = await countOrdersByStatus('pending');
-    const completedOrders = await countOrdersByStatus('delivered');
+    const branchId = req.user?.role === 'sub_admin' ? req.user.branch_id ?? undefined : undefined;
+    if (req.user?.role === 'sub_admin' && !branchId) {
+      res.status(403).json({ message: 'Sub-admin must be assigned to a branch' });
+      return;
+    }
+    const totalOrders = await countOrders(branchId);
+    const pendingOrders = await countOrdersByStatus('pending', branchId);
+    const completedOrders = await countOrdersByStatus('delivered', branchId);
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const todayOrders = await countOrdersSince(today);
+    const todayOrders = await countOrdersSince(today, branchId);
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    const weekOrders = await countOrdersSince(weekAgo);
-    const lowStockItems = await getLowStockItems();
-    const revenue = await getRevenueSince(['confirmed', 'processing', 'shipped', 'delivered']);
-    const recentOrders = (await getRecentOrders()).map(transformOrder);
+    const weekOrders = await countOrdersSince(weekAgo, branchId);
+    const lowStockItems = await getLowStockItems(branchId);
+    const revenue = await getRevenueSince([...REVENUE_ORDER_STATUSES], branchId);
+    const recentOrders = (await getRecentOrders(branchId)).map(transformOrder);
     const transformedLowStockItems = lowStockItems.map(transformStock);
     res.json({
       orders: {
@@ -91,15 +107,20 @@ export const getDashboard = async (req: Request, res: Response): Promise<void> =
 // @desc    Export data to CSV
 // @route   GET /api/analytics/export?format=csv
 // @access  Private
-export const exportData = async (req: Request, res: Response): Promise<void> => {
+export const exportData = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
     const { format, type } = req.query; // format: csv, pdf, excel; type: orders, stock
+    const branchId = req.user?.role === 'sub_admin' ? req.user.branch_id ?? undefined : undefined;
+    if (req.user?.role === 'sub_admin' && !branchId) {
+      res.status(403).json({ message: 'Sub-admin must be assigned to a branch' });
+      return;
+    }
     let data: any[];
     if (type === 'stock') {
-      const stocks = await getStocks({});
+      const { rows: stocks } = await getStocks({});
       data = stocks.map(transformStock);
     } else {
-      const { rows } = await getOrdersRepo({});
+      const { rows } = await getOrdersRepo(branchId ? { branchId } : {});
       data = rows.map(transformOrder);
     }
     const filename = `safed-injera-${type || 'orders'}-${new Date().toISOString().split('T')[0]}`;

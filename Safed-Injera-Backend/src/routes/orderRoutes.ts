@@ -7,12 +7,12 @@ import {
   deleteOrder,
   getOrderStats,
 } from '../controllers/orderController';
-import { protect, adminOnly } from '../middleware/authMiddleware';
+import { protect, adminOnly, optionalAuth } from '../middleware/authMiddleware';
 
 const router = express.Router();
 
-// Public route - create order from frontend
-router.post('/', createOrder);
+// Public route - create order from frontend (optional auth for branch-scoped creates)
+router.post('/', optionalAuth, createOrder);
 
 // Protected routes
 router.use(protect);
