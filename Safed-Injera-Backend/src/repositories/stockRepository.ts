@@ -170,43 +170,6 @@ export const findStockByProductAndBranch = async (
   return rows[0] ?? null;
 };
 
-/**
- * Hub/direct orders: stock may be on the main hub branch row or legacy rows with branch_id NULL.
- */
-export const findStockForHubOrder = async (
-  productName: string,
-  mainHubId: string,
-  client?: PoolClient
-): Promise<StockRecord | null> => {
-  const name = productName.trim();
-  const db = client ?? pool;
-
-  let { rows } = await db.query<StockRecord>(
-    `SELECT * FROM stocks
-     WHERE product_name = $1
-       AND (branch_id IS NULL OR branch_id = $2)
-     ORDER BY CASE WHEN branch_id = $2 THEN 0 ELSE 1 END
-     LIMIT 1`,
-    [name, mainHubId]
-  );
-
-  if (rows.length === 0) {
-    const shortName =
-      name.replace(/(Grain|Injera|Pure|Premium|\s)/gi, '').trim() || name.split(' ')[0];
-    const fuzzySearch = await db.query<StockRecord>(
-      `SELECT * FROM stocks
-       WHERE product_name ILIKE $1
-         AND (branch_id IS NULL OR branch_id = $2)
-       ORDER BY CASE WHEN branch_id = $2 THEN 0 ELSE 1 END
-       LIMIT 1`,
-      [`%${shortName}%`, mainHubId]
-    );
-    rows = fuzzySearch.rows;
-  }
-
-  return rows[0] ?? null;
-};
-
 export interface CreateStockInput {
   product_name: string;
   description?: string;

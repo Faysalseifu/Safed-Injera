@@ -377,6 +377,214 @@ export const getRevenueSince = async (statuses: string[], branchId?: string | nu
   return Number(rows[0]?.total ?? 0);
 };
 
+/** Optional date filter for analytics (inclusive YYYY-MM-DD). Omit or allTime for no date filter. */
+export type AnalyticsDateRange = {
+  allTime?: boolean;
+  from?: string;
+  to?: string;
+};
+
+function buildAnalyticsWhere(
+  branchId: string | null | undefined,
+  dateRange?: AnalyticsDateRange
+): { where: string; params: unknown[] } {
+  const parts: string[] = [];
+  const params: unknown[] = [];
+  if (branchId) {
+    parts.push(`branch_id = $${params.length + 1}`);
+    params.push(branchId);
+  }
+  if (dateRange && !dateRange.allTime && dateRange.from && dateRange.to) {
+    parts.push(`order_date::date >= $${params.length + 1}::date`);
+    params.push(dateRange.from);
+    parts.push(`order_date::date <= $${params.length + 1}::date`);
+    params.push(dateRange.to);
+  }
+  const where = parts.length ? `WHERE ${parts.join(' AND ')}` : '';
+  return { where, params };
+}
+
+/** Count of orders per status (optionally scoped by branch and date). */
+export const getOrderStatusBreakdown = async (
+  branchId?: string | null,
+  dateRange?: AnalyticsDateRange
+): Promise<{ status: string; count: number }[]> => {
+  const { where, params } = buildAnalyticsWhere(branchId ?? null, dateRange);
+  const { rows } = await pool.query<{ status: string; count: string }>(
+    `SELECT status, COUNT(*)::int AS count
+     FROM orders
+     ${where}
+     GROUP BY status
+     ORDER BY count DESC`,
+    params
+  );
+  return rows.map((r) => ({ status: r.status, count: Number(r.count) }));
+};
+
+/** Top customers by number of orders (ties broken by revenue). */
+export const getTopCustomersByOrderCount = async (
+  limit: number,
+  branchId?: string | null,
+  dateRange?: AnalyticsDateRange
+): Promise<
+  { customer_name: string; email: string; order_count: number; total_revenue: number }[]
+> => {
+  const lim = Math.min(Math.max(limit, 1), 50);
+  const { where, params } = buildAnalyticsWhere(branchId ?? null, dateRange);
+  const limitIdx = params.length + 1;
+  const { rows } = await pool.query(
+    `SELECT customer_name,
+            COALESCE(email, '') AS email,
+            COUNT(*)::int AS order_count,
+            COALESCE(SUM(total_price), 0)::numeric(12,2) AS total_revenue
+     FROM orders
+     ${where}
+     GROUP BY customer_name, email
+     ORDER BY order_count DESC, total_revenue DESC
+     LIMIT $${limitIdx}`,
+    [...params, lim]
+  );
+  return rows.map((r: any) => ({
+    customer_name: r.customer_name,
+    email: r.email,
+    order_count: Number(r.order_count),
+    total_revenue: Number(r.total_revenue ?? 0),
+  }));
+};
+
+/** Orders grouped by business type. */
+export const getBusinessTypeBreakdown = async (
+  branchId?: string | null,
+  dateRange?: AnalyticsDateRange
+): Promise<{ business_type: string; order_count: number }[]> => {
+  const { where, params } = buildAnalyticsWhere(branchId ?? null, dateRange);
+  const { rows } = await pool.query(
+    `SELECT business_type, COUNT(*)::int AS order_count
+     FROM orders
+     ${where}
+     GROUP BY business_type
+     ORDER BY order_count DESC`,
+    params
+  );
+  return rows.map((r: any) => ({
+    business_type: r.business_type,
+    order_count: Number(r.order_count),
+  }));
+};
+
+/** Sales by product for revenue-eligible statuses with no date filter. */
+export const getSalesByProductAllTime = async (
+  statuses: string[],
+  branchId?: string | null
+): Promise<{
+  product: string;
+  total_quantity: number;
+  total_revenue: number;
+  order_count: number;
+}[]> => {
+  const params: unknown[] = [statuses];
+  let branchClause = '';
+  if (branchId) {
+    branchClause = ' AND branch_id = $2';
+    params.push(branchId);
+  }
+  const { rows } = await pool.query(
+    `SELECT product,
+            SUM(quantity)::int AS total_quantity,
+            SUM(total_price)::numeric(12,2) AS total_revenue,
+            COUNT(*)::int AS order_count
+     FROM orders
+     WHERE status = ANY($1)${branchClause}
+     GROUP BY product
+     ORDER BY total_quantity DESC`,
+    params
+  );
+  return rows.map((row) => ({
+    product: row.product,
+    total_quantity: Number(row.total_quantity),
+    total_revenue: Number(row.total_revenue ?? 0),
+    order_count: Number(row.order_count),
+  }));
+};
+
+/** Sales by product within an inclusive date range (by order_date::date). */
+export const getSalesByProductInDateRange = async (
+  fromYmd: string,
+  toYmd: string,
+  statuses: string[],
+  branchId?: string | null
+): Promise<{
+  product: string;
+  total_quantity: number;
+  total_revenue: number;
+  order_count: number;
+}[]> => {
+  const params: unknown[] = [fromYmd, toYmd, statuses];
+  let branchClause = '';
+  if (branchId) {
+    branchClause = ' AND branch_id = $4';
+    params.push(branchId);
+  }
+  const { rows } = await pool.query(
+    `SELECT product,
+            SUM(quantity)::int AS total_quantity,
+            SUM(total_price)::numeric(12,2) AS total_revenue,
+            COUNT(*)::int AS order_count
+     FROM orders
+     WHERE order_date::date >= $1::date
+       AND order_date::date <= $2::date
+       AND status = ANY($3)${branchClause}
+     GROUP BY product
+     ORDER BY total_quantity DESC`,
+    params
+  );
+  return rows.map((row) => ({
+    product: row.product,
+    total_quantity: Number(row.total_quantity),
+    total_revenue: Number(row.total_revenue ?? 0),
+    order_count: Number(row.order_count),
+  }));
+};
+
+/** Daily breakdown within inclusive date range. */
+export const getDailyBreakdownInDateRange = async (
+  fromYmd: string,
+  toYmd: string,
+  statuses: string[],
+  branchId?: string | null
+): Promise<{
+  period: string;
+  total_quantity: number;
+  total_revenue: number;
+  order_count: number;
+}[]> => {
+  const params: unknown[] = [fromYmd, toYmd, statuses];
+  let branchClause = '';
+  if (branchId) {
+    branchClause = ' AND branch_id = $4';
+    params.push(branchId);
+  }
+  const { rows } = await pool.query(
+    `SELECT to_char(order_date, 'YYYY-MM-DD') AS period,
+            SUM(quantity)::int AS total_quantity,
+            SUM(total_price)::numeric(12,2) AS total_revenue,
+            COUNT(*)::int AS order_count
+     FROM orders
+     WHERE order_date::date >= $1::date
+       AND order_date::date <= $2::date
+       AND status = ANY($3)${branchClause}
+     GROUP BY period
+     ORDER BY period ASC`,
+    params
+  );
+  return rows.map((row) => ({
+    period: row.period,
+    total_quantity: Number(row.total_quantity),
+    total_revenue: Number(row.total_revenue ?? 0),
+    order_count: Number(row.order_count),
+  }));
+};
+
 export const getRecentOrders = async (
   branchId?: string | null
 ): Promise<Pick<OrderRecord, 'id' | 'customer_name' | 'business_type' | 'quantity' | 'status' | 'order_date'>[]> => {

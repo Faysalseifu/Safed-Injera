@@ -130,9 +130,63 @@ interface DashboardData {
   }>;
 }
 
+/** Matches GET /api/analytics/sales (see orderRepository getSalesByProductSince / getDailyBreakdown) */
+interface ProductSalesRow {
+  product: string;
+  total_quantity: number;
+  total_revenue: number;
+  order_count: number;
+}
+
+interface DailyBreakdownRow {
+  period: string; // YYYY-MM-DD
+  total_quantity: number;
+  total_revenue: number;
+  order_count: number;
+}
+
 interface SalesData {
-  productSales: Array<{ _id: string; totalQuantity: number; orderCount: number }>;
-  dailyBreakdown: Array<{ _id: string; totalQuantity: number; orderCount: number }>;
+  period?: string;
+  productSales: ProductSalesRow[];
+  dailyBreakdown: DailyBreakdownRow[];
+}
+
+const safeNum = (v: unknown): number => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
+function localDateKey(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/** Last N calendar days ending today, merged with API daily rows (fill missing days with 0). */
+function mergeDailySeries(
+  rows: DailyBreakdownRow[],
+  days: number
+): { labels: string[]; orderCounts: number[]; quantities: number[] } {
+  const byDay = new Map<string, DailyBreakdownRow>();
+  rows.forEach((r) => {
+    if (r?.period) byDay.set(r.period, r);
+  });
+  const labels: string[] = [];
+  const orderCounts: number[] = [];
+  const quantities: number[] = [];
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const key = localDateKey(d);
+    const row = byDay.get(key);
+    labels.push(d.toLocaleDateString('en-US', { weekday: 'short' }));
+    orderCounts.push(safeNum(row?.order_count));
+    quantities.push(safeNum(row?.total_quantity));
+  }
+  return { labels, orderCounts, quantities };
 }
 
 // Modern Metric Card Component
@@ -511,17 +565,17 @@ const RecentOrdersCard = ({
   );
 };
 
-// Statistics Chart Component
+// Statistics Chart Component — orders per day (last 7 days)
 const StatisticsChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
+  const { labels, orderCounts } = mergeDailySeries(data || [], 7);
+  const hasActivity = orderCounts.some((n) => n > 0);
+
   const chartData = {
-    labels: data?.slice(-7).map((d) => {
-      const date = new Date(d._id);
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
-    }) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+    labels,
     datasets: [
       {
         label: 'Orders',
-        data: data?.slice(-7).map((d) => d.orderCount) || [4, 6, 5, 8, 7, 9, 6],
+        data: orderCounts,
         backgroundColor: [
           'rgba(156, 39, 176, 0.8)',
           'rgba(33, 150, 243, 0.8)',
@@ -605,6 +659,14 @@ const StatisticsChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
         <Typography variant="h6" sx={{ fontWeight: 600, color: colors.textPrimary }}>
           Statistics
         </Typography>
+        <Typography variant="caption" sx={{ color: colors.textSecondary, display: 'block', mt: 0.5 }}>
+          Orders per day (last 7 days)
+        </Typography>
+        {!hasActivity && (
+          <Typography variant="caption" sx={{ color: colors.textSecondary, display: 'block', mt: 1 }}>
+            No qualifying orders in this window — chart shows zeros until sales are recorded.
+          </Typography>
+        )}
       </Box>
       <Box sx={{ height: 280 }}>
         <Bar data={chartData} options={options} />
@@ -613,20 +675,27 @@ const StatisticsChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
   );
 };
 
-// Sales Share Donut Chart
+// Sales Share Donut Chart — quantity share by product (monthly window from API)
 const SalesShareChart = ({ data }: { data: SalesData['productSales'] }) => {
+  const rows = (data || []).filter((p) => safeNum(p.total_quantity) > 0);
+  const palette = [
+    'rgba(156, 39, 176, 0.85)',
+    'rgba(33, 150, 243, 0.85)',
+    'rgba(233, 30, 99, 0.85)',
+    'rgba(0, 188, 212, 0.85)',
+    'rgba(230, 181, 77, 0.85)',
+    'rgba(76, 175, 80, 0.85)',
+    'rgba(181, 106, 58, 0.85)',
+  ];
   const chartData = {
-    labels: data?.map((p) => p._id) || ['Product A', 'Product B', 'Product C'],
+    labels: rows.length > 0 ? rows.map((p) => p.product || 'Unknown') : ['No sales yet'],
     datasets: [
       {
-        data: data?.map((p) => p.totalQuantity) || [30, 45, 25],
-        backgroundColor: [
-          'rgba(156, 39, 176, 0.8)',
-          'rgba(33, 150, 243, 0.8)',
-          'rgba(233, 30, 99, 0.8)',
-          'rgba(0, 188, 212, 0.8)',
-          'rgba(230, 181, 77, 0.8)',
-        ],
+        data:
+          rows.length > 0
+            ? rows.map((p) => safeNum(p.total_quantity))
+            : [1],
+        backgroundColor: rows.length > 0 ? rows.map((_, i) => palette[i % palette.length]) : ['rgba(107, 123, 125, 0.35)'],
         borderWidth: 0,
         cutout: '70%',
       },
@@ -692,20 +761,26 @@ const SalesShareChart = ({ data }: { data: SalesData['productSales'] }) => {
   );
 };
 
-// Trend Line Chart
+// Trend Line Chart — total quantity sold per day (last 30 days)
 const TrendChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
+  const { labels, quantities } = mergeDailySeries(data || [], 30);
+  const totalQty = quantities.reduce((a, b) => a + b, 0);
+
   const chartData = {
-    labels: data?.slice(-30).map((d, i) => {
-      if (i % 5 === 0) {
-        const date = new Date(d._id);
-        return date.toLocaleDateString('en-US', { month: 'short' });
-      }
-      return '';
-    }) || ['Jan', '', '', '', '', 'Feb', '', '', '', '', 'Mar', '', '', '', '', 'Apr', '', '', '', '', 'May'],
+    labels: labels.map((_, i) => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const d = new Date(today);
+      d.setDate(d.getDate() - (29 - i));
+      const showLabel = i === 0 || i === labels.length - 1 || i % 5 === 0;
+      return showLabel
+        ? `${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`
+        : '';
+    }),
     datasets: [
       {
-        label: 'Sales Trend',
-        data: data?.slice(-30).map((d) => d.totalQuantity) || Array.from({ length: 30 }, () => Math.floor(Math.random() * 100) + 50),
+        label: 'Units sold',
+        data: quantities,
         borderColor: '#E91E63',
         backgroundColor: 'rgba(233, 30, 99, 0.1)',
         fill: true,
@@ -803,10 +878,10 @@ const TrendChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700, background: 'linear-gradient(135deg, #E91E63 0%, #9C27B0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            {data?.reduce((sum, d) => sum + d.totalQuantity, 0).toLocaleString() || '3500'}
+            {totalQty.toLocaleString()}
           </Typography>
           <Typography variant="caption" sx={{ color: colors.textSecondary }}>
-            Total
+            Total units (30d)
           </Typography>
         </Box>
       </Box>

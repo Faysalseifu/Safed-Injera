@@ -30,6 +30,8 @@ const startServer = async (): Promise<void> => {
   ║   - GET/POST /api/stocks                              ║
   ║   - GET/POST /api/orders                              ║
   ║   - GET /api/analytics/dashboard                      ║
+  ║   - GET /api/analytics/sales                          ║
+  ║   - GET /api/analytics/insights                       ║
   ║   - GET /api/analytics/export                         ║
   ║                                                       ║
   ╚═══════════════════════════════════════════════════════╝

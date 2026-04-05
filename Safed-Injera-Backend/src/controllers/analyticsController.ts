@@ -4,30 +4,111 @@ import XLSX from 'xlsx';
 import logger from '../utils/logger';
 import {
   getSalesByProductSince,
+  getSalesByProductAllTime,
+  getSalesByProductInDateRange,
   getDailyBreakdown,
+  getDailyBreakdownInDateRange,
   getRevenueSince,
   getRecentOrders,
   countOrders,
   countOrdersByStatus,
   countOrdersSince,
   getOrders as getOrdersRepo,
+  getOrderStatusBreakdown,
+  getTopCustomersByOrderCount,
+  getBusinessTypeBreakdown,
+  type AnalyticsDateRange,
 } from '../repositories/orderRepository';
 import { getStocks, getLowStockItems } from '../repositories/stockRepository';
 import { transformOrder, transformStock } from '../utils/transform';
 import { AuthRequest } from '../middleware/authMiddleware';
 import { REVENUE_ORDER_STATUSES } from '../constants/orderConstants';
 
+function formatYmd(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+/**
+ * Default: last 30 days inclusive. Pass all=true for no date filter, or from & to (YYYY-MM-DD).
+ */
+function resolveAnalyticsDateRange(req: AuthRequest): { range: AnalyticsDateRange } | { error: string } {
+  const all = req.query.all === 'true' || req.query.all === '1';
+  if (all) {
+    return { range: { allTime: true } };
+  }
+
+  const fromQ = typeof req.query.from === 'string' ? req.query.from : '';
+  const toQ = typeof req.query.to === 'string' ? req.query.to : '';
+
+  if (fromQ && toQ) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(fromQ) || !/^\d{4}-\d{2}-\d{2}$/.test(toQ)) {
+      return { error: 'Invalid date format. Use YYYY-MM-DD.' };
+    }
+    if (fromQ > toQ) {
+      return { error: 'from must be before or equal to to' };
+    }
+    return { range: { allTime: false, from: fromQ, to: toQ } };
+  }
+
+  const end = new Date();
+  end.setHours(0, 0, 0, 0);
+  const start = new Date(end);
+  start.setDate(start.getDate() - 29);
+  return { range: { allTime: false, from: formatYmd(start), to: formatYmd(end) } };
+}
+
 // @desc    Get sales analysis
 // @route   GET /api/analytics/sales
 // @access  Private
 export const getSalesAnalysis = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { period } = req.query; // 'daily', 'weekly', 'monthly'
     const branchId = req.user?.role === 'sub_admin' ? req.user.branch_id ?? undefined : undefined;
     if (req.user?.role === 'sub_admin' && !branchId) {
       res.status(403).json({ message: 'Sub-admin must be assigned to a branch' });
       return;
     }
+
+    const statuses = [...REVENUE_ORDER_STATUSES];
+    const explicitRange =
+      req.query.all === 'true' ||
+      req.query.all === '1' ||
+      (typeof req.query.from === 'string' && typeof req.query.to === 'string' && req.query.from && req.query.to);
+
+    if (explicitRange) {
+      const resolved = resolveAnalyticsDateRange(req);
+      if ('error' in resolved) {
+        res.status(400).json({ message: resolved.error });
+        return;
+      }
+      const { range } = resolved;
+      let productSales;
+      let dailyBreakdown;
+      if (range.allTime) {
+        productSales = await getSalesByProductAllTime(statuses, branchId);
+        dailyBreakdown = await getDailyBreakdown(
+          new Date(Date.now() - 365 * 24 * 60 * 60 * 1000),
+          statuses,
+          branchId
+        );
+      } else {
+        productSales = await getSalesByProductInDateRange(range.from!, range.to!, statuses, branchId);
+        dailyBreakdown = await getDailyBreakdownInDateRange(range.from!, range.to!, statuses, branchId);
+      }
+      res.json({
+        period: 'range',
+        range,
+        startDate: range.allTime ? null : range.from,
+        endDate: range.allTime ? null : range.to,
+        productSales,
+        dailyBreakdown,
+      });
+      return;
+    }
+
+    const { period } = req.query; // 'daily', 'weekly', 'monthly'
     const now = new Date();
     let startDate: Date;
     switch (period) {
@@ -43,7 +124,6 @@ export const getSalesAnalysis = async (req: AuthRequest, res: Response): Promise
         startDate.setHours(0, 0, 0, 0);
         break;
     }
-    const statuses = [...REVENUE_ORDER_STATUSES];
     const sales = await getSalesByProductSince(startDate, statuses, branchId);
     const dailyBreakdown = await getDailyBreakdown(
       new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000),
@@ -58,6 +138,42 @@ export const getSalesAnalysis = async (req: AuthRequest, res: Response): Promise
     });
   } catch (error) {
     logger.error('Sales analysis error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+// @desc    Order insights for analytics UI (status mix, top customers, business types)
+// @route   GET /api/analytics/insights
+// @access  Private
+export const getAnalyticsInsights = async (req: AuthRequest, res: Response): Promise<void> => {
+  try {
+    const branchId = req.user?.role === 'sub_admin' ? req.user.branch_id ?? undefined : undefined;
+    if (req.user?.role === 'sub_admin' && !branchId) {
+      res.status(403).json({ message: 'Sub-admin must be assigned to a branch' });
+      return;
+    }
+
+    const resolved = resolveAnalyticsDateRange(req);
+    if ('error' in resolved) {
+      res.status(400).json({ message: resolved.error });
+      return;
+    }
+    const { range } = resolved;
+
+    const [statusBreakdown, topCustomers, businessTypeBreakdown] = await Promise.all([
+      getOrderStatusBreakdown(branchId, range),
+      getTopCustomersByOrderCount(10, branchId, range),
+      getBusinessTypeBreakdown(branchId, range),
+    ]);
+
+    res.json({
+      range,
+      statusBreakdown,
+      topCustomers,
+      businessTypeBreakdown,
+    });
+  } catch (error) {
+    logger.error('Analytics insights error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };

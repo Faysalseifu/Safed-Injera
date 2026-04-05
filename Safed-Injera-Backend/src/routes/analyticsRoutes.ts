@@ -3,6 +3,7 @@ import {
   getSalesAnalysis,
   getDashboard,
   exportData,
+  getAnalyticsInsights,
 } from '../controllers/analyticsController';
 import { protect } from '../middleware/authMiddleware';
 
@@ -12,6 +13,7 @@ const router = express.Router();
 router.use(protect);
 
 router.get('/sales', getSalesAnalysis);
+router.get('/insights', getAnalyticsInsights);
 router.get('/dashboard', getDashboard);
 router.get('/export', exportData);
 

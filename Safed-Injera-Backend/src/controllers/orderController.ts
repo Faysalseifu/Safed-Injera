@@ -15,7 +15,6 @@ import {
   adjustStockQuantity,
   findStockByName,
   findStockByProductAndBranch,
-  findStockForHubOrder,
   type StockRecord,
 } from '../repositories/stockRepository';
 import { getMainHubBranch } from '../repositories/branchRepository';
@@ -32,21 +31,33 @@ const parseOrderId = (idParam: string): number | null => {
   return Number.isNaN(parsed) ? null : parsed;
 };
 
-/** Stock row used when marking an order delivered / reverting */
+/**
+ * Stock row used when marking an order delivered / reverting.
+ * Tries: order branch → main hub → legacy rows with branch_id NULL (hub/global stock) → fuzzy name match.
+ * Without the NULL-branch step, orders fail when inventory was created before branch scoping or lives on “unassigned” stock rows.
+ */
 async function resolveStockForOrderFulfillment(
   product: string,
   orderBranchId: string | null,
   client?: PoolClient
 ): Promise<StockRecord | null> {
-  const name = typeof product === 'string' ? product.trim() : product;
+  let row: StockRecord | null = null;
+
   if (orderBranchId) {
-    return findStockByProductAndBranch(name, orderBranchId, client);
+    row = await findStockByProductAndBranch(product, orderBranchId, client);
+    if (row) return row;
   }
+
   const mainHub = await getMainHubBranch();
   if (mainHub) {
-    return findStockForHubOrder(name, mainHub.id, client);
+    row = await findStockByProductAndBranch(product, mainHub.id, client);
+    if (row) return row;
   }
-  return findStockByName(name, client);
+
+  row = await findStockByProductAndBranch(product, null, client);
+  if (row) return row;
+
+  return findStockByName(product, client);
 }
 
 function parseOrderListDateFilters(req: AuthRequest): {
@@ -305,16 +316,15 @@ export const updateOrder = async (req: AuthRequest, res: Response): Promise<void
           existingOrder.branch_id,
           client
         );
-        const qty = existingOrder.quantity;
 
-        if (newStatus === 'delivered' && existingOrder.status !== 'delivered' && qty > 0) {
+        if (newStatus === 'delivered' && existingOrder.status !== 'delivered') {
           if (!stockItem) {
             throw new Error('NO_STOCK_ROW');
           }
-          if (stockItem.quantity < qty) {
+          if (stockItem.quantity < existingOrder.quantity) {
             throw new Error('INSUFFICIENT_STOCK');
           }
-          const updatedStock = await adjustStockQuantity(stockItem.id, -qty, client);
+          const updatedStock = await adjustStockQuantity(stockItem.id, -existingOrder.quantity, client);
           if (!updatedStock) {
             throw new Error('INSUFFICIENT_STOCK');
           }
@@ -322,7 +332,7 @@ export const updateOrder = async (req: AuthRequest, res: Response): Promise<void
             {
               stock_id: stockItem.id,
               transaction_type: 'out',
-              quantity_change: -qty,
+              quantity_change: -existingOrder.quantity,
               quantity_before: stockItem.quantity,
               quantity_after: updatedStock.quantity,
               reason: `Order #${orderId} delivered - stock deducted`,
@@ -331,11 +341,11 @@ export const updateOrder = async (req: AuthRequest, res: Response): Promise<void
           );
         }
 
-        if (existingOrder.status === 'delivered' && newStatus !== 'delivered' && newStatus !== undefined && qty > 0) {
+        if (existingOrder.status === 'delivered' && newStatus !== 'delivered' && newStatus !== undefined) {
           if (!stockItem) {
             throw new Error('NO_STOCK_ROW');
           }
-          const updatedStock = await adjustStockQuantity(stockItem.id, qty, client);
+          const updatedStock = await adjustStockQuantity(stockItem.id, existingOrder.quantity, client);
           if (!updatedStock) {
             throw new Error('STOCK_ADJUST_FAILED');
           }
@@ -343,7 +353,7 @@ export const updateOrder = async (req: AuthRequest, res: Response): Promise<void
             {
               stock_id: stockItem.id,
               transaction_type: 'in',
-              quantity_change: qty,
+              quantity_change: existingOrder.quantity,
               quantity_before: stockItem.quantity,
               quantity_after: updatedStock.quantity,
               reason: `Order #${orderId} reverted from delivered - stock restored`,
@@ -363,9 +373,7 @@ export const updateOrder = async (req: AuthRequest, res: Response): Promise<void
       }
       if (e?.message === 'NO_STOCK_ROW') {
         res.status(400).json({
-          message:
-            'No stock line item matches this order product at the hub or branch. ' +
-            'Ensure the product name matches a stock row (or add stock / transfer from hub), then try again.',
+          message: 'No stock record found for this product at the fulfilling location',
         });
         return;
       }

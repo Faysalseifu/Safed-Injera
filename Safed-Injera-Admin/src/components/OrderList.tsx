@@ -79,9 +79,27 @@ const OrderFilter = (props: any) => (
       alwaysOn
       sx={{
         '& .MuiOutlinedInput-root': {
-          borderRadius: '12px',
-          bgcolor: colors.paper,
+          borderRadius: '16px',
+          bgcolor: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(10px)',
+          border: '2px solid rgba(181, 106, 58, 0.1)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            border: '2px solid rgba(181, 106, 58, 0.2)',
+            boxShadow: '0 4px 12px rgba(181, 106, 58, 0.15)',
+          },
+          '&.Mui-focused': {
+            border: `2px solid ${colors.gold}`,
+            boxShadow: '0 0 0 4px rgba(181, 106, 58, 0.1)',
+          }
         },
+        '& .MuiInputLabel-root': {
+          fontWeight: 600,
+          color: colors.textSecondary,
+          '&.Mui-focused': {
+            color: colors.gold,
+          }
+        }
       }}
     />
     <SelectInput
@@ -91,8 +109,27 @@ const OrderFilter = (props: any) => (
       alwaysOn
       sx={{
         '& .MuiOutlinedInput-root': {
-          borderRadius: '12px',
+          borderRadius: '16px',
+          bgcolor: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(10px)',
+          border: '2px solid rgba(181, 106, 58, 0.1)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            border: '2px solid rgba(181, 106, 58, 0.2)',
+            boxShadow: '0 4px 12px rgba(181, 106, 58, 0.15)',
+          },
+          '&.Mui-focused': {
+            border: `2px solid ${colors.gold}`,
+            boxShadow: '0 0 0 4px rgba(181, 106, 58, 0.1)',
+          }
         },
+        '& .MuiInputLabel-root': {
+          fontWeight: 600,
+          color: colors.textSecondary,
+          '&.Mui-focused': {
+            color: colors.gold,
+          }
+        }
       }}
     />
     <SelectInput
@@ -100,8 +137,27 @@ const OrderFilter = (props: any) => (
       choices={statusChoices}
       sx={{
         '& .MuiOutlinedInput-root': {
-          borderRadius: '12px',
+          borderRadius: '16px',
+          bgcolor: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(10px)',
+          border: '2px solid rgba(181, 106, 58, 0.1)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            border: '2px solid rgba(181, 106, 58, 0.2)',
+            boxShadow: '0 4px 12px rgba(181, 106, 58, 0.15)',
+          },
+          '&.Mui-focused': {
+            border: `2px solid ${colors.gold}`,
+            boxShadow: '0 0 0 4px rgba(181, 106, 58, 0.1)',
+          }
         },
+        '& .MuiInputLabel-root': {
+          fontWeight: 600,
+          color: colors.textSecondary,
+          '&.Mui-focused': {
+            color: colors.gold,
+          }
+        }
       }}
     />
     <SelectInput
@@ -109,24 +165,79 @@ const OrderFilter = (props: any) => (
       choices={businessTypeChoices}
       sx={{
         '& .MuiOutlinedInput-root': {
-          borderRadius: '12px',
+          borderRadius: '16px',
+          bgcolor: 'rgba(255, 255, 255, 0.9)',
+          backdropFilter: 'blur(10px)',
+          border: '2px solid rgba(181, 106, 58, 0.1)',
+          transition: 'all 0.3s ease',
+          '&:hover': {
+            border: '2px solid rgba(181, 106, 58, 0.2)',
+            boxShadow: '0 4px 12px rgba(181, 106, 58, 0.15)',
+          },
+          '&.Mui-focused': {
+            border: `2px solid ${colors.gold}`,
+            boxShadow: '0 0 0 4px rgba(181, 106, 58, 0.1)',
+          }
         },
+        '& .MuiInputLabel-root': {
+          fontWeight: 600,
+          color: colors.textSecondary,
+          '&.Mui-focused': {
+            color: colors.gold,
+          }
+        }
       }}
     />
   </Filter>
 );
 
 const StatusField = (props: any) => {
-  const statusGradients: Record<string, { bg: string; color: string }> = {
-    pending: { bg: 'linear-gradient(135deg, rgba(255, 152, 0, 0.15) 0%, rgba(255, 193, 7, 0.1) 100%)', color: colors.warning },
-    sent: { bg: 'linear-gradient(135deg, rgba(33, 150, 243, 0.15) 0%, rgba(0, 188, 212, 0.1) 100%)', color: colors.info },
-    checked: { bg: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(0, 188, 212, 0.1) 100%)', color: colors.success },
-    declined: { bg: 'linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(233, 30, 99, 0.1) 100%)', color: colors.error },
-    confirmed: { bg: 'linear-gradient(135deg, rgba(181, 106, 58, 0.15) 0%, rgba(168, 90, 42, 0.1) 100%)', color: colors.gold },
-    processing: { bg: 'linear-gradient(135deg, rgba(168, 150, 136, 0.15) 0%, rgba(181, 106, 58, 0.1) 100%)', color: colors.teal },
-    shipped: { bg: 'linear-gradient(135deg, rgba(0, 188, 212, 0.15) 0%, rgba(33, 150, 243, 0.1) 100%)', color: '#00bcd4' },
-    delivered: { bg: 'linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(0, 188, 212, 0.1) 100%)', color: colors.success },
-    cancelled: { bg: 'linear-gradient(135deg, rgba(244, 67, 54, 0.15) 0%, rgba(233, 30, 99, 0.1) 100%)', color: colors.error },
+  const statusGradients: Record<string, { bg: string; color: string; shadow: string }> = {
+    pending: { 
+      bg: 'linear-gradient(135deg, rgba(255, 152, 0, 0.2) 0%, rgba(255, 193, 7, 0.15) 100%)', 
+      color: colors.warning,
+      shadow: '0 4px 12px rgba(255, 152, 0, 0.3)'
+    },
+    sent: { 
+      bg: 'linear-gradient(135deg, rgba(33, 150, 243, 0.2) 0%, rgba(0, 188, 212, 0.15) 100%)', 
+      color: colors.info,
+      shadow: '0 4px 12px rgba(33, 150, 243, 0.3)'
+    },
+    checked: { 
+      bg: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(0, 188, 212, 0.15) 100%)', 
+      color: colors.success,
+      shadow: '0 4px 12px rgba(76, 175, 80, 0.3)'
+    },
+    declined: { 
+      bg: 'linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(233, 30, 99, 0.15) 100%)', 
+      color: colors.error,
+      shadow: '0 4px 12px rgba(244, 67, 54, 0.3)'
+    },
+    confirmed: { 
+      bg: 'linear-gradient(135deg, rgba(181, 106, 58, 0.2) 0%, rgba(168, 90, 42, 0.15) 100%)', 
+      color: colors.gold,
+      shadow: '0 4px 12px rgba(181, 106, 58, 0.3)'
+    },
+    processing: { 
+      bg: 'linear-gradient(135deg, rgba(168, 150, 136, 0.2) 0%, rgba(181, 106, 58, 0.15) 100%)', 
+      color: colors.teal,
+      shadow: '0 4px 12px rgba(168, 150, 136, 0.3)'
+    },
+    shipped: { 
+      bg: 'linear-gradient(135deg, rgba(0, 188, 212, 0.2) 0%, rgba(33, 150, 243, 0.15) 100%)', 
+      color: '#00bcd4',
+      shadow: '0 4px 12px rgba(0, 188, 212, 0.3)'
+    },
+    delivered: { 
+      bg: 'linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(0, 188, 212, 0.15) 100%)', 
+      color: colors.success,
+      shadow: '0 4px 12px rgba(76, 175, 80, 0.3)'
+    },
+    cancelled: { 
+      bg: 'linear-gradient(135deg, rgba(244, 67, 54, 0.2) 0%, rgba(233, 30, 99, 0.15) 100%)', 
+      color: colors.error,
+      shadow: '0 4px 12px rgba(244, 67, 54, 0.3)'
+    },
   };
 
   const status = props.record?.status || 'pending';
@@ -135,16 +246,24 @@ const StatusField = (props: any) => {
   return (
     <Chip
       label={statusChoices.find((s) => s.id === status)?.name || status}
-      size="small"
+      size="medium"
       sx={{
         background: style.bg,
         color: style.color,
-        fontWeight: 600,
-        fontSize: '0.75rem',
+        fontWeight: 700,
+        fontSize: '0.813rem',
         textTransform: 'capitalize',
-        borderRadius: '8px',
-        border: `1px solid ${style.color}40`,
-        boxShadow: '0 2px 4px rgba(0, 0, 0, 0.05)',
+        borderRadius: '12px',
+        border: `2px solid ${style.color}60`,
+        boxShadow: style.shadow,
+        padding: '8px 12px',
+        height: 'auto',
+        transition: 'all 0.3s ease',
+        backdropFilter: 'blur(8px)',
+        '&:hover': {
+          transform: 'translateY(-2px)',
+          boxShadow: `0 6px 16px ${style.color}40`,
+        }
       }}
     />
   );
@@ -334,40 +453,77 @@ const StatusHistoryViewer = ({ record }: any) => {
 };
 
 export const OrderList = (props: any) => (
-  <Box sx={{ width: '100%', p: { xs: 1, sm: 1.5, md: 2, lg: 3 } }}>
+  <Box sx={{ 
+    width: '100%', 
+    minHeight: '100vh',
+    background: 'linear-gradient(135deg, rgba(249, 249, 247, 0.8) 0%, rgba(237, 234, 230, 0.4) 100%)',
+    p: { xs: 1, sm: 1.5, md: 2, lg: 3 } 
+  }}>
     <Box sx={{ maxWidth: '1600px', margin: '0 auto', width: '100%' }}>
-      {/* Header Section */}
-      <Box sx={{ mb: { xs: 2, sm: 2.5, md: 3 }, display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 } }}>
-        <Avatar
-          sx={{
-            bgcolor: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
-            background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
-            width: { xs: 48, sm: 56 },
-            height: { xs: 48, sm: 56 },
-            boxShadow: '0 4px 12px rgba(181, 106, 58, 0.3)',
-          }}
-        >
-          <ShoppingCartIcon sx={{ fontSize: { xs: 24, sm: 28 } }} />
-        </Avatar>
-        <Box>
+      {/* Enhanced Header Section */}
+      <Box sx={{ 
+        mb: { xs: 3, sm: 4, md: 5 }, 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: { xs: 2, sm: 3 },
+        position: 'relative',
+        '&::before': {
+          content: '""',
+          position: 'absolute',
+          top: -20,
+          left: -20,
+          width: { xs: '120px', sm: '160px' },
+          height: { xs: '120px', sm: '160px' },
+          background: 'radial-gradient(circle, rgba(181, 106, 58, 0.08) 0%, transparent 70%)',
+          borderRadius: '50%',
+          zIndex: 0,
+        }
+      }}>
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
+          <Avatar
+            sx={{
+              background: 'linear-gradient(135deg, #B56A3A 0%, #A85A2A 100%)',
+              width: { xs: 56, sm: 64, md: 72 },
+              height: { xs: 56, sm: 64, md: 72 },
+              boxShadow: '0 8px 24px rgba(181, 106, 58, 0.4), 0 4px 12px rgba(181, 106, 58, 0.2)',
+              border: '3px solid rgba(255, 255, 255, 0.9)',
+              transition: 'all 0.3s ease',
+              '&:hover': {
+                transform: 'scale(1.05)',
+                boxShadow: '0 12px 32px rgba(181, 106, 58, 0.5), 0 6px 16px rgba(181, 106, 58, 0.3)',
+              }
+            }}
+          >
+            <ShoppingCartIcon sx={{ fontSize: { xs: 28, sm: 32, md: 36 }, color: 'white' }} />
+          </Avatar>
+        </Box>
+        <Box sx={{ position: 'relative', zIndex: 1 }}>
           <Typography 
-            variant="h4" 
+            variant="h3" 
             sx={{ 
-              fontWeight: 700, 
+              fontWeight: 800, 
               color: colors.textPrimary,
-              fontSize: { xs: '1.5rem', sm: '1.75rem', md: '2rem' },
+              fontSize: { xs: '1.75rem', sm: '2rem', md: '2.5rem' },
+              mb: 0.5,
+              background: `linear-gradient(135deg, ${colors.textPrimary} 0%, ${colors.gold} 100%)`,
+              backgroundClip: 'text',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              textShadow: '0 2px 4px rgba(78, 24, 21, 0.1)',
             }}
           >
             Orders Management
           </Typography>
           <Typography 
-            variant="body2" 
+            variant="body1" 
             sx={{ 
               color: colors.textSecondary,
-              fontSize: { xs: '0.813rem', sm: '0.875rem' },
+              fontSize: { xs: '0.938rem', sm: '1rem' },
+              fontWeight: 500,
+              opacity: 0.9,
             }}
           >
-            View and manage all customer orders
+            View and manage all customer orders with real-time updates
           </Typography>
         </Box>
       </Box>
@@ -380,53 +536,91 @@ export const OrderList = (props: any) => (
         sx={{
           width: '100%',
           '& .RaList-content': {
-            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(249, 249, 247, 0.9) 100%)',
-            borderRadius: { xs: '16px', sm: '20px' },
-            boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)',
-            border: '1px solid rgba(78, 24, 21, 0.06)',
+            background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.98) 0%, rgba(249, 249, 247, 0.95) 100%)',
+            borderRadius: { xs: '20px', sm: '24px' },
+            boxShadow: '0 8px 32px rgba(78, 24, 21, 0.12), 0 4px 16px rgba(78, 24, 21, 0.08)',
+            border: '1px solid rgba(181, 106, 58, 0.1)',
             overflow: 'hidden',
             position: 'relative',
             width: '100%',
+            backdropFilter: 'blur(10px)',
             '&::before': {
               content: '""',
               position: 'absolute',
               top: 0,
               left: 0,
+              width: { xs: '200px', sm: '280px' },
+              height: { xs: '200px', sm: '280px' },
+              background: 'radial-gradient(circle, rgba(181, 106, 58, 0.06) 0%, rgba(181, 106, 58, 0.02) 40%, transparent 70%)',
+              borderRadius: '50%',
+              transform: 'translate(-40%, -40%)',
+              pointerEvents: 'none',
+              animation: 'subtle-float 6s ease-in-out infinite',
+            },
+            '&::after': {
+              content: '""',
+              position: 'absolute',
+              bottom: 0,
+              right: 0,
               width: { xs: '150px', sm: '200px' },
               height: { xs: '150px', sm: '200px' },
-              background: 'radial-gradient(circle, rgba(181, 106, 58, 0.05) 0%, transparent 70%)',
+              background: 'radial-gradient(circle, rgba(168, 150, 136, 0.04) 0%, transparent 70%)',
               borderRadius: '50%',
-              transform: 'translate(-30%, -30%)',
+              transform: 'translate(40%, 40%)',
               pointerEvents: 'none',
+            },
+            '@keyframes subtle-float': {
+              '0%, 100%': { transform: 'translate(-40%, -40%) scale(1)' },
+              '50%': { transform: 'translate(-35%, -35%) scale(1.05)' },
             },
           },
         '& .MuiTableCell-head': {
-          fontWeight: 600,
-          color: colors.textSecondary,
-          bgcolor: 'rgba(78, 24, 21, 0.02)',
-          borderBottom: `1px solid rgba(78, 24, 21, 0.08)`,
+          fontWeight: 700,
+          color: colors.textPrimary,
+          bgcolor: 'linear-gradient(135deg, rgba(181, 106, 58, 0.08) 0%, rgba(181, 106, 58, 0.04) 100%)',
+          borderBottom: `2px solid rgba(181, 106, 58, 0.15)`,
           textTransform: 'uppercase',
-          fontSize: { xs: '0.688rem', sm: '0.75rem' },
-          letterSpacing: '0.05em',
-          padding: { xs: '8px 4px', sm: '12px 8px' },
+          fontSize: { xs: '0.75rem', sm: '0.813rem' },
+          letterSpacing: '0.08em',
+          padding: { xs: '16px 8px', sm: '20px 16px' },
+          position: 'relative',
+          '&::after': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: '2px',
+            background: `linear-gradient(90deg, ${colors.gold} 0%, transparent 100%)`,
+          }
         },
         '& .MuiTableCell-body': {
-          borderBottom: `1px solid rgba(78, 24, 21, 0.06)`,
+          borderBottom: `1px solid rgba(78, 24, 21, 0.08)`,
           color: colors.textPrimary,
-          padding: { xs: '12px 4px', sm: '16px 8px' },
-          fontSize: { xs: '0.813rem', sm: '0.875rem' },
-        },
-        '& .MuiTableRow-root:hover': {
-          background: 'linear-gradient(90deg, rgba(181, 106, 58, 0.08) 0%, rgba(181, 106, 58, 0.02) 100%)',
+          padding: { xs: '16px 8px', sm: '20px 16px' },
+          fontSize: { xs: '0.875rem', sm: '0.938rem' },
+          fontWeight: 500,
           transition: 'all 0.2s ease',
         },
+        '& .MuiTableRow-root': {
+          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+          '&:hover': {
+            background: 'linear-gradient(90deg, rgba(181, 106, 58, 0.12) 0%, rgba(181, 106, 58, 0.04) 100%)',
+            transform: 'translateY(-1px)',
+            boxShadow: '0 4px 12px rgba(181, 106, 58, 0.15)',
+          }
+        },
         '& .RaDatagrid-clickableRow:hover': {
-          background: 'linear-gradient(90deg, rgba(181, 106, 58, 0.08) 0%, rgba(181, 106, 58, 0.02) 100%)',
+          background: 'linear-gradient(90deg, rgba(181, 106, 58, 0.12) 0%, rgba(181, 106, 58, 0.04) 100%)',
+          transform: 'translateY(-1px)',
+          boxShadow: '0 4px 12px rgba(181, 106, 58, 0.15)',
         },
         '& .MuiToolbar-root': {
-          padding: { xs: '12px 16px', sm: '16px 24px' },
-          gap: { xs: 1, sm: 2 },
+          padding: { xs: '16px 20px', sm: '24px 32px' },
+          gap: { xs: 2, sm: 3 },
           flexWrap: 'wrap',
+          background: 'linear-gradient(135deg, rgba(249, 249, 247, 0.9) 0%, rgba(255, 255, 255, 0.8) 100%)',
+          borderBottom: '1px solid rgba(181, 106, 58, 0.1)',
         },
         '& .RaFilterFormInput-spacer': {
           display: 'none',
@@ -437,8 +631,39 @@ export const OrderList = (props: any) => (
       rowClick="edit"
       sx={{
         '& .RaDatagrid-headerCell': {
-          fontWeight: 600,
+          fontWeight: 700,
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            bottom: 0,
+            left: '50%',
+            transform: 'translateX(-50%)',
+            width: '60%',
+            height: '2px',
+            background: `linear-gradient(90deg, transparent 0%, ${colors.gold} 50%, transparent 100%)`,
+            opacity: 0.6,
+          }
         },
+        '& .MuiTableCell-body': {
+          position: 'relative',
+          '&::before': {
+            content: '""',
+            position: 'absolute',
+            left: 0,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            width: '3px',
+            height: '60%',
+            background: `linear-gradient(180deg, ${colors.gold}20 0%, ${colors.gold}60 50%, ${colors.gold}20 100%)`,
+            borderRadius: '0 2px 2px 0',
+            opacity: 0,
+            transition: 'opacity 0.3s ease',
+          }
+        },
+        '& .MuiTableRow-root:hover .MuiTableCell-body::before': {
+          opacity: 1,
+        }
       }}
     >
       <TextField source="customerName" label="Customer" />
