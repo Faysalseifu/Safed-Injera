@@ -109,3 +109,18 @@ export const updateStockTransferStatus = async (
   );
   return rows[0] ?? null;
 };
+
+export const getDispatchedQuantityFromBranchSince = async (
+  fromBranchId: string,
+  since: Date
+): Promise<number> => {
+  const { rows } = await pool.query<{ total: number }>(
+    `SELECT COALESCE(SUM(quantity), 0)::int AS total
+     FROM stock_transfers
+     WHERE from_branch_id = $1
+       AND status IN ('in_transit', 'received')
+       AND dispatched_at >= $2`,
+    [fromBranchId, since]
+  );
+  return Number(rows[0]?.total ?? 0);
+};

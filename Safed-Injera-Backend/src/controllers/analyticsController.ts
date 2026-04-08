@@ -17,9 +17,12 @@ import {
   getOrderStatusBreakdown,
   getTopCustomersByOrderCount,
   getBusinessTypeBreakdown,
+  sumDeliveredQuantitySince,
   type AnalyticsDateRange,
 } from '../repositories/orderRepository';
 import { getStocks, getLowStockItems } from '../repositories/stockRepository';
+import { getMainHubBranch } from '../repositories/branchRepository';
+import { getDispatchedQuantityFromBranchSince } from '../repositories/stockTransferRepository';
 import { transformOrder, transformStock } from '../utils/transform';
 import { AuthRequest } from '../middleware/authMiddleware';
 import { REVENUE_ORDER_STATUSES } from '../constants/orderConstants';
@@ -201,6 +204,20 @@ export const getDashboard = async (req: AuthRequest, res: Response): Promise<voi
     const revenue = await getRevenueSince([...REVENUE_ORDER_STATUSES], branchId);
     const recentOrders = (await getRecentOrders(branchId)).map(transformOrder);
     const transformedLowStockItems = lowStockItems.map(transformStock);
+
+    let dispatchSoldThisWeek = 0;
+    let directRetailSoldThisWeek = 0;
+    if (branchId) {
+      dispatchSoldThisWeek = await getDispatchedQuantityFromBranchSince(branchId, weekAgo);
+      directRetailSoldThisWeek = await sumDeliveredQuantitySince(weekAgo, { branchId });
+    } else {
+      const mainHub = await getMainHubBranch();
+      dispatchSoldThisWeek = mainHub
+        ? await getDispatchedQuantityFromBranchSince(mainHub.id, weekAgo)
+        : 0;
+      directRetailSoldThisWeek = await sumDeliveredQuantitySince(weekAgo, { hubDirectOnly: true });
+    }
+
     res.json({
       orders: {
         total: totalOrders,
@@ -208,6 +225,10 @@ export const getDashboard = async (req: AuthRequest, res: Response): Promise<voi
         completed: completedOrders,
         today: todayOrders,
         thisWeek: weekOrders,
+      },
+      soldKpis: {
+        internalDispatchThisWeek: dispatchSoldThisWeek,
+        directRetailThisWeek: directRetailSoldThisWeek,
       },
       revenue,
       lowStockAlerts: transformedLowStockItems.length,

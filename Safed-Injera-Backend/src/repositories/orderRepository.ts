@@ -278,6 +278,30 @@ export const countOrdersSince = async (since: Date, branchId?: string | null): P
   return rows[0]?.total ?? 0;
 };
 
+export const sumDeliveredQuantitySince = async (
+  since: Date,
+  options: { branchId?: string | null; hubDirectOnly?: boolean } = {}
+): Promise<number> => {
+  const clauses = ['status = $1', 'order_date >= $2'];
+  const params: unknown[] = ['delivered', since];
+
+  if (options.hubDirectOnly) {
+    clauses.push('branch_id IS NULL');
+  } else if (options.branchId) {
+    params.push(options.branchId);
+    clauses.push(`branch_id = $${params.length}`);
+  }
+
+  const { rows } = await pool.query<{ total: number }>(
+    `SELECT COALESCE(SUM(quantity), 0)::int AS total
+     FROM orders
+     WHERE ${clauses.join(' AND ')}`,
+    params
+  );
+
+  return Number(rows[0]?.total ?? 0);
+};
+
 export const countOrdersSinceWithStatuses = async (
   since: Date,
   statuses: string[]

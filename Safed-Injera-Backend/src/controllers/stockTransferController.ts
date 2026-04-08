@@ -24,29 +24,42 @@ import logger from '../utils/logger';
 
 export const dispatchTransfer = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    if (req.user?.role === 'sub_admin') {
-      res.status(403).json({ message: 'Only Main Hub can dispatch transfers' });
-      return;
-    }
-
     const mainHub = await getMainHubBranch();
     if (!mainHub) {
       res.status(500).json({ message: 'Main Hub not configured' });
       return;
     }
 
-    const { toBranchId, productName, quantity, stockId } = req.body;
+    const { toBranchId, productName, quantity, stockId, fromBranchId } = req.body;
     if (!toBranchId || !productName || !quantity || quantity <= 0) {
       res.status(400).json({ message: 'toBranchId, productName, and quantity (positive) are required' });
       return;
     }
 
+    let sourceBranchId: string;
+    if (req.user?.role === 'sub_admin') {
+      if (!req.user.branch_id) {
+        res.status(403).json({ message: 'Sub-admin must be assigned to a branch' });
+        return;
+      }
+      sourceBranchId = req.user.branch_id;
+    } else {
+      sourceBranchId = typeof fromBranchId === 'string' && fromBranchId.trim()
+        ? fromBranchId.trim()
+        : mainHub.id;
+    }
+
+    if (sourceBranchId === toBranchId) {
+      res.status(400).json({ message: 'Source and destination branches cannot be the same' });
+      return;
+    }
+
     const transfer = await withTransaction(async (client) => {
       const stock = stockId
-        ? await findStockByProductAndBranch(productName, mainHub.id, client) ||
-          await findStockByProductAndBranch(productName, null, client)
-        : await findStockByProductAndBranch(productName, mainHub.id, client) ||
-          await findStockByProductAndBranch(productName, null, client);
+        ? await findStockByProductAndBranch(productName, sourceBranchId, client) ||
+          (sourceBranchId === mainHub.id ? await findStockByProductAndBranch(productName, null, client) : null)
+        : await findStockByProductAndBranch(productName, sourceBranchId, client) ||
+          (sourceBranchId === mainHub.id ? await findStockByProductAndBranch(productName, null, client) : null);
 
       if (!stock) {
         throw new Error('STOCK_NOT_FOUND');
@@ -62,7 +75,7 @@ export const dispatchTransfer = async (req: AuthRequest, res: Response): Promise
 
       const created = await createStockTransfer(
         {
-          from_branch_id: mainHub.id,
+          from_branch_id: sourceBranchId,
           to_branch_id: toBranchId,
           product_name: productName,
           category: stock.category,
@@ -81,7 +94,10 @@ export const dispatchTransfer = async (req: AuthRequest, res: Response): Promise
           quantity_before: stock.quantity,
           quantity_after: updatedStock.quantity,
           performed_by: req.user?.id,
-          reason: `Transfer to branch ${toBranchId}`,
+          reason:
+            sourceBranchId === mainHub.id
+              ? `Internal dispatch sold to branch ${toBranchId}`
+              : `Branch transfer to branch ${toBranchId}`,
         },
         client
       );
@@ -89,15 +105,15 @@ export const dispatchTransfer = async (req: AuthRequest, res: Response): Promise
       return created;
     });
 
-    logger.info(`Transfer dispatched: ${productName} x${quantity} to branch ${toBranchId}`);
+    logger.info(`Transfer dispatched: ${productName} x${quantity} from branch ${sourceBranchId} to branch ${toBranchId}`);
     res.status(201).json(transfer);
   } catch (error: any) {
     if (error?.message === 'STOCK_NOT_FOUND') {
-      res.status(404).json({ message: 'Stock not found at Main Hub' });
+      res.status(404).json({ message: 'Stock not found at source branch' });
       return;
     }
     if (error?.message === 'INSUFFICIENT_STOCK') {
-      res.status(400).json({ message: 'Insufficient stock at Main Hub' });
+      res.status(400).json({ message: 'Insufficient stock at source branch' });
       return;
     }
     logger.error('Dispatch transfer error:', error);
@@ -180,7 +196,7 @@ export const receiveTransfer = async (req: AuthRequest, res: Response): Promise<
           quantity_before: qtyBefore,
           quantity_after: updatedStock.quantity,
           performed_by: userId,
-          reason: `Transfer received from Main Hub`,
+          reason: `Transfer received from branch ${transfer.from_branch_id}`,
         },
         client
       );
@@ -274,7 +290,11 @@ export const getTransferById = async (req: AuthRequest, res: Response): Promise<
       res.status(404).json({ message: 'Transfer not found' });
       return;
     }
-    if (req.user?.role === 'sub_admin' && transfer.to_branch_id !== req.user.branch_id) {
+    if (
+      req.user?.role === 'sub_admin' &&
+      transfer.to_branch_id !== req.user.branch_id &&
+      transfer.from_branch_id !== req.user.branch_id
+    ) {
       res.status(403).json({ message: 'Access denied' });
       return;
     }
@@ -290,12 +310,21 @@ export const getTransferById = async (req: AuthRequest, res: Response): Promise<
  */
 export const returnStockToHub = async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const { productName, quantity, category, unit } = req.body;
+    const { productName, quantity, category, unit, fromBranchId } = req.body;
     const userBranchId = req.user?.branch_id;
     const userRole = req.user?.role;
 
-    if (userRole !== 'sub_admin' || !userBranchId) {
-      res.status(403).json({ message: 'Only sub-admin branches can return stock' });
+    let sourceBranchId: string;
+    if (userRole === 'sub_admin') {
+      if (!userBranchId) {
+        res.status(403).json({ message: 'Sub-admin must be assigned to a branch' });
+        return;
+      }
+      sourceBranchId = userBranchId;
+    } else if (typeof fromBranchId === 'string' && fromBranchId.trim()) {
+      sourceBranchId = fromBranchId.trim();
+    } else {
+      res.status(400).json({ message: 'fromBranchId is required for admin/staff returns' });
       return;
     }
 
@@ -312,7 +341,7 @@ export const returnStockToHub = async (req: AuthRequest, res: Response): Promise
 
     await withTransaction(async (client) => {
       // Check branch has enough stock
-      const branchStock = await findStockByProductAndBranch(productName, userBranchId, client);
+      const branchStock = await findStockByProductAndBranch(productName, sourceBranchId, client);
       if (!branchStock || branchStock.quantity < quantity) {
         throw new Error('INSUFFICIENT_STOCK');
       }
@@ -355,7 +384,7 @@ export const returnStockToHub = async (req: AuthRequest, res: Response): Promise
       // Create transfer record (reverse direction)
       const returnTransfer = await createStockTransfer(
         {
-          from_branch_id: userBranchId,
+          from_branch_id: sourceBranchId,
           to_branch_id: mainHub.id,
           product_name: productName,
           category: category || branchStock.category,
@@ -391,7 +420,7 @@ export const returnStockToHub = async (req: AuthRequest, res: Response): Promise
           quantity_before: hubQtyBefore,
           quantity_after: updatedHubStock.quantity,
           performed_by: req.user?.id,
-          reason: `Returned from branch ${userBranchId} (Transfer: ${returnTransfer.id})`,
+          reason: `Returned from branch ${sourceBranchId} (Transfer: ${returnTransfer.id})`,
         },
         client
       );
@@ -406,7 +435,7 @@ export const returnStockToHub = async (req: AuthRequest, res: Response): Promise
           details: {
             product_name: productName,
             quantity,
-            from_branch: userBranchId,
+            from_branch: sourceBranchId,
             to_branch: mainHub.id,
           },
         },
@@ -416,7 +445,7 @@ export const returnStockToHub = async (req: AuthRequest, res: Response): Promise
       return returnTransfer;
     });
 
-    logger.info(`Stock returned: ${productName} x${quantity} from branch ${userBranchId} to Main Hub`);
+    logger.info(`Stock returned: ${productName} x${quantity} from branch ${sourceBranchId} to Main Hub`);
     res.status(201).json({ message: 'Stock returned successfully', quantity });
   } catch (error: any) {
     if (error?.message === 'INSUFFICIENT_STOCK') {
