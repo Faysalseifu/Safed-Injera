@@ -6,8 +6,6 @@ import {
   CircularProgress,
   Avatar,
   Chip,
-  useTheme,
-  useMediaQuery,
   Menu,
   MenuItem,
   IconButton,
@@ -49,12 +47,10 @@ import InventoryIcon from '@mui/icons-material/Inventory';
 import TrendingUpIcon from '@mui/icons-material/TrendingUp';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
-import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import MoreVertIcon from '@mui/icons-material/MoreVert';
 import PhoneInTalkIcon from '@mui/icons-material/PhoneInTalk';
 import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 import StorefrontIcon from '@mui/icons-material/Storefront';
-import PersonIcon from '@mui/icons-material/Person';
 import AssignmentIcon from '@mui/icons-material/Assignment';
 import { useNavigate } from 'react-router-dom';
 
@@ -71,7 +67,7 @@ ChartJS.register(
   Filler
 );
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
 
 // Design tokens - Safed Injera Branding
 const colors = {
@@ -139,6 +135,25 @@ interface SalesData {
   dailyBreakdown: Array<{ _id: string; totalQuantity: number; orderCount: number }>;
 }
 
+interface BranchOption {
+  id: string;
+  name: string;
+  location?: string;
+  is_main_hub?: boolean;
+}
+
+const toNumber = (value: unknown, fallback = 0): number => {
+  const num = Number(value);
+  return Number.isFinite(num) ? num : fallback;
+};
+
+const getDailyLabel = (row: any): string => row?._id || row?.period || '';
+const getDailyTotalQty = (row: any): number => toNumber(row?.totalQuantity ?? row?.total_quantity, 0);
+const getDailyOrderCount = (row: any): number => toNumber(row?.orderCount ?? row?.order_count, 0);
+
+const getProductLabel = (row: any): string => row?._id || row?.product || 'Unknown';
+const getProductQty = (row: any): number => toNumber(row?.totalQuantity ?? row?.total_quantity, 0);
+
 // Modern Metric Card Component
 const MetricCard = ({
   title,
@@ -152,7 +167,7 @@ const MetricCard = ({
   value: string | number;
   subtitle?: string;
   icon: React.ReactNode;
-  variant?: 'default' | 'gold' | 'dark' | 'teal';
+  variant?: 'default' | 'gold' | 'dark' | 'teal' | 'purple' | 'blue' | 'pink';
   trend?: { value: number; positive: boolean };
 }) => {
   const getBackground = () => {
@@ -519,13 +534,16 @@ const RecentOrdersCard = ({
 const StatisticsChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
   const chartData = {
     labels: data?.slice(-7).map((d) => {
-      const date = new Date(d._id);
-      return date.toLocaleDateString('en-US', { weekday: 'short' });
+      const rawDate = getDailyLabel(d);
+      const date = rawDate ? new Date(rawDate) : null;
+      return date && !Number.isNaN(date.getTime())
+        ? date.toLocaleDateString('en-US', { weekday: 'short' })
+        : '-';
     }) || ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
     datasets: [
       {
         label: 'Orders',
-        data: data?.slice(-7).map((d) => d.orderCount) || [4, 6, 5, 8, 7, 9, 6],
+        data: data?.slice(-7).map((d) => getDailyOrderCount(d)) || [4, 6, 5, 8, 7, 9, 6],
         backgroundColor: [
           'rgba(156, 39, 176, 0.8)',
           'rgba(33, 150, 243, 0.8)',
@@ -551,7 +569,7 @@ const StatisticsChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
       },
       tooltip: {
         backgroundColor: colors.sidebar,
-        titleFont: { family: 'Inter', weight: '600' as const },
+        titleFont: { family: 'Inter', weight: 600 },
         bodyFont: { family: 'Inter' },
         padding: 12,
         cornerRadius: 8,
@@ -620,10 +638,10 @@ const StatisticsChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
 // Sales Share Donut Chart
 const SalesShareChart = ({ data }: { data: SalesData['productSales'] }) => {
   const chartData = {
-    labels: data?.map((p) => p._id) || ['Product A', 'Product B', 'Product C'],
+    labels: data?.map((p) => getProductLabel(p)) || ['Product A', 'Product B', 'Product C'],
     datasets: [
       {
-        data: data?.map((p) => p.totalQuantity) || [30, 45, 25],
+        data: data?.map((p) => getProductQty(p)) || [30, 45, 25],
         backgroundColor: [
           'rgba(156, 39, 176, 0.8)',
           'rgba(33, 150, 243, 0.8)',
@@ -652,7 +670,7 @@ const SalesShareChart = ({ data }: { data: SalesData['productSales'] }) => {
       },
       tooltip: {
         backgroundColor: colors.sidebar,
-        titleFont: { family: 'Inter', weight: '600' as const },
+        titleFont: { family: 'Inter', weight: 600 },
         bodyFont: { family: 'Inter' },
         padding: 12,
         cornerRadius: 8,
@@ -701,15 +719,18 @@ const TrendChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
   const chartData = {
     labels: data?.slice(-30).map((d, i) => {
       if (i % 5 === 0) {
-        const date = new Date(d._id);
-        return date.toLocaleDateString('en-US', { month: 'short' });
+        const rawDate = getDailyLabel(d);
+        const date = rawDate ? new Date(rawDate) : null;
+        return date && !Number.isNaN(date.getTime())
+          ? date.toLocaleDateString('en-US', { month: 'short' })
+          : '';
       }
       return '';
     }) || ['Jan', '', '', '', '', 'Feb', '', '', '', '', 'Mar', '', '', '', '', 'Apr', '', '', '', '', 'May'],
     datasets: [
       {
         label: 'Sales Trend',
-        data: data?.slice(-30).map((d) => d.totalQuantity) || Array.from({ length: 30 }, () => Math.floor(Math.random() * 100) + 50),
+        data: data?.slice(-30).map((d) => getDailyTotalQty(d)) || Array.from({ length: 30 }, () => Math.floor(Math.random() * 100) + 50),
         borderColor: '#E91E63',
         backgroundColor: 'rgba(233, 30, 99, 0.1)',
         fill: true,
@@ -733,7 +754,7 @@ const TrendChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
       },
       tooltip: {
         backgroundColor: colors.sidebar,
-        titleFont: { family: 'Inter', weight: '600' as const },
+        titleFont: { family: 'Inter', weight: 600 },
         bodyFont: { family: 'Inter' },
         padding: 12,
         cornerRadius: 8,
@@ -807,7 +828,7 @@ const TrendChart = ({ data }: { data: SalesData['dailyBreakdown'] }) => {
           }}
         >
           <Typography variant="h6" sx={{ fontWeight: 700, background: 'linear-gradient(135deg, #E91E63 0%, #9C27B0 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-            {data?.reduce((sum, d) => sum + d.totalQuantity, 0).toLocaleString() || '3500'}
+            {toNumber(data?.reduce((sum, d) => sum + getDailyTotalQty(d), 0), 0).toLocaleString()}
           </Typography>
           <Typography variant="caption" sx={{ color: colors.textSecondary }}>
             Total
@@ -1139,16 +1160,20 @@ const BranchOfficeActivitiesSection = () => {
 
 // Main Dashboard Component
 const Dashboard = () => {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const navigate = useNavigate();
   const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
   const [salesData, setSalesData] = useState<SalesData | null>(null);
   const [allStocks, setAllStocks] = useState<any[]>([]);
+  const [mainHubId, setMainHubId] = useState<string | null>(null);
+  const [branchOptions, setBranchOptions] = useState<BranchOption[]>([]);
   const [totalInjera, setTotalInjera] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stockDialogOpen, setStockDialogOpen] = useState(false);
+  const [branchTransferDialogOpen, setBranchTransferDialogOpen] = useState(false);
+  const [selectedTransferBranchId, setSelectedTransferBranchId] = useState<string>('');
+  const [selectedTransferStockId, setSelectedTransferStockId] = useState<string>('');
+  const [transferAmount, setTransferAmount] = useState<number>(100);
+  const [transferLoading, setTransferLoading] = useState(false);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
   const [orderDetailDialogOpen, setOrderDetailDialogOpen] = useState(false);
   const [selectedOrderDetail, setSelectedOrderDetail] = useState<any>(null);
@@ -1200,6 +1225,7 @@ const Dashboard = () => {
   useEffect(() => {
     fetchData();
     fetchStocks();
+    fetchBranchOptions();
   }, []);
 
   // Refresh stocks when stock dialog closes (after adding stock)
@@ -1228,6 +1254,94 @@ const Dashboard = () => {
       }
     } catch (err) {
       console.error('Failed to fetch stocks', err);
+    }
+  };
+
+  const fetchBranchOptions = async () => {
+    const token = localStorage.getItem('token');
+    try {
+      const headers = { Authorization: `Bearer ${token}` };
+      const [optionsRes, mainHubRes] = await Promise.all([
+        fetch(`${API_URL}/branches/options`, { headers }),
+        fetch(`${API_URL}/branches/main-hub`, { headers }),
+      ]);
+
+      if (optionsRes.ok) {
+        const options = await optionsRes.json();
+        setBranchOptions(Array.isArray(options) ? options : []);
+      }
+      if (mainHubRes.ok) {
+        const mainHub = await mainHubRes.json();
+        setMainHubId(mainHub?.id || null);
+      }
+    } catch (err) {
+      console.error('Failed to fetch branch options', err);
+    }
+  };
+
+  const hubStocks = allStocks.filter((stock: any) => {
+    if (!stock || stock.isActive === false) return false;
+    if (!mainHubId) return stock.branchId == null;
+    return stock.branchId === mainHubId || stock.branchId == null;
+  });
+
+  const transferToBranch = async (forcedBranchId?: string) => {
+    const branchId = forcedBranchId || selectedTransferBranchId;
+    const stockId = selectedTransferStockId;
+    const quantity = Number(transferAmount);
+    const selectedStock = hubStocks.find((s: any) => String(s.id) === String(stockId));
+
+    if (!branchId) {
+      setError('Please select a branch destination');
+      return;
+    }
+    if (!selectedStock) {
+      setError('Please select a hub stock item');
+      return;
+    }
+    if (!quantity || quantity <= 0) {
+      setError('Transfer quantity must be greater than zero');
+      return;
+    }
+    if (quantity > Number(selectedStock.quantity || 0)) {
+      setError('Transfer quantity exceeds main hub stock');
+      return;
+    }
+
+    const token = localStorage.getItem('token');
+    setTransferLoading(true);
+    try {
+      const response = await fetch(`${API_URL}/stock-transfers/dispatch`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          toBranchId: branchId,
+          productName: selectedStock.productName,
+          quantity,
+          stockId: selectedStock.id,
+          fromBranchId: mainHubId || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ message: 'Failed to send stock to branch' }));
+        throw new Error(err.message || 'Failed to send stock to branch');
+      }
+
+      const targetName = branchOptions.find((b) => b.id === branchId)?.name || 'branch';
+      showSuccess(`Sent ${quantity} ${selectedStock.unit || ''} ${selectedStock.productName} to ${targetName}`);
+      setBranchTransferDialogOpen(false);
+      setSelectedTransferBranchId('');
+      setTransferAmount(100);
+      await fetchStocks();
+      fetchData();
+    } catch (err: any) {
+      setError(err.message || 'Failed to send stock to branch');
+    } finally {
+      setTransferLoading(false);
     }
   };
 
@@ -1387,6 +1501,37 @@ const Dashboard = () => {
         </Button>
         <Button
           variant="contained"
+          startIcon={<LocalShippingOutlinedIcon />}
+          onClick={() => {
+            if (branchOptions.length === 0) {
+              setError('No branch options available');
+              return;
+            }
+            if (hubStocks.length === 0) {
+              setError('No active main hub stock available for transfer');
+              return;
+            }
+            if (!selectedTransferStockId && hubStocks[0]?.id) {
+              setSelectedTransferStockId(String(hubStocks[0].id));
+            }
+            setBranchTransferDialogOpen(true);
+          }}
+          sx={{
+            bgcolor: colors.teal,
+            borderRadius: '12px',
+            px: 3,
+            py: 1.5,
+            fontWeight: 600,
+            textTransform: 'none',
+            '&:hover': { bgcolor: '#8B7A6D', transform: 'translateY(-2px)' },
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 12px rgba(168, 150, 136, 0.35)',
+          }}
+        >
+          Send Stock to Branch
+        </Button>
+        <Button
+          variant="contained"
           startIcon={<PhoneInTalkIcon />}
           onClick={() => setOrderDialogOpen(true)}
           sx={{
@@ -1451,6 +1596,36 @@ const Dashboard = () => {
           />
         </Grid>
       </Grid>
+
+      <Card sx={{ mb: 3, borderRadius: '16px', boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)', position: 'relative', zIndex: 1 }}>
+        <CardContent>
+          <Typography variant="h6" sx={{ fontWeight: 600, mb: 2, color: colors.textPrimary }}>
+            Branch Stock Refill
+          </Typography>
+          <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 2 }}>
+            Dispatch stock from Main Hub to branches. This reduces Main Hub stock immediately.
+          </Typography>
+          <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+            {branchOptions.map((branch) => (
+              <Button
+                key={branch.id}
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  setSelectedTransferBranchId(branch.id);
+                  if (!selectedTransferStockId && hubStocks[0]?.id) {
+                    setSelectedTransferStockId(String(hubStocks[0].id));
+                  }
+                  setBranchTransferDialogOpen(true);
+                }}
+                sx={{ borderColor: colors.gold, color: colors.gold }}
+              >
+                Send to {branch.name}
+              </Button>
+            ))}
+          </Box>
+        </CardContent>
+      </Card>
 
       <Card sx={{ mb: 3, borderRadius: '16px', boxShadow: '0 4px 20px rgba(78, 24, 21, 0.08)', position: 'relative', zIndex: 1 }}>
         <CardContent>
@@ -1584,6 +1759,79 @@ const Dashboard = () => {
             sx={{ bgcolor: colors.gold, '&:hover': { bgcolor: colors.goldDark } }}
           >
             Update Stock
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={branchTransferDialogOpen}
+        onClose={() => !transferLoading && setBranchTransferDialogOpen(false)}
+        maxWidth="sm"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: '20px' } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>Send Stock to Branch</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 3 }}>
+            <FormControl fullWidth>
+              <InputLabel>Destination Branch</InputLabel>
+              <Select
+                native
+                value={selectedTransferBranchId}
+                onChange={(e) => setSelectedTransferBranchId(String((e.target as HTMLSelectElement).value || ''))}
+                label="Destination Branch"
+              >
+                <option value=""></option>
+                {branchOptions.map((branch) => (
+                  <option key={branch.id} value={branch.id}>
+                    {branch.name}
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+
+            <FormControl fullWidth>
+              <InputLabel>Hub Product</InputLabel>
+              <Select
+                native
+                value={selectedTransferStockId}
+                onChange={(e) => setSelectedTransferStockId(String((e.target as HTMLSelectElement).value || ''))}
+                label="Hub Product"
+              >
+                <option value=""></option>
+                {hubStocks.map((stock: any) => (
+                  <option key={stock.id} value={stock.id}>
+                    {stock.productName} ({stock.quantity} {stock.unit || 'pcs'} available)
+                  </option>
+                ))}
+              </Select>
+            </FormControl>
+
+            <TextField
+              label="Quantity to Send"
+              type="number"
+              value={transferAmount}
+              onChange={(e) => setTransferAmount(Math.max(Number(e.target.value) || 0, 0))}
+              InputProps={{ inputProps: { min: 1 } }}
+              fullWidth
+            />
+
+            <Typography variant="caption" sx={{ color: colors.textSecondary }}>
+              Tip: choose a specific branch like Ayer Tena or Betel, then dispatch from hub stock.
+            </Typography>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button disabled={transferLoading} onClick={() => setBranchTransferDialogOpen(false)}>
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            disabled={transferLoading}
+            onClick={() => transferToBranch()}
+            sx={{ bgcolor: colors.gold, '&:hover': { bgcolor: colors.goldDark } }}
+          >
+            {transferLoading ? 'Sending...' : 'Send Stock'}
           </Button>
         </DialogActions>
       </Dialog>
