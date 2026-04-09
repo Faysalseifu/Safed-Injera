@@ -1,6 +1,7 @@
 import express from 'express';
 import {
   getStocks,
+  getHubStocks,
   getStock,
   createStock,
   updateStock,
@@ -20,6 +21,8 @@ router.use(protect);
 router.route('/')
   .get(getStocks)
   .post(createStock);
+
+router.get('/hub', getHubStocks);
 
 router.get('/low-stock', getLowStockItemsHandler);
 

@@ -19,6 +19,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import SettingsIcon from '@mui/icons-material/Settings';
 import HistoryIcon from '@mui/icons-material/History';
 import AssignmentIcon from '@mui/icons-material/Assignment';
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
 import LogoutIcon from '@mui/icons-material/Logout';
 import SearchIcon from '@mui/icons-material/Search';
 import NotificationsNoneIcon from '@mui/icons-material/NotificationsNone';
@@ -368,6 +369,14 @@ const CustomMenu = () => {
             to="/analytics"
             primaryText="Analytics"
             leftIcon={<BarChartIcon />}
+            sidebarIsOpen={open}
+          />
+        )}
+        {user.role !== 'sub_admin' && (
+          <MenuItemLink
+            to="/debts"
+            primaryText="Debts"
+            leftIcon={<AccountBalanceWalletIcon />}
             sidebarIsOpen={open}
           />
         )}

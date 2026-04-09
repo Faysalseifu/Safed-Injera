@@ -108,14 +108,22 @@ export const transformOrder = (order: any) => {
  * Transform stock input from API format to database format
  */
 export const transformStockInput = (input: any) => {
-  return toSnakeCase(input);
+  const patched = { ...input };
+  if (typeof patched.productName === 'string' && patched.productName.toLowerCase().includes('injera')) {
+    patched.productName = 'Injera';
+  }
+  return toSnakeCase(patched);
 };
 
 /**
  * Transform order input from API format to database format
  */
 export const transformOrderInput = (input: any) => {
-  return toSnakeCase(input);
+  const patched = { ...input };
+  if (typeof patched.product === 'string' && patched.product.toLowerCase().includes('injera')) {
+    patched.product = 'Injera';
+  }
+  return toSnakeCase(patched);
 };
 
 

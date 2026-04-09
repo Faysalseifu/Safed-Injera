@@ -11,6 +11,7 @@ import branchRoutes from './routes/branchRoutes';
 import stockTransferRoutes from './routes/stockTransferRoutes';
 import customerRoutes from './routes/customerRoutes';
 import dailyReportRoutes from './routes/dailyReportRoutes';
+import debtRoutes from './routes/debtRoutes';
 import logger from './utils/logger';
 
 dotenv.config();
@@ -60,6 +61,7 @@ app.use('/api/branches', branchRoutes);
 app.use('/api/stock-transfers', stockTransferRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/api/daily-reports', dailyReportRoutes);
+app.use('/api/debts', debtRoutes);
 
 // 404 handler
 app.use((req: Request, res: Response) => {

@@ -2,6 +2,7 @@ import {
   List,
   Datagrid, SimpleList,
   TextField,
+  FunctionField,
   EmailField,
   NumberField,
   DateField,
@@ -42,6 +43,12 @@ const colors = {
   warning: '#FF9800',
   error: '#F44336',
   info: '#2196F3',
+};
+
+const displayProductName = (name?: string): string => {
+  const n = (name ?? '').trim();
+  if (!n) return '';
+  return n.toLowerCase().includes('injera') ? 'Injera' : n;
 };
 
 const statusChoices = [
@@ -670,7 +677,7 @@ export const OrderList = (props: any) => (
       <EmailField source="email" />
       <TextField source="phone" />
       <SelectField source="businessType" choices={businessTypeChoices} label="Business Type" />
-      <TextField source="product" />
+      <FunctionField label="Product" render={(record: any) => displayProductName(record?.product) || '—'} />
       <NumberField source="quantity" />
       <NumberField
         source="totalPrice"

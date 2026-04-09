@@ -20,6 +20,7 @@ import { ActivityLogs, ActivityLogShow } from './components/ActivityLogs';
 import { BranchDashboard } from './components/BranchDashboard';
 import { DashboardBranch } from './components/DashboardBranch';
 import { BranchReports } from './components/BranchReports';
+import DebtsPage from './components/DebtsPage';
 import LoginPage from './components/LoginPage';
 import ErrorBoundary from './components/ErrorBoundary';
 import { lightTheme, darkTheme } from './theme';
@@ -86,8 +87,10 @@ function App() {
               <Route path="/branch-reports" element={<BranchReports />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/stock-settings" element={<StockSettings />} />
+              <Route path="/debts" element={<DebtsPage />} />
               <Route path="/activity-logs" element={<ActivityLogs />} />
-              <Route path="/activity-logs/:id" element={<ActivityLogShow />} />
+              <Route path="/activity-logs/:id/show" element={<ActivityLogShow resource="activity-logs" />} />
+              <Route path="/activity-logs/:id" element={<ActivityLogShow resource="activity-logs" />} />
             </CustomRoutes>
           </Admin>
         </ThemeProvider>

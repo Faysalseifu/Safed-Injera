@@ -55,7 +55,8 @@ const ContactPage = () => {
           email: data.email,
           phone: data.phone,
           businessType: data.businessType,
-          product: data.product || 'Pure Teff Injera',
+          // Canonicalize all injera variants to a single product label.
+          product: 'Injera',
           quantity: data.quantity || 1,
           message: data.message,
         }),

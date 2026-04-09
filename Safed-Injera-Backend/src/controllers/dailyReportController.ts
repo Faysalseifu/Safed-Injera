@@ -73,11 +73,13 @@ export const getReportPreparationData = async (req: AuthRequest, res: Response):
       .filter((t) => t.category === 'Injera')
       .reduce((sum, t) => sum + t.quantity, 0);
 
-    // Determine starting stock: yesterday's remaining or live stock as fallback
+    // Determine starting stock: yesterday's remaining or live stock minus today's receipts.
     const yesterday = new Date(targetDate);
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayReport = await getDailyReportByBranchAndDate(targetBranchId, yesterday);
-    const startingStock = yesterdayReport ? yesterdayReport.remaining_injera : currentStock;
+    const startingStock = yesterdayReport
+      ? yesterdayReport.remaining_injera
+      : Math.max(currentStock - receivedToday, 0);
 
     // Check if report already exists for the target date
     const existingReport = await getDailyReportByBranchAndDate(targetBranchId, targetDate);
@@ -153,14 +155,18 @@ export const submitDailyReport = async (req: AuthRequest, res: Response): Promis
     } else {
       const liveStockSummary = await getBranchStockSummary(targetBranchId);
       const liveInjeraStock = liveStockSummary.category_breakdown.find(cat => cat.category === 'Injera');
-      startingStock = liveInjeraStock?.total_quantity || 0;
+      const liveStock = liveInjeraStock?.total_quantity || 0;
+      const reportDayReceipts = await getReceivedTransfersForBranchOnDate(targetBranchId, reportDateObj);
+      const receivedToday = reportDayReceipts
+        .filter((t) => t.category === 'Injera')
+        .reduce((sum, t) => sum + t.quantity, 0);
+      startingStock = Math.max(liveStock - receivedToday, 0);
     }
 
     const expectedTotal = receivedInjera + startingStock;
     const actualTotal = soldInjera + wastedInjera + remainingInjera;
 
-    if (Math.abs(expectedTotal - actualTotal) > 1) {
-      // Allow 1 unit difference for rounding
+    if (expectedTotal !== actualTotal) {
       res.status(400).json({
         message: `Stock validation failed: Expected total ${expectedTotal} (received: ${receivedInjera} + starting: ${startingStock}), but got ${actualTotal} (sold: ${soldInjera} + wasted: ${wastedInjera} + remaining: ${remainingInjera})`,
       });

@@ -45,7 +45,7 @@ interface DueCustomer {
 interface PreparationData {
   dueCustomers: DueCustomer[];
   currentStock: number;
-  startingStock: number;
+  startingStock?: number;
   receivedToday: number;
   existingReport: { id: string; submittedAt: string } | null;
   /** True when no report exists yet for the selected day — confirm opening stock & submit */
@@ -115,10 +115,15 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
       setSoldManuallyEdited(false);
 
       // Pre-populate received injera
+      const starting = Number.isFinite(Number(data.startingStock))
+        ? Number(data.startingStock)
+        : Number(data.currentStock || 0);
+      const received = Number(data.receivedToday || 0);
       setFormData((prev) => ({
         ...prev,
-        receivedInjera: data.receivedToday,
-        remainingInjera: data.currentStock,
+        receivedInjera: received,
+        // Baseline with no sales/waste yet should be opening + received.
+        remainingInjera: starting + received,
       }));
     } catch (e: any) {
       setSnackbar({ open: true, message: e.message || 'Failed to load data', severity: 'error' });
@@ -155,7 +160,9 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
   }, [checklists, soldManuallyEdited]);
 
   const validateStock = () => {
-    const starting = preparationData?.startingStock ?? preparationData?.currentStock ?? 0;
+    const starting = Number.isFinite(Number(preparationData?.startingStock))
+      ? Number(preparationData?.startingStock)
+      : Number(preparationData?.currentStock ?? 0);
     const received = formData.receivedInjera;
     const sold = formData.soldInjera;
     const wasted = formData.wastedInjera;
@@ -164,7 +171,7 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
     const expectedTotal = received + starting;
     const actualTotal = sold + wasted + remaining;
 
-    return Math.abs(expectedTotal - actualTotal) <= 1;
+    return expectedTotal === actualTotal;
   };
 
   const handleSubmit = async () => {
@@ -176,7 +183,9 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
 
     // Validate stock calculations
     if (!validateStock()) {
-      const starting = preparationData?.startingStock ?? preparationData?.currentStock ?? 0;
+      const starting = Number.isFinite(Number(preparationData?.startingStock))
+        ? Number(preparationData?.startingStock)
+        : Number(preparationData?.currentStock ?? 0);
       const expectedTotal = formData.receivedInjera + starting;
       const actualTotal = formData.soldInjera + formData.wastedInjera + formData.remainingInjera;
       setSnackbar({
@@ -265,7 +274,9 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
     );
   }
 
-  const startingStock = preparationData.startingStock ?? preparationData.currentStock;
+  const startingStock = Number.isFinite(Number(preparationData.startingStock))
+    ? Number(preparationData.startingStock)
+    : Number(preparationData.currentStock || 0);
   const expectedTotal = formData.receivedInjera + startingStock;
   const actualTotal = formData.soldInjera + formData.wastedInjera + formData.remainingInjera;
   const stockValid = validateStock();
@@ -351,13 +362,18 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
                 label="Sold Injera"
                 type="number"
                 value={formData.soldInjera}
-                onChange={(e) =>
-                  setFormData({ ...formData, soldInjera: parseInt(e.target.value) || 0 })
-                }
-                onFocus={() => setSoldManuallyEdited(true)}
+                onChange={(e) => {
+                  setSoldManuallyEdited(true);
+                  setFormData({ ...formData, soldInjera: parseInt(e.target.value) || 0 });
+                }}
                 fullWidth
                 required
                 inputProps={{ min: 0 }}
+                helperText={
+                  soldManuallyEdited
+                    ? 'Manual mode: Sold Injera is not auto-updated from checklist.'
+                    : 'Auto mode: Sold Injera follows delivered checklist quantities.'
+                }
               />
             </Grid>
             <Grid item xs={12} md={6}>
@@ -470,9 +486,22 @@ export const DailyReportForm = ({ branchId, onSuccess }: DailyReportFormProps) =
                   </Card>
                 ))}
                 <Box sx={{ mt: 2, p: 2, bgcolor: colors.cream, borderRadius: 1 }}>
-                  <Typography variant="body2">
-                    Total Delivered to Customers: <strong>{calculateTotalDelivered()}</strong> units
-                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1, flexWrap: 'wrap' }}>
+                    <Typography variant="body2">
+                      Total Delivered to Customers: <strong>{calculateTotalDelivered()}</strong> units
+                    </Typography>
+                    <Button
+                      size="small"
+                      variant="outlined"
+                      onClick={() => {
+                        const deliveredTotal = calculateTotalDelivered();
+                        setSoldManuallyEdited(false);
+                        setFormData((prev) => ({ ...prev, soldInjera: deliveredTotal }));
+                      }}
+                    >
+                      Use Checklist Total
+                    </Button>
+                  </Box>
                 </Box>
               </Grid>
             )}

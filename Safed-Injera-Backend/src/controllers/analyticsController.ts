@@ -200,7 +200,25 @@ export const getDashboard = async (req: AuthRequest, res: Response): Promise<voi
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
     const weekOrders = await countOrdersSince(weekAgo, branchId);
-    const lowStockItems = await getLowStockItems(branchId);
+
+    let lowStockItems;
+    if (branchId) {
+      lowStockItems = await getLowStockItems(branchId);
+    } else {
+      const mainHub = await getMainHubBranch();
+      if (mainHub) {
+        const [hubItems, globalItems] = await Promise.all([
+          getLowStockItems(mainHub.id),
+          getLowStockItems(null),
+        ]);
+        lowStockItems = Array.from(
+          new Map([...hubItems, ...globalItems].map((item) => [item.id, item])).values()
+        );
+      } else {
+        lowStockItems = await getLowStockItems(null);
+      }
+    }
+
     const revenue = await getRevenueSince([...REVENUE_ORDER_STATUSES], branchId);
     const recentOrders = (await getRecentOrders(branchId)).map(transformOrder);
     const transformedLowStockItems = lowStockItems.map(transformStock);

@@ -13,6 +13,7 @@ import {
 import { createStockTransaction, getStockTransactions } from '../repositories/stockTransactionRepository';
 import { createActivityLog } from '../repositories/activityLogRepository';
 import { getStockSettingByCategory } from '../repositories/stockSettingsRepository';
+import { getMainHubBranch } from '../repositories/branchRepository';
 import { transformStock, transformStockInput } from '../utils/transform';
 import { withTransaction } from '../utils/transaction';
 import { AuthRequest } from '../middleware/authMiddleware';
@@ -46,6 +47,75 @@ export const getStocks = async (req: AuthRequest, res: Response) => {
     res.json(transformedStocks);
   } catch (error) {
     logger.error('Get stocks error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
+export const getHubStocks = async (req: AuthRequest, res: Response) => {
+  try {
+    if (req.user?.role === 'sub_admin') {
+      res.status(403).json({ message: 'Access denied' });
+      return;
+    }
+
+    const { category, isActive, isLowStock, sort, _sort, _order, _start, _end } = req.query;
+    const baseFilters: StockFilters = {
+      category: typeof category === 'string' ? category : undefined,
+      isActive: typeof isActive === 'string' ? isActive === 'true' : undefined,
+      isLowStock: typeof isLowStock === 'string' ? isLowStock === 'true' : undefined,
+      sortBy:
+        (typeof sort === 'string' && sort === 'price') || (typeof _sort === 'string' && _sort === 'price')
+          ? 'price'
+          : 'created_at',
+      sortOrder:
+        (typeof _order === 'string' && (_order === 'ASC' || _order === 'DESC'))
+          ? _order
+          : sort === 'price'
+            ? 'ASC'
+            : 'DESC',
+    };
+
+    const start = typeof _start === 'string' ? Number(_start) : undefined;
+    const end = typeof _end === 'string' ? Number(_end) : undefined;
+
+    const mainHub = await getMainHubBranch();
+    const [hubStocks, globalStocks] = await Promise.all([
+      mainHub ? getStocksRepo({ ...baseFilters, branchId: mainHub.id }) : Promise.resolve({ rows: [], total: 0 }),
+      getStocksRepo({ ...baseFilters, branchId: null }),
+    ]);
+
+    const merged = [...hubStocks.rows, ...globalStocks.rows];
+    const byId = new Map<number, any>();
+    for (const row of merged) byId.set(row.id, row);
+
+    let unique = Array.from(byId.values());
+    if (baseFilters.sortBy === 'price') {
+      unique.sort((a, b) => {
+        const av = Number(a.price) || 0;
+        const bv = Number(b.price) || 0;
+        return baseFilters.sortOrder === 'ASC' ? av - bv : bv - av;
+      });
+    } else {
+      unique.sort((a, b) => {
+        const ad = new Date(a.created_at ?? a.createdAt ?? 0).getTime();
+        const bd = new Date(b.created_at ?? b.createdAt ?? 0).getTime();
+        return baseFilters.sortOrder === 'ASC' ? ad - bd : bd - ad;
+      });
+    }
+
+    const total = unique.length;
+    const offset = start !== undefined && Number.isFinite(start) && start >= 0 ? start : 0;
+    const limit =
+      end !== undefined && Number.isFinite(end) && end > offset ? Math.max(end - offset, 1) : total;
+    const paged = unique.slice(offset, offset + limit);
+
+    const transformed = paged.map(transformStock);
+    const endIx = transformed.length ? offset + transformed.length - 1 : offset;
+    res.set('Content-Range', `stocks ${offset}-${endIx}/${total}`);
+    res.set('Access-Control-Expose-Headers', 'Content-Range');
+    res.json(transformed);
+  } catch (error) {
+    logger.error('Get hub stocks error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 };
@@ -365,9 +435,26 @@ export const getStockTransactionsHandler = async (req: Request, res: Response) =
 
 export const getLowStockItemsHandler = async (req: AuthRequest, res: Response) => {
   try {
-    const branchId = req.user?.role === 'sub_admin' ? req.user.branch_id : undefined;
-    const items = await getLowStockItems(branchId);
-    res.json(items.map(transformStock));
+    if (req.user?.role === 'sub_admin') {
+      const branchId = req.user.branch_id ?? undefined;
+      const items = await getLowStockItems(branchId);
+      res.json(items.map(transformStock));
+      return;
+    }
+
+    const mainHub = await getMainHubBranch();
+    if (!mainHub) {
+      const items = await getLowStockItems(null);
+      res.json(items.map(transformStock));
+      return;
+    }
+
+    const [hubItems, globalItems] = await Promise.all([
+      getLowStockItems(mainHub.id),
+      getLowStockItems(null),
+    ]);
+    const unique = Array.from(new Map([...hubItems, ...globalItems].map((item) => [item.id, item])).values());
+    res.json(unique.map(transformStock));
   } catch (error) {
     logger.error('Get low stock items error:', error);
     res.status(500).json({ message: 'Server error' });

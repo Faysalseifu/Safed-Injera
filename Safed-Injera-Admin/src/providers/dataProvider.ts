@@ -15,12 +15,29 @@ const httpClient = (url: string, options: fetchUtils.Options = {}) => {
   return fetchUtils.fetchJson(url, { ...options, headers });
 };
 
+const getCurrentUserRole = (): string | null => {
+  try {
+    const raw = localStorage.getItem('user');
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    return typeof parsed?.role === 'string' ? parsed.role : null;
+  } catch {
+    return null;
+  }
+};
+
 const dataProvider: DataProvider = {
   getList: async (resource, params) => {
     const { page, perPage } = params.pagination || { page: 1, perPage: 10 };
     const { field, order } = params.sort || { field: 'id', order: 'ASC' };
     
-    const resourcePath = resource === 'activity-logs' ? 'activity-logs' : resource;
+    const role = getCurrentUserRole();
+    const resourcePath =
+      resource === 'activity-logs'
+        ? 'activity-logs'
+        : resource === 'stocks' && (role === 'admin' || role === 'staff')
+          ? 'stocks/hub'
+          : resource;
     
     const query: Record<string, any> = {};
 
@@ -85,7 +102,22 @@ const dataProvider: DataProvider = {
   getOne: async (resource, params) => {
     const resourcePath = resource === 'activity-logs' ? 'activity-logs' : resource;
     const { json } = await httpClient(`${API_URL}/${resourcePath}/${params.id}`);
-    return { data: { ...json, id: json._id || json.id || json.id } };
+    const baseRecord: any = { ...json, id: json._id || json.id || params.id };
+
+    if (resource === 'activity-logs') {
+      const normalized = {
+        ...baseRecord,
+        createdAt: baseRecord.created_at || baseRecord.createdAt,
+        userUsername: baseRecord.user_username || baseRecord.userUsername,
+        entityType: baseRecord.entity_type || baseRecord.entityType,
+        entityId: baseRecord.entity_id || baseRecord.entityId,
+        actionType: baseRecord.action_type || baseRecord.actionType,
+        action_type: baseRecord.action_type || baseRecord.actionType,
+      };
+      return { data: normalized };
+    }
+
+    return { data: baseRecord };
   },
 
   getMany: async (resource, params) => {

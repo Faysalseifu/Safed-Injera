@@ -69,6 +69,12 @@ ChartJS.register(
 
 const API_URL = (import.meta as any).env?.VITE_API_URL || 'http://localhost:5000/api';
 
+const displayProductName = (name?: string): string => {
+  const n = (name ?? '').trim();
+  if (!n) return '';
+  return n.toLowerCase().includes('injera') ? 'Injera' : n;
+};
+
 // Design tokens - Safed Injera Branding
 const colors = {
   sidebar: '#4E1815',
@@ -151,7 +157,8 @@ const getDailyLabel = (row: any): string => row?._id || row?.period || '';
 const getDailyTotalQty = (row: any): number => toNumber(row?.totalQuantity ?? row?.total_quantity, 0);
 const getDailyOrderCount = (row: any): number => toNumber(row?.orderCount ?? row?.order_count, 0);
 
-const getProductLabel = (row: any): string => row?._id || row?.product || 'Unknown';
+const getProductLabel = (row: any): string =>
+  displayProductName(row?._id || row?.product || 'Unknown');
 const getProductQty = (row: any): number => toNumber(row?.totalQuantity ?? row?.total_quantity, 0);
 
 // Modern Metric Card Component
@@ -917,7 +924,7 @@ const LowStockCard = ({ items }: { items: DashboardData['lowStockItems'] }) => {
             }}
           >
             <Typography variant="body2" sx={{ fontWeight: 500, color: colors.textPrimary }}>
-              {item.productName}
+              {displayProductName(item.productName)}
             </Typography>
             <Chip
               size="small"
@@ -1180,6 +1187,173 @@ const Dashboard = () => {
   const [loadingOrderDetail, setLoadingOrderDetail] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+  type DebtStatus = 'open' | 'partial' | 'paid';
+  type DebtRow = {
+    id: number;
+    customerName: string;
+    phone?: string | null;
+    reason?: string | null;
+    originalAmount: number;
+    paidAmount: number;
+    remainingAmount: number;
+    expectedRepaymentDate?: string | null;
+    status: DebtStatus;
+    createdAt?: string;
+  };
+
+  const [debtDialogOpen, setDebtDialogOpen] = useState(false);
+  const [debts, setDebts] = useState<DebtRow[]>([]);
+  const [debtsLoading, setDebtsLoading] = useState(false);
+  const [debtSubmitting, setDebtSubmitting] = useState(false);
+
+  const [newDebtCustomerName, setNewDebtCustomerName] = useState('');
+  const [newDebtPhone, setNewDebtPhone] = useState('');
+  const [newDebtAmount, setNewDebtAmount] = useState<number>(0);
+  const [newDebtReason, setNewDebtReason] = useState('');
+  const [newDebtExpectedDate, setNewDebtExpectedDate] = useState('');
+
+  const [paymentDialogOpen, setPaymentDialogOpen] = useState(false);
+  const [paymentSubmitting, setPaymentSubmitting] = useState(false);
+  const [selectedDebtForPayment, setSelectedDebtForPayment] = useState<DebtRow | null>(null);
+  const [paymentAmount, setPaymentAmount] = useState<number>(0);
+  const [paymentNote, setPaymentNote] = useState('');
+  const [paymentDate, setPaymentDate] = useState('');
+
+  const fetchDebts = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    setDebtsLoading(true);
+    try {
+      const res = await fetch(`${API_URL}/debts?status=open,partial&limit=50`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Failed to fetch debts' }));
+        throw new Error(err.message || 'Failed to fetch debts');
+      }
+      const data = await res.json();
+      const normalized: DebtRow[] = (Array.isArray(data) ? data : []).map((d: any) => ({
+        id: Number(d.id),
+        customerName: String(d.customerName ?? ''),
+        phone: d.phone ?? null,
+        reason: d.reason ?? null,
+        originalAmount: Number(d.originalAmount) || 0,
+        paidAmount: Number(d.paidAmount) || 0,
+        remainingAmount: Number(d.remainingAmount) || 0,
+        expectedRepaymentDate: d.expectedRepaymentDate ?? null,
+        status: (d.status as DebtStatus) || 'open',
+        createdAt: d.createdAt,
+      }));
+      setDebts(normalized);
+    } catch (err: any) {
+      setError(err.message || 'Failed to fetch debts');
+    } finally {
+      setDebtsLoading(false);
+    }
+  };
+
+  const handleCreateDebt = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+
+    const customerName = newDebtCustomerName.trim();
+    const originalAmount = Number(newDebtAmount);
+
+    if (!customerName) {
+      setError('Customer name is required');
+      return;
+    }
+    if (!Number.isFinite(originalAmount) || originalAmount <= 0) {
+      setError('Amount must be a positive number');
+      return;
+    }
+
+    setDebtSubmitting(true);
+    try {
+      const res = await fetch(`${API_URL}/debts`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          customerName,
+          phone: newDebtPhone.trim() || undefined,
+          originalAmount,
+          reason: newDebtReason.trim() || undefined,
+          expectedRepaymentDate: newDebtExpectedDate || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Failed to create debt' }));
+        throw new Error(err.message || 'Failed to create debt');
+      }
+
+      showSuccess('Debt created');
+      setNewDebtCustomerName('');
+      setNewDebtPhone('');
+      setNewDebtAmount(0);
+      setNewDebtReason('');
+      setNewDebtExpectedDate('');
+      await fetchDebts();
+    } catch (err: any) {
+      setError(err.message || 'Failed to create debt');
+    } finally {
+      setDebtSubmitting(false);
+    }
+  };
+
+  const openAddPayment = (debt: DebtRow) => {
+    setSelectedDebtForPayment(debt);
+    setPaymentAmount(Math.max(Number(debt.remainingAmount) || 0, 0));
+    setPaymentNote('');
+    setPaymentDate('');
+    setPaymentDialogOpen(true);
+  };
+
+  const handleAddPayment = async () => {
+    const token = localStorage.getItem('token');
+    if (!token) return;
+    if (!selectedDebtForPayment) return;
+
+    const amount = Number(paymentAmount);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      setError('Payment amount must be a positive number');
+      return;
+    }
+
+    setPaymentSubmitting(true);
+    try {
+      const res = await fetch(`${API_URL}/debts/${selectedDebtForPayment.id}/payments`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          amount,
+          note: paymentNote.trim() || undefined,
+          paymentDate: paymentDate || undefined,
+        }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ message: 'Failed to add payment' }));
+        throw new Error(err.message || 'Failed to add payment');
+      }
+
+      showSuccess('Payment recorded');
+      setPaymentDialogOpen(false);
+      setSelectedDebtForPayment(null);
+      await fetchDebts();
+    } catch (err: any) {
+      setError(err.message || 'Failed to add payment');
+    } finally {
+      setPaymentSubmitting(false);
+    }
+  };
+
   const fetchData = async () => {
     const token = localStorage.getItem('token');
     const headers = {
@@ -1238,19 +1412,13 @@ const Dashboard = () => {
   const fetchStocks = async () => {
     const token = localStorage.getItem('token');
     try {
-      const response = await fetch(`${API_URL}/stocks`, {
+      const response = await fetch(`${API_URL}/stocks/hub`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (response.ok) {
         const data = await response.json();
         const stocks = Array.isArray(data) ? data : (data.rows || []);
         setAllStocks(stocks);
-
-        // Calculate total injera quantity (sum of all active stock quantities)
-        const total = stocks
-          .filter((stock: any) => stock.isActive !== false)
-          .reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
-        setTotalInjera(total);
       }
     } catch (err) {
       console.error('Failed to fetch stocks', err);
@@ -1284,6 +1452,11 @@ const Dashboard = () => {
     if (!mainHubId) return stock.branchId == null;
     return stock.branchId === mainHubId || stock.branchId == null;
   });
+
+  useEffect(() => {
+    const total = hubStocks.reduce((sum: number, stock: any) => sum + (Number(stock.quantity) || 0), 0);
+    setTotalInjera(total);
+  }, [allStocks, mainHubId]);
 
   const transferToBranch = async (forcedBranchId?: string) => {
     const branchId = forcedBranchId || selectedTransferBranchId;
@@ -1332,7 +1505,9 @@ const Dashboard = () => {
       }
 
       const targetName = branchOptions.find((b) => b.id === branchId)?.name || 'branch';
-      showSuccess(`Sent ${quantity} ${selectedStock.unit || ''} ${selectedStock.productName} to ${targetName}`);
+      showSuccess(
+        `Sent ${quantity} ${selectedStock.unit || ''} ${displayProductName(selectedStock.productName)} to ${targetName}`
+      );
       setBranchTransferDialogOpen(false);
       setSelectedTransferBranchId('');
       setTransferAmount(100);
@@ -1363,7 +1538,8 @@ const Dashboard = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update status');
+        const err = await response.json().catch(() => ({ message: 'Failed to update status' }));
+        throw new Error(err.message || 'Failed to update status');
       }
 
       // Update local state to reflect change immediately
@@ -1379,9 +1555,10 @@ const Dashboard = () => {
       // Refresh stocks to get updated values from backend
       // Backend handles all stock adjustments based on status changes
       fetchStocks();
-    } catch (err) {
+      fetchData();
+    } catch (err: any) {
       console.error(err);
-      setError('Failed to update order status');
+      setError(err?.message || 'Failed to update order status');
     }
   };
 
@@ -1547,6 +1724,27 @@ const Dashboard = () => {
           }}
         >
           Register Phone Order
+        </Button>
+        <Button
+          variant="contained"
+          startIcon={<AssignmentIcon />}
+          onClick={() => {
+            setDebtDialogOpen(true);
+            fetchDebts();
+          }}
+          sx={{
+            bgcolor: colors.purple,
+            borderRadius: '12px',
+            px: 3,
+            py: 1.5,
+            fontWeight: 600,
+            textTransform: 'none',
+            '&:hover': { opacity: 0.9, transform: 'translateY(-2px)' },
+            transition: 'all 0.2s',
+            boxShadow: '0 4px 12px rgba(63, 79, 81, 0.3)',
+          }}
+        >
+          Daily Debts
         </Button>
       </Box>
 
@@ -1717,7 +1915,7 @@ const Dashboard = () => {
                 <option value="" disabled></option>
                 {allStocks.map((stock) => (
                   <option key={stock.id} value={stock.id}>
-                    {stock.productName} ({stock.quantity} in stock)
+                    {displayProductName(stock.productName)} ({stock.quantity} in stock)
                   </option>
                 ))}
               </Select>
@@ -1801,7 +1999,7 @@ const Dashboard = () => {
                 <option value=""></option>
                 {hubStocks.map((stock: any) => (
                   <option key={stock.id} value={stock.id}>
-                    {stock.productName} ({stock.quantity} {stock.unit || 'pcs'} available)
+                    {displayProductName(stock.productName)} ({stock.quantity} {stock.unit || 'pcs'} available)
                   </option>
                 ))}
               </Select>
@@ -1905,7 +2103,7 @@ const Dashboard = () => {
                   <Grid item xs={12} sm={6}>
                     <Typography variant="body2" sx={{ color: colors.textSecondary, mb: 0.5 }}>Product</Typography>
                     <Typography variant="body1" sx={{ fontWeight: 600, color: colors.textPrimary }}>
-                      {selectedOrderDetail.product || 'N/A'}
+                      {displayProductName(selectedOrderDetail.product) || 'N/A'}
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={6}>
@@ -2028,14 +2226,16 @@ const Dashboard = () => {
               <FormControl sx={{ flex: 2 }}>
                 <InputLabel>Product</InputLabel>
                 <Select native label="Product" id="order-product">
-                  {allStocks.map((stock) => (
-                    <option key={stock.id} value={stock.productName}>
-                      {stock.productName} ({stock.quantity} available)
-                    </option>
-                  ))}
-                  {allStocks.length === 0 && (
-                    <option value="Pure Teff Injera">Pure Teff Injera</option>
-                  )}
+                  {(() => {
+                    const injeraStocks = allStocks.filter((s) =>
+                      (s.productName ?? '').toLowerCase().includes('injera')
+                    );
+                    if (injeraStocks.length === 0) {
+                      return <option value="Injera">Injera</option>;
+                    }
+                    const totalAvailable = injeraStocks.reduce((sum, s) => sum + (Number(s.quantity) || 0), 0);
+                    return <option value="Injera">Injera ({totalAvailable} available)</option>;
+                  })()}
                 </Select>
               </FormControl>
               <TextField id="order-qty" label="Quantity" type="number" sx={{ flex: 1 }} defaultValue={1} />
@@ -2073,6 +2273,246 @@ const Dashboard = () => {
             sx={{ bgcolor: colors.sidebar, '&:hover': { bgcolor: colors.darkBg } }}
           >
             Create Order
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Daily Debts Dialog */}
+      <Dialog
+        open={debtDialogOpen}
+        onClose={() => setDebtDialogOpen(false)}
+        maxWidth="md"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: '20px' } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>Daily Debts</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="subtitle1" sx={{ fontWeight: 700, color: colors.textPrimary }}>
+              Create Debt
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <TextField
+                label="Client Name"
+                value={newDebtCustomerName}
+                onChange={(e) => setNewDebtCustomerName(e.target.value)}
+                fullWidth
+                sx={{ flex: 2, minWidth: 240 }}
+              />
+              <TextField
+                label="Phone (Optional)"
+                value={newDebtPhone}
+                onChange={(e) => setNewDebtPhone(e.target.value)}
+                fullWidth
+                sx={{ flex: 1, minWidth: 200 }}
+              />
+            </Box>
+
+            <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+              <TextField
+                label="Amount"
+                type="number"
+                value={newDebtAmount}
+                onChange={(e) => setNewDebtAmount(Number(e.target.value))}
+                fullWidth
+                sx={{ flex: 1, minWidth: 160 }}
+                InputProps={{ inputProps: { min: 0 } }}
+              />
+              <TextField
+                label="Expected Repayment Date (Optional)"
+                type="date"
+                value={newDebtExpectedDate}
+                onChange={(e) => setNewDebtExpectedDate(e.target.value)}
+                fullWidth
+                sx={{ flex: 1, minWidth: 220 }}
+                InputLabelProps={{ shrink: true }}
+              />
+            </Box>
+
+            <TextField
+              label="Reason (Optional)"
+              value={newDebtReason}
+              onChange={(e) => setNewDebtReason(e.target.value)}
+              fullWidth
+            />
+
+            <Box sx={{ display: 'flex', gap: 1, justifyContent: 'flex-end' }}>
+              <Button
+                variant="outlined"
+                onClick={() => {
+                  setNewDebtCustomerName('');
+                  setNewDebtPhone('');
+                  setNewDebtAmount(0);
+                  setNewDebtReason('');
+                  setNewDebtExpectedDate('');
+                }}
+                sx={{ borderColor: colors.gold, color: colors.gold }}
+              >
+                Clear
+              </Button>
+              <Button
+                variant="contained"
+                onClick={handleCreateDebt}
+                disabled={debtSubmitting}
+                sx={{ bgcolor: colors.sidebar, '&:hover': { bgcolor: colors.darkBg } }}
+              >
+                {debtSubmitting ? 'Creating…' : 'Create Debt'}
+              </Button>
+            </Box>
+
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: 1 }}>
+              <Typography variant="subtitle1" sx={{ fontWeight: 700, color: colors.textPrimary }}>
+                Outstanding Debts (Open / Partial)
+              </Typography>
+              <Button
+                variant="outlined"
+                onClick={fetchDebts}
+                disabled={debtsLoading}
+                sx={{ borderColor: colors.gold, color: colors.gold }}
+              >
+                Refresh
+              </Button>
+            </Box>
+
+            {debtsLoading ? (
+              <Box sx={{ py: 4, display: 'flex', justifyContent: 'center' }}>
+                <CircularProgress />
+              </Box>
+            ) : debts.length === 0 ? (
+              <Typography variant="body2" sx={{ color: colors.textSecondary, py: 2 }}>
+                No outstanding debts.
+              </Typography>
+            ) : (
+              <Box sx={{ overflowX: 'auto' }}>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell sx={{ fontWeight: 700 }}>Client</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Phone</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="right">Original</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="right">Paid</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="right">Remaining</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Expected Date</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Reason</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="right">Action</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {debts.map((d) => (
+                      <TableRow key={d.id} hover>
+                        <TableCell sx={{ fontWeight: 600, color: colors.textPrimary }}>{d.customerName}</TableCell>
+                        <TableCell sx={{ color: colors.textSecondary }}>{d.phone || '—'}</TableCell>
+                        <TableCell align="right">{(Number(d.originalAmount) || 0).toLocaleString()}</TableCell>
+                        <TableCell align="right">{(Number(d.paidAmount) || 0).toLocaleString()}</TableCell>
+                        <TableCell align="right" sx={{ fontWeight: 700 }}>
+                          {(Number(d.remainingAmount) || 0).toLocaleString()}
+                        </TableCell>
+                        <TableCell sx={{ color: colors.textSecondary }}>{d.expectedRepaymentDate || '—'}</TableCell>
+                        <TableCell sx={{ color: colors.textSecondary, maxWidth: 220 }}>
+                          {d.reason || '—'}
+                        </TableCell>
+                        <TableCell>
+                          <Chip
+                            label={d.status}
+                            size="small"
+                            sx={{
+                              bgcolor:
+                                d.status === 'paid'
+                                  ? 'rgba(76, 175, 80, 0.15)'
+                                  : d.status === 'partial'
+                                    ? 'rgba(33, 150, 243, 0.15)'
+                                    : 'rgba(255, 152, 0, 0.15)',
+                              color:
+                                d.status === 'paid'
+                                  ? colors.success
+                                  : d.status === 'partial'
+                                    ? colors.blue
+                                    : colors.warning,
+                              fontWeight: 700,
+                              textTransform: 'capitalize',
+                            }}
+                          />
+                        </TableCell>
+                        <TableCell align="right">
+                          <Button
+                            size="small"
+                            variant="outlined"
+                            onClick={() => openAddPayment(d)}
+                            sx={{ borderColor: colors.gold, color: colors.gold }}
+                          >
+                            Add Payment
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </Box>
+            )}
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button onClick={() => setDebtDialogOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Add Payment Dialog */}
+      <Dialog
+        open={paymentDialogOpen}
+        onClose={() => setPaymentDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{ sx: { borderRadius: '20px' } }}
+      >
+        <DialogTitle sx={{ fontWeight: 700 }}>Add Payment</DialogTitle>
+        <DialogContent>
+          <Box sx={{ pt: 1, display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Typography variant="body2" sx={{ color: colors.textSecondary }}>
+              {selectedDebtForPayment
+                ? `Client: ${selectedDebtForPayment.customerName} — Remaining: ${(Number(selectedDebtForPayment.remainingAmount) || 0).toLocaleString()}`
+                : ''}
+            </Typography>
+            <TextField
+              label="Amount"
+              type="number"
+              value={paymentAmount}
+              onChange={(e) => setPaymentAmount(Number(e.target.value))}
+              fullWidth
+              InputProps={{ inputProps: { min: 0 } }}
+            />
+            <TextField
+              label="Payment Date (Optional)"
+              type="date"
+              value={paymentDate}
+              onChange={(e) => setPaymentDate(e.target.value)}
+              fullWidth
+              InputLabelProps={{ shrink: true }}
+            />
+            <TextField
+              label="Note (Optional)"
+              value={paymentNote}
+              onChange={(e) => setPaymentNote(e.target.value)}
+              fullWidth
+            />
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 3 }}>
+          <Button
+            onClick={() => {
+              setPaymentDialogOpen(false);
+              setSelectedDebtForPayment(null);
+            }}
+          >
+            Cancel
+          </Button>
+          <Button
+            variant="contained"
+            onClick={handleAddPayment}
+            disabled={paymentSubmitting}
+            sx={{ bgcolor: colors.sidebar, '&:hover': { bgcolor: colors.darkBg } }}
+          >
+            {paymentSubmitting ? 'Saving…' : 'Save Payment'}
           </Button>
         </DialogActions>
       </Dialog>

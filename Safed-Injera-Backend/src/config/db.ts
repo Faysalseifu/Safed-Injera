@@ -24,6 +24,28 @@ const schemaStatements = [
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
   );`,
+  `CREATE TABLE IF NOT EXISTS debts (
+    id BIGSERIAL PRIMARY KEY,
+    customer_name TEXT NOT NULL,
+    phone TEXT,
+    reason TEXT,
+    original_amount NUMERIC(12,2) NOT NULL CHECK (original_amount > 0),
+    expected_repayment_date DATE,
+    status TEXT NOT NULL CHECK (status IN ('open', 'partial', 'paid')) DEFAULT 'open',
+    created_by UUID REFERENCES users(id),
+    closed_at TIMESTAMPTZ,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );`,
+  `CREATE TABLE IF NOT EXISTS debt_payments (
+    id BIGSERIAL PRIMARY KEY,
+    debt_id BIGINT NOT NULL REFERENCES debts(id) ON DELETE CASCADE,
+    amount NUMERIC(12,2) NOT NULL CHECK (amount > 0),
+    payment_date DATE NOT NULL DEFAULT CURRENT_DATE,
+    note TEXT,
+    recorded_by UUID REFERENCES users(id),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  );`,
   `CREATE TABLE IF NOT EXISTS stocks (
     id BIGSERIAL PRIMARY KEY,
     product_name TEXT NOT NULL,
@@ -157,7 +179,7 @@ const ensureSchema = async (): Promise<void> => {
       const statement = schemaStatements[i];
       try {
         await pool.query(statement);
-        const tableNames = ['users', 'stocks', 'orders', 'stock_transactions', 'activity_logs', 'stock_settings', 'branches', 'stock_transfers', 'customers', 'daily_reports', 'customer_checklists'];
+        const tableNames = ['users', 'debts', 'debt_payments', 'stocks', 'orders', 'stock_transactions', 'activity_logs', 'stock_settings', 'branches', 'stock_transfers', 'customers', 'daily_reports', 'customer_checklists'];
         if (i < tableNames.length) {
           logger.info(`✓ Table '${tableNames[i]}' ensured`);
         }
@@ -236,6 +258,11 @@ const ensureSchema = async (): Promise<void> => {
     
     // Create indexes for better performance
     const indexStatements = [
+      `CREATE INDEX IF NOT EXISTS idx_debts_status ON debts(status);`,
+      `CREATE INDEX IF NOT EXISTS idx_debts_expected_repayment_date ON debts(expected_repayment_date);`,
+      `CREATE INDEX IF NOT EXISTS idx_debts_created_at ON debts(created_at DESC);`,
+      `CREATE INDEX IF NOT EXISTS idx_debt_payments_debt_id ON debt_payments(debt_id);`,
+      `CREATE INDEX IF NOT EXISTS idx_debt_payments_created_at ON debt_payments(created_at DESC);`,
       `CREATE INDEX IF NOT EXISTS idx_stock_transactions_stock_id ON stock_transactions(stock_id);`,
       `CREATE INDEX IF NOT EXISTS idx_stock_transactions_performed_by ON stock_transactions(performed_by);`,
       `CREATE INDEX IF NOT EXISTS idx_stock_transactions_created_at ON stock_transactions(created_at DESC);`,

@@ -32,30 +32,76 @@ const parseOrderId = (idParam: string): number | null => {
 };
 
 /**
- * Stock row used when marking an order delivered / reverting.
- * Tries: order branch → main hub → legacy rows with branch_id NULL (hub/global stock) → fuzzy name match.
- * Without the NULL-branch step, orders fail when inventory was created before branch scoping or lives on “unassigned” stock rows.
+ * Stock row used when marking an order delivered / reverting / deleting.
+ *
+ * Hub-scoped orders (`branch_id` null, or branch is the main hub): try that branch row, then legacy
+ * `branch_id IS NULL` stock, then main hub id, then a fuzzy name match (single-site / legacy data).
+ *
+ * Sub-branch orders: **only** that branch’s stock row. We intentionally do not fall back to main hub
+ * or unscoped rows — that previously deducted hub inventory for branch deliveries and made hub vs
+ * branch counts disagree.
  */
 async function resolveStockForOrderFulfillment(
   product: string,
   orderBranchId: string | null,
   client?: PoolClient
 ): Promise<StockRecord | null> {
-  let row: StockRecord | null = null;
+  const mainHub = await getMainHubBranch();
+  const mainHubId = mainHub?.id ?? null;
+  const treatsAsHub =
+    orderBranchId == null || (mainHubId != null && orderBranchId === mainHubId);
 
   if (orderBranchId) {
-    row = await findStockByProductAndBranch(product, orderBranchId, client);
-    if (row) return row;
+    const atBranch = await findStockByProductAndBranch(product, orderBranchId, client);
+    if (atBranch) return atBranch;
+    if (!treatsAsHub) {
+      return null;
+    }
   }
 
+  const legacy = await findStockByProductAndBranch(product, null, client);
+  if (legacy) return legacy;
+
+  if (mainHubId) {
+    const atMainHub = await findStockByProductAndBranch(product, mainHubId, client);
+    if (atMainHub) return atMainHub;
+  }
+
+  return findStockByName(product, client);
+}
+
+/** Price lookup when creating an order — branch row first; sub-branches may fall back to hub/legacy for price only (not for fulfillment). */
+async function resolveStockForOrderPricing(
+  product: string,
+  orderBranchId: string | null,
+  client?: PoolClient
+): Promise<StockRecord | null> {
   const mainHub = await getMainHubBranch();
-  if (mainHub) {
-    row = await findStockByProductAndBranch(product, mainHub.id, client);
-    if (row) return row;
+  const mainHubId = mainHub?.id ?? null;
+  const treatsAsHub =
+    orderBranchId == null || (mainHubId != null && orderBranchId === mainHubId);
+
+  if (orderBranchId) {
+    const atBranch = await findStockByProductAndBranch(product, orderBranchId, client);
+    if (atBranch) return atBranch;
+    if (!treatsAsHub) {
+      if (mainHubId) {
+        const atHub = await findStockByProductAndBranch(product, mainHubId, client);
+        if (atHub) return atHub;
+      }
+      const legacy = await findStockByProductAndBranch(product, null, client);
+      if (legacy) return legacy;
+      return findStockByName(product, client);
+    }
   }
 
-  row = await findStockByProductAndBranch(product, null, client);
-  if (row) return row;
+  const legacy = await findStockByProductAndBranch(product, null, client);
+  if (legacy) return legacy;
+
+  if (mainHubId) {
+    const atMainHub = await findStockByProductAndBranch(product, mainHubId, client);
+    if (atMainHub) return atMainHub;
+  }
 
   return findStockByName(product, client);
 }
@@ -235,10 +281,7 @@ export const createOrder = async (req: AuthRequest, res: Response): Promise<void
     }
 
     const order = await withTransaction(async (client) => {
-      const mainHub = await getMainHubBranch();
-      const stockItem = mainHub
-        ? await findStockByProductAndBranch(productName, mainHub.id, client)
-        : await findStockByName(productName, client);
+      const stockItem = await resolveStockForOrderPricing(productName, branchId, client);
       const totalPrice = stockItem ? Number(Number(stockItem.price) * quantityNumber) : undefined;
 
       const payload = {
