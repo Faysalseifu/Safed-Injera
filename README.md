@@ -36,6 +36,26 @@ A modern, multilingual portfolio website for Safed Injera - an Ethiopian startup
 npm install
 ```
 
+## Run All Apps (Backend + Admin + Portfolio)
+
+This repo contains three apps:
+
+- Backend API: `Safed-Injera-Backend` (http://localhost:5000)
+- Admin portal: `Safed-Injera-Admin` (http://localhost:5173)
+- Portfolio site (this folder): http://localhost:3000
+
+From the repo root:
+
+1. Install all dependencies (root + admin + backend):
+```bash
+npm run install:all
+```
+
+2. Start all three in dev mode:
+```bash
+npm run dev:all
+```
+
 2. Start development server:
 ```bash
 npm run dev

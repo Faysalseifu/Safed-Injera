@@ -5,6 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:all": "concurrently -k -n backend,admin,site -c red,blue,green \"npm --prefix Safed-Injera-Backend run dev\" \"npm --prefix Safed-Injera-Admin run dev\" \"npm run dev\"",
+    "install:all": "npm install && npm --prefix Safed-Injera-Admin install && npm --prefix Safed-Injera-Backend install",
     "build": "tsc && vite build",
     "preview": "vite preview",
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
@@ -25,6 +27,7 @@
     "@typescript-eslint/parser": "^6.14.0",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.16",
+    "concurrently": "^9.0.0",
     "eslint": "^8.55.0",
     "eslint-plugin-react-hooks": "^4.6.0",
     "eslint-plugin-react-refresh": "^0.4.5",
