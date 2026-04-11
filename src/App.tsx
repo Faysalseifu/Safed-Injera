@@ -39,9 +39,9 @@ function App() {
   return (
     <ErrorBoundary>
       <Router>
-        <div className={`min-h-screen flex flex-col transition-colors duration-500 ${nightMode ? 'night-mode' : ''}`}>
+        <div className={`min-h-screen w-full flex flex-col transition-colors duration-500 ${nightMode ? 'night-mode' : ''}`}>
           <Header />
-          <main className="flex-grow">
+          <main className="flex-grow w-full min-w-0">
             <Routes>
               <Route
                 path="/"

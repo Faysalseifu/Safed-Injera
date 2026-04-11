@@ -106,7 +106,7 @@ const Contact = () => {
   };
 
   return (
-    <section id="contact" className="relative section-container py-24 overflow-hidden">
+    <section id="contact" className="relative w-full py-24 overflow-hidden">
       {/* Background Ambience */}
       <div className="absolute inset-0 bg-gradient-to-tr from-sefed-sand/10 via-white to-injera-maroon/5 dark:from-transparent dark:via-transparent dark:to-transparent pointer-events-none -z-10 transition-colors duration-300" />
       
@@ -143,6 +143,7 @@ const Contact = () => {
              mixBlendMode: 'soft-light'
            }} />
 
+      <div className="section-inner relative z-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -384,6 +385,7 @@ const Contact = () => {
             ))}
           </div>
         </div>
+      </div>
       </div>
     </section>
   );

@@ -26,7 +26,8 @@ const Team = () => {
     ];
 
     return (
-        <section className="section-container py-20">
+        <section className="w-full py-20">
+            <div className="section-inner">
             <motion.div
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -41,7 +42,7 @@ const Team = () => {
                 </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12 px-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 lg:gap-12">
                 {team.map((member, index) => (
                     <motion.div
                         key={index}
@@ -90,6 +91,7 @@ const Team = () => {
                         </div>
                     </motion.div>
                 ))}
+            </div>
             </div>
         </section>
     );

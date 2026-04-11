@@ -17,7 +17,10 @@
     "subtitle": "Premium Quality Teff Injera",
     "description": "Mass production of authentic Ethiopian injera made from pure teff. Delivering quality to hotels, supermarkets, and international clients.",
     "cta1": "Contact Us",
-    "cta2": "View Products"
+    "cta2": "View Products",
+    "slide1": "Safed Injera chef presenting premium packaged teff injera",
+    "slide2": "Fresh teff injera on a traditional mitad",
+    "slide3": "Safed Injera chef with packed injera product"
   },
   "about": {
     "title": "About Safed Injera",
@@ -32,6 +35,8 @@
   "products": {
     "title": "Our Products",
     "subtitle": "Premium Quality Injera",
+    "badge": "Our products",
+    "cta": "Learn more",
     "pureTeff": "Pure Teff",
     "pureTeffDesc": "Made exclusively from pure teff flour, ensuring authentic taste and maximum nutritional benefits.",
     "quality": "Quality Assured",
@@ -44,6 +49,8 @@
   "process": {
     "title": "Our Production Process",
     "subtitle": "From Teff to Table",
+    "headlinePart1": "Our proven",
+    "headlineAccent": "production process",
     "step1": "Step 1: Sourcing",
     "step1Desc": "We source the finest pure teff flour from trusted Ethiopian suppliers.",
     "step2": "Step 2: Fermentation",

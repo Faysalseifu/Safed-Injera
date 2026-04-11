@@ -36,6 +36,7 @@ const Gallery = () => {
              backgroundSize: '250px',
              mixBlendMode: 'soft-light'
            }} />
+      <div className="section-inner relative z-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -71,6 +72,7 @@ const Gallery = () => {
             </div>
           </motion.div>
         ))}
+      </div>
       </div>
 
       {/* Lightbox */}

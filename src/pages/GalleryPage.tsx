@@ -68,7 +68,7 @@ const GalleryPage = () => {
                backgroundSize: '280px',
                mixBlendMode: 'soft-light'
              }} />
-        <div className="section-container relative z-10">
+        <div className="section-inner relative z-10">
           <SplitHero
             title={t('gallery.title')}
             subtitle={t('gallery.subtitle')}
@@ -80,6 +80,7 @@ const GalleryPage = () => {
 
       {/* Gallery Grid */}
       <section className="section-container">
+        <div className="section-inner">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {images.map((image, index) => (
             <motion.div
@@ -104,6 +105,7 @@ const GalleryPage = () => {
               </div>
             </motion.div>
           ))}
+        </div>
         </div>
       </section>
 

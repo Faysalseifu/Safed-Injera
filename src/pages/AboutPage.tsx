@@ -83,7 +83,7 @@ const AboutPage = () => {
                backgroundSize: '300px',
                mixBlendMode: 'soft-light'
              }} />
-        <div className="section-container relative z-10">
+        <div className="section-inner relative z-10">
           <SplitHero
             eyebrow="Building the Future of Injera"
             title={t('about.title')}
@@ -96,6 +96,7 @@ const AboutPage = () => {
 
       {/* Main Content */}
       <section className="section-container -mt-16 relative z-20">
+        <div className="section-inner">
         <div className="grid md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
           {features.map((feature, index) => (
             <motion.div
@@ -141,6 +142,7 @@ const AboutPage = () => {
             </div>
           </div>
         </motion.div>
+        </div>
       </section>
 
       {/* Our Team Section */}

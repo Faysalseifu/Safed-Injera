@@ -13,8 +13,6 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const ADMIN_DEV_URL = 'http://localhost:5173/';
-
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
@@ -69,7 +67,7 @@ const Header = () => {
 
   return (
     <header
-      className="fixed top-3 left-0 right-0 z-50 px-3 sm:px-4"
+      className="fixed top-2 left-0 right-0 z-50 px-3 sm:px-4"
     >
       <nav className="mx-auto max-w-7xl">
         <div
@@ -90,12 +88,12 @@ const Header = () => {
             ].join(' ')
           }
         >
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4">
+          <div className="flex items-center justify-between px-4 sm:px-5 py-2 sm:py-3">
             <Link to="/" onClick={(e) => handleNavClick('/', e)} className="flex items-center gap-2 sm:gap-3">
               <img
                 src="/images/logo 1.png"
                 alt="Safed Injera Logo"
-                className="h-10 sm:h-12 md:h-14 w-auto"
+                className="h-9 sm:h-10 md:h-12 w-auto"
               />
             </Link>
 
@@ -108,7 +106,7 @@ const Header = () => {
                   onClick={(e) => handleNavClick(link.path, e)}
                   className={
                     [
-                      'px-3 py-2 rounded-xl',
+                      'px-2.5 py-1.5 rounded-xl',
                       'text-sm font-semibold',
                       'text-ethiopian-earth/90 dark:text-injera-white/90',
                       'hover:text-amber-glow',
@@ -127,43 +125,6 @@ const Header = () => {
             <div className="flex items-center gap-2 sm:gap-3">
               <LanguageSwitcher className="hidden sm:inline-flex" />
 
-              <a
-                href={ADMIN_DEV_URL}
-                target="_blank"
-                rel="noreferrer"
-                className={
-                  [
-                    'hidden md:inline-flex items-center justify-center',
-                    'px-4 py-2 rounded-xl border',
-                    'border-sefed-sand/30 bg-white/15 backdrop-blur-md',
-                    'text-sm font-semibold text-ethiopian-earth/90 hover:text-amber-glow',
-                    'hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-glow',
-                    'dark:border-amber-glow/25 dark:bg-ethiopian-earth/20 dark:text-injera-white/90 dark:hover:bg-ethiopian-earth/35',
-                    'transition-colors',
-                  ].join(' ')
-                }
-              >
-                {t('nav.signIn')}
-              </a>
-              <a
-                href={ADMIN_DEV_URL}
-                target="_blank"
-                rel="noreferrer"
-                className={
-                  [
-                    'hidden md:inline-flex items-center justify-center',
-                    'px-4 py-2 rounded-xl border',
-                    'border-white/25 bg-ethiopian-earth text-cloud-white',
-                    'text-sm font-semibold',
-                    'hover:bg-ethiopian-earth/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-glow',
-                    'dark:border-amber-glow/25 dark:bg-injera-maroon dark:text-injera-white dark:hover:bg-injera-maroon/90',
-                    'transition-colors',
-                  ].join(' ')
-                }
-              >
-                {t('nav.signUp')}
-              </a>
-
               {/* Night mode toggle */}
               <label className="relative inline-flex items-center cursor-pointer">
                 <input
@@ -176,7 +137,7 @@ const Header = () => {
                 <div
                   className={
                     [
-                      'relative w-14 h-8 rounded-full border backdrop-blur-md',
+                      'relative w-[3.25rem] h-7 rounded-full border backdrop-blur-md',
                       'bg-white/20 border-white/30',
                       'peer-focus-visible:outline-none peer-focus-visible:ring-2 peer-focus-visible:ring-amber-glow',
                       'dark:bg-ethiopian-earth/30 dark:border-amber-glow/25',
@@ -187,11 +148,11 @@ const Header = () => {
                   <div
                     className={
                       [
-                        'absolute top-1 left-1 h-6 w-6 rounded-full',
+                          'absolute top-0.5 left-0.5 h-6 w-6 rounded-full',
                         'flex items-center justify-center shadow-lg',
                         'transition-transform duration-300',
                         nightMode
-                          ? 'translate-x-6 bg-injera-maroon text-amber-glow'
+                          ? 'translate-x-[1.375rem] bg-injera-maroon text-amber-glow'
                           : 'translate-x-0 bg-injera-white text-coffee-brown',
                       ].join(' ')
                     }
@@ -261,42 +222,6 @@ const Header = () => {
 
                     <div className="pt-2 flex items-center gap-2">
                       <LanguageSwitcher />
-                      <a
-                        href={ADMIN_DEV_URL}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={
-                          [
-                            'flex-1 inline-flex items-center justify-center',
-                            'px-4 py-2 rounded-xl border',
-                            'border-sefed-sand/30 bg-white/15 backdrop-blur-md',
-                            'text-sm font-semibold text-ethiopian-earth/90 hover:text-amber-glow',
-                            'hover:bg-white/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-glow',
-                            'dark:border-amber-glow/25 dark:bg-ethiopian-earth/20 dark:text-injera-white/90 dark:hover:bg-ethiopian-earth/35',
-                            'transition-colors',
-                          ].join(' ')
-                        }
-                      >
-                        {t('nav.signIn')}
-                      </a>
-                      <a
-                        href={ADMIN_DEV_URL}
-                        target="_blank"
-                        rel="noreferrer"
-                        className={
-                          [
-                            'flex-1 inline-flex items-center justify-center',
-                            'px-4 py-2 rounded-xl border',
-                            'border-white/25 bg-ethiopian-earth text-cloud-white',
-                            'text-sm font-semibold',
-                            'hover:bg-ethiopian-earth/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-glow',
-                            'dark:border-amber-glow/25 dark:bg-injera-maroon dark:text-injera-white dark:hover:bg-injera-maroon/90',
-                            'transition-colors',
-                          ].join(' ')
-                        }
-                      >
-                        {t('nav.signUp')}
-                      </a>
                     </div>
                   </div>
                 </div>

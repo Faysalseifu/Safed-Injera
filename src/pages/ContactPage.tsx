@@ -114,7 +114,7 @@ const ContactPage = () => {
                backgroundSize: '280px',
                mixBlendMode: 'soft-light'
              }} />
-        <div className="section-container relative z-10">
+        <div className="section-inner relative z-10">
           <SplitHero
             title={t('contact.title')}
             subtitle={t('contact.subtitle')}
@@ -126,6 +126,7 @@ const ContactPage = () => {
 
       {/* Contact Form Section */}
       <section className="section-container">
+        <div className="section-inner">
         <div className="max-w-6xl mx-auto grid md:grid-cols-2 gap-8 lg:gap-12">
           {/* Contact Form */}
           <motion.div
@@ -313,6 +314,7 @@ const ContactPage = () => {
               </div>
             </div>
           </motion.div>
+        </div>
         </div>
       </section>
     </div>

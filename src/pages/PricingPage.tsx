@@ -72,7 +72,7 @@ const PricingPage = () => {
             backgroundSize: '300px',
             mixBlendMode: 'soft-light'
           }} />
-        <div className="section-container relative z-10">
+        <div className="section-inner relative z-10">
           <SplitHero
             title={t('pricing.title')}
             subtitle={t('pricing.subtitle')}
@@ -84,6 +84,7 @@ const PricingPage = () => {
 
       {/* Pricing Cards */}
       <section className="section-container">
+        <div className="section-inner">
         <div className="grid md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
           {packages.map((pkg, index) => (
             <motion.div
@@ -150,6 +151,7 @@ const PricingPage = () => {
             </p>
           </div>
         </motion.div>
+        </div>
       </section>
     </div>
   );

@@ -9,7 +9,7 @@ const AISection = () => {
                 <div className="absolute bottom-0 -right-1/4 w-1/2 h-1/2 bg-amber-700 rounded-full blur-[120px]" />
             </div>
 
-            <div className="section-container relative z-10">
+            <div className="section-inner relative z-10">
                 <div className="grid lg:grid-cols-2 gap-12 items-center">
                     {/* Text Content */}
                     <motion.div

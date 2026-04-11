@@ -32,7 +32,7 @@ const Distribution = () => {
   ];
 
   return (
-    <section id="distribution" className="section-container relative py-24 overflow-hidden bg-ethiopian-earth/5 dark:bg-transparent transition-colors duration-300">
+    <section id="distribution" className="w-full py-24 relative overflow-hidden bg-ethiopian-earth/5 dark:bg-transparent transition-colors duration-300">
       {/* World Map Background Simulation */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg')] bg-center bg-no-repeat bg-cover -z-10 mix-blend-multiply" />
       
@@ -73,6 +73,7 @@ const Distribution = () => {
              mixBlendMode: 'soft-light'
            }} />
 
+      <div className="section-inner relative z-10">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -85,7 +86,7 @@ const Distribution = () => {
         <p className="text-lg text-coffee-brown/80 dark:text-injera-white/80 max-w-2xl mx-auto font-light">{t('distribution.subtitle')}</p>
       </motion.div>
 
-      <div className="grid sm:grid-cols-2 gap-6 md:gap-8 lg:gap-12 px-4 relative z-10">
+      <div className="grid sm:grid-cols-2 gap-6 md:gap-8 lg:gap-12 relative z-10">
         {services.map((service, index) => (
           <motion.div
             key={index}
@@ -117,6 +118,7 @@ const Distribution = () => {
             <div className={`absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-br ${service.color} opacity-0 group-hover:opacity-5 rounded-full blur-xl transform translate-x-1/2 translate-y-1/2 transition-opacity duration-300`} />
           </motion.div>
         ))}
+      </div>
       </div>
     </section>
   );

@@ -15,7 +15,7 @@
   }
   
   body {
-    @apply bg-white text-ethiopian-earth antialiased;
+    @apply bg-white text-ethiopian-earth antialiased overflow-x-hidden;
     font-family: 'Poppins', system-ui, sans-serif;
   }
 
@@ -71,9 +71,13 @@
     @apply glass text-cloud-white px-6 py-3 sm:px-8 sm:py-4 rounded-xl font-semibold transition-all duration-300 hover:bg-white/30 hover:shadow-2xl hover:scale-105 active:scale-100 text-sm sm:text-base;
   }
 
-  /* Section containers - Mobile first */
+  /* Full-bleed section shell (edge-to-edge backgrounds); pair with .section-inner for content width */
   .section-container {
-    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 lg:py-20;
+    @apply w-full py-8 sm:py-12 md:py-16 lg:py-20;
+  }
+
+  .section-inner {
+    @apply max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8;
   }
 
   .section-title {
@@ -172,7 +176,10 @@
   .brand-glow { box-shadow: 0 12px 40px rgba(181,106,58,0.25); }
 
   /* Ensure body covers entire viewport nicely */
-  body, #root { min-height: 100vh; }
+  body, #root {
+    min-height: 100vh;
+    width: 100%;
+  }
 
   /* Shared background for About through Clients */
   .home-mid-shell {

@@ -21,7 +21,7 @@ const Footer = () => {
 
   return (
     <footer className="bg-ethiopian-earth text-cloud-white dark:bg-injera-maroon dark:text-injera-white transition-colors duration-300">
-      <div className="section-container py-12">
+      <div className="section-inner py-12">
         <div className="grid md:grid-cols-3 gap-8 mb-8">
           {/* Company Info */}
           <div>
