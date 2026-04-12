@@ -38,7 +38,7 @@ const AboutPage = () => {
   ];
 
   return (
-    <div className="min-h-screen pt-20 overflow-hidden">
+    <div className="min-h-screen overflow-hidden">
       {/* Background Ambience */}
       <div className="fixed inset-0 pointer-events-none -z-50">
         <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-injera-maroon/5 rounded-full blur-[100px]" />
@@ -46,8 +46,10 @@ const AboutPage = () => {
       </div>
 
       {/* Hero Section */}
-      <section className="relative gradient-hero py-20 sm:py-24 md:py-32 overflow-hidden">
+      <section className="relative gradient-hero pt-24 sm:pt-28 md:pt-32 pb-20 sm:pb-24 md:pb-32 overflow-hidden">
         <div className="absolute inset-0 pattern-overlay opacity-20" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[720px] h-[720px] rounded-full bg-gradient-to-b from-amber-300/20 via-transparent to-transparent blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-28 right-0 w-[420px] h-[420px] rounded-full bg-injera-maroon/30 blur-[120px] pointer-events-none" />
         
         {/* Pattern overlays - Using actual PNG images as overlays */}
         {/* Large centered pattern */}
@@ -91,11 +93,49 @@ const AboutPage = () => {
             images={heroImages}
             initialIndex={0}
           />
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-10 grid lg:grid-cols-[1.4fr_1fr] gap-4 sm:gap-6"
+          >
+            <div className="rounded-2xl bg-white/10 backdrop-blur-md border border-white/20 p-5 sm:p-7 text-cloud-white shadow-[0_20px_50px_rgba(0,0,0,0.25)]">
+              <p className="text-sm uppercase tracking-[0.2em] text-sefed-sand/90 mb-3">
+                Why Safed Injera
+              </p>
+              <p className="text-base sm:text-lg text-cloud-white/90 leading-relaxed">
+                We started with one simple promise: bring authentic, nutritious injera to every table without compromising tradition.
+                From hand-selected teff flour to carefully controlled fermentation, every batch is crafted for flavor, consistency, and pride.
+              </p>
+            </div>
+
+            <div className="rounded-2xl bg-ethiopian-earth/35 backdrop-blur-md border border-white/15 p-5 sm:p-7 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+              <p className="text-sm uppercase tracking-[0.2em] text-amber-200 mb-4">
+                What Defines Us
+              </p>
+              <div className="flex flex-wrap gap-2.5">
+                <span className="px-3 py-1.5 rounded-full bg-white/15 border border-white/20 text-sm text-cloud-white">100% Teff Focus</span>
+                <span className="px-3 py-1.5 rounded-full bg-white/15 border border-white/20 text-sm text-cloud-white">Modern Quality Controls</span>
+                <span className="px-3 py-1.5 rounded-full bg-white/15 border border-white/20 text-sm text-cloud-white">Rooted in Ethiopian Heritage</span>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Hero to content transition */}
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-14 w-[120%] h-28 rounded-full bg-black/35 blur-3xl opacity-45 pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-24 pointer-events-none">
+          <svg viewBox="0 0 1440 180" className="w-full h-full" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,96 C220,190 470,0 720,84 C980,174 1220,46 1440,112 L1440,180 L0,180 Z" fill="#ffffff" />
+          </svg>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="section-container -mt-16 relative z-20">
+      <section className="section-container -mt-10 sm:-mt-12 relative z-20 bg-gradient-to-b from-[#fcf7f2] via-white to-white rounded-t-[2rem] shadow-[0_-22px_60px_rgba(35,18,14,0.14)]">
+        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/80 to-transparent pointer-events-none" />
         <div className="section-inner">
         <div className="grid md:grid-cols-3 gap-6 sm:gap-8 lg:gap-12">
           {features.map((feature, index) => (

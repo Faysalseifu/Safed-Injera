@@ -20,15 +20,41 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-ethiopian-earth text-cloud-white dark:bg-injera-maroon dark:text-injera-white transition-colors duration-300">
-      <div className="section-inner py-12">
-        <div className="grid md:grid-cols-3 gap-8 mb-8">
+    <footer className="relative z-10 mt-6 sm:mt-10 px-3 sm:px-4 md:px-6 pb-4 sm:pb-6">
+      <div
+        className={
+          [
+            'relative mx-auto max-w-7xl overflow-hidden rounded-[1.75rem] sm:rounded-[2rem]',
+            'border border-white/20 dark:border-amber-glow/15',
+            'bg-ethiopian-earth/75 dark:bg-injera-maroon/80',
+            'backdrop-blur-2xl backdrop-saturate-150',
+            'shadow-[0_24px_80px_-12px_rgba(0,0,0,0.35),inset_0_1px_0_rgba(255,255,255,0.08)]',
+            'text-cloud-white dark:text-injera-white',
+            'transition-colors duration-300',
+          ].join(' ')
+        }
+      >
+        <div
+          className="pointer-events-none absolute inset-0 rounded-[inherit]"
+          aria-hidden
+          style={{
+            background:
+              'linear-gradient(165deg, rgba(255,255,255,0.12) 0%, transparent 42%, rgba(0,0,0,0.12) 100%)',
+          }}
+        />
+        <div className="section-inner relative py-10 sm:py-12">
+          <div className="grid md:grid-cols-3 gap-8 mb-8">
           {/* Company Info */}
           <div>
-            <img 
-              src="/images/logo 1.png" 
+            <img
+              src="/images/logo 1.png"
               alt="Safed Injera Logo"
-              className="h-12 sm:h-16 md:h-20 w-auto mb-3 sm:mb-4"
+              className="h-12 sm:h-16 md:h-20 w-auto mb-3 sm:mb-4 dark:hidden"
+            />
+            <img
+              src="/images/logo dark mode.png"
+              alt="Safed Injera Logo"
+              className="hidden h-12 sm:h-16 md:h-20 w-auto mb-3 sm:mb-4 dark:block"
             />
             <p className="text-cloud-white/80 dark:text-injera-white/80 leading-relaxed text-sm sm:text-base transition-colors duration-300">
               {t('footer.description')}
@@ -71,10 +97,11 @@ const Footer = () => {
               <li>📞 <a href="tel:+251953866041" className="hover:text-sefed-sand dark:hover:text-amber-glow transition-colors">+251 95 386 6041</a></li>
             </ul>
           </div>
-        </div>
+          </div>
 
-        <div className="border-t border-cloud-white/20 dark:border-injera-white/20 pt-8 text-center text-cloud-white/60 dark:text-injera-white/60 transition-colors duration-300">
-          <p>&copy; {new Date().getFullYear()} Safed Injera. {t('footer.rights')}</p>
+          <div className="border-t border-cloud-white/25 dark:border-injera-white/15 pt-8 text-center text-cloud-white/65 dark:text-injera-white/65 transition-colors duration-300">
+            <p>&copy; {new Date().getFullYear()} Safed Injera. {t('footer.rights')}</p>
+          </div>
         </div>
       </div>
     </footer>

@@ -16,8 +16,9 @@
     "title": "Safed Injera",
     "subtitle": "Premium Quality Teff Injera",
     "description": "Mass production of authentic Ethiopian injera made from pure teff. Delivering quality to hotels, supermarkets, and international clients.",
-    "cta1": "Contact Us",
+    "cta1": "Order Now",
     "cta2": "View Products",
+    "orderNote": "Order with us, we will call and deliver.",
     "slide1": "Safed Injera chef presenting premium packaged teff injera",
     "slide2": "Fresh teff injera on a traditional mitad",
     "slide3": "Safed Injera chef with packed injera product"
@@ -94,8 +95,8 @@
     "viewImage": "View Image"
   },
   "contact": {
-    "title": "Contact Us",
-    "subtitle": "Get in Touch",
+    "title": "Order Now",
+    "subtitle": "Order with us, we will call and deliver.",
     "name": "Name",
     "email": "Email",
     "businessType": "Business Type",

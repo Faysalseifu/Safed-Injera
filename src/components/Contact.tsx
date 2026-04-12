@@ -151,7 +151,7 @@ const Contact = () => {
         transition={{ duration: 0.4 }}
         className="text-center mb-16 relative z-10"
       >
-        <span className="text-amber-glow font-bold tracking-widest text-sm uppercase mb-2 block">Get in Touch</span>
+        <span className="text-amber-glow font-bold tracking-widest text-sm uppercase mb-2 block">Order Now</span>
         <h2 className="section-title text-4xl md:text-5xl font-black text-ethiopian-earth dark:text-injera-white mb-4">{t('contact.title')}</h2>
         <p className="text-lg text-coffee-brown/80 dark:text-injera-white/80 max-w-xl mx-auto font-light">{t('contact.subtitle')}</p>
       </motion.div>

@@ -19,7 +19,7 @@ import './styles/nightmode.css';
 
 import { useEffect, useState } from 'react';
 
-function App() {
+function AppShell() {
   // Detect night mode from localStorage
   const [nightMode, setNightMode] = useState(() => {
     if (typeof window !== 'undefined') {
@@ -37,11 +37,9 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary>
-      <Router>
-        <div className={`min-h-screen w-full flex flex-col transition-colors duration-500 ${nightMode ? 'night-mode' : ''}`}>
-          <Header />
-          <main className="flex-grow w-full min-w-0">
+    <div className={`min-h-screen w-full flex flex-col transition-colors duration-500 ${nightMode ? 'night-mode' : ''}`}>
+      <Header />
+      <main className="flex-grow w-full min-w-0">
             <Routes>
               <Route
                 path="/"
@@ -69,9 +67,17 @@ function App() {
               <Route path="/gallery" element={<GalleryPage />} />
               <Route path="/pricing" element={<PricingPage />} />
             </Routes>
-          </main>
-          <Footer />
-        </div>
+      </main>
+      <Footer />
+    </div>
+  );
+}
+
+function App() {
+  return (
+    <ErrorBoundary>
+      <Router>
+        <AppShell />
       </Router>
     </ErrorBoundary>
   );

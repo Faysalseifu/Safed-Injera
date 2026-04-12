@@ -236,6 +236,15 @@ const Hero = () => {
               </button>
             </motion.div>
 
+            <motion.p
+              className="text-sm sm:text-base text-amber-200/90 font-medium"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+            >
+              {t('hero.orderNote')}
+            </motion.p>
+
             {/* Phone Numbers - Enhanced */}
             <motion.div
               className="flex items-center gap-5 pt-8 border-t border-white/10 mt-4"

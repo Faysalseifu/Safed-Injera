@@ -33,9 +33,9 @@ const GalleryPage = () => {
   ];
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen">
       {/* Hero Section */}
-      <section className="relative gradient-hero pattern-overlay py-12 sm:py-16 md:py-20 overflow-hidden">
+      <section className="relative gradient-hero pattern-overlay pt-24 sm:pt-28 md:pt-32 pb-12 sm:pb-16 md:pb-20 overflow-hidden">
         {/* Pattern overlays - Using actual PNG images as overlays */}
         {/* Corner accent patterns */}
         <div className="absolute top-0 left-0 w-[400px] h-[400px] opacity-18 pointer-events-none pattern-gallery-corner-light dark:hidden" 
@@ -76,11 +76,20 @@ const GalleryPage = () => {
             initialIndex={2}
           />
         </div>
+
+        {/* Hero to content transition */}
+        <div className="absolute left-1/2 -translate-x-1/2 -bottom-14 w-[120%] h-28 rounded-full bg-black/35 blur-3xl opacity-45 pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-24 pointer-events-none">
+          <svg viewBox="0 0 1440 180" className="w-full h-full" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M0,96 C220,190 470,0 720,84 C980,174 1220,46 1440,112 L1440,180 L0,180 Z" fill="#ffffff" />
+          </svg>
+        </div>
       </section>
 
       {/* Gallery Grid */}
-      <section className="section-container">
-        <div className="section-inner">
+      <section className="section-container relative -mt-10 sm:-mt-12 z-20 bg-gradient-to-b from-[#fcf7f2] via-white to-white rounded-t-[2rem] shadow-[0_-22px_60px_rgba(35,18,14,0.14)]">
+        <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-white/80 to-transparent pointer-events-none" />
+        <div className="section-inner relative">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {images.map((image, index) => (
             <motion.div

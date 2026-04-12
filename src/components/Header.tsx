@@ -91,7 +91,7 @@ const Header = () => {
           <div className="flex items-center justify-between px-4 sm:px-5 py-2 sm:py-3">
             <Link to="/" onClick={(e) => handleNavClick('/', e)} className="flex items-center gap-2 sm:gap-3">
               <img
-                src="/images/logo 1.png"
+                src={nightMode ? '/images/logo dark mode.png' : '/images/logo 1.png'}
                 alt="Safed Injera Logo"
                 className="h-9 sm:h-10 md:h-12 w-auto"
               />
