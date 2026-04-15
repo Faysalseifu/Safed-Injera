@@ -69,8 +69,15 @@ export const protect = async (
       req.user = user;
       next();
     } catch (error) {
-      logger.error('Token verification failed:', error);
-      res.status(401).json({ message: 'Not authorized, token failed' });
+      const tokenError = error as { name?: string; message?: string; expiredAt?: string };
+      if (tokenError?.name === 'TokenExpiredError') {
+        logger.warn('Token expired', { expiredAt: tokenError.expiredAt });
+        res.status(401).json({ message: 'Not authorized, token expired', code: 'TOKEN_EXPIRED' });
+        return;
+      }
+
+      logger.warn('Token verification failed', { reason: tokenError?.message || 'unknown' });
+      res.status(401).json({ message: 'Not authorized, token failed', code: 'TOKEN_INVALID' });
     }
   } catch (error) {
     logger.error('Auth middleware error:', error);

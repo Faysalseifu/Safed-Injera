@@ -2,6 +2,23 @@ import { AuthProvider } from 'react-admin';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
+const isJwtExpired = (token: string): boolean => {
+  try {
+    const payloadBase64 = token.split('.')[1];
+    if (!payloadBase64) return true;
+
+    const payloadJson = atob(payloadBase64.replace(/-/g, '+').replace(/_/g, '/'));
+    const payload = JSON.parse(payloadJson) as { exp?: number };
+
+    if (!payload.exp) return false;
+
+    const currentEpochSeconds = Math.floor(Date.now() / 1000);
+    return payload.exp <= currentEpochSeconds;
+  } catch {
+    return true;
+  }
+};
+
 const authProvider: AuthProvider = {
   login: async ({ username, password }) => {
     try {
@@ -62,7 +79,16 @@ const authProvider: AuthProvider = {
   },
 
   checkAuth: () => {
-    return localStorage.getItem('token') ? Promise.resolve() : Promise.reject();
+    const token = localStorage.getItem('token');
+    if (!token) return Promise.reject();
+
+    if (isJwtExpired(token)) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      return Promise.reject();
+    }
+
+    return Promise.resolve();
   },
 
   getPermissions: () => {

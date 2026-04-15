@@ -7,7 +7,6 @@ import Products from './components/Products';
 import Process from './components/Process';
 import Distribution from './components/Distribution';
 import Clients from './components/Clients';
-import Gallery from './components/Gallery';
 import Contact from './components/Contact';
 import AboutPage from './pages/AboutPage';
 import ContactPage from './pages/ContactPage';
@@ -57,7 +56,6 @@ function AppShell() {
                       <Distribution />
                       <Clients />
                     </div>
-                    <Gallery />
                     <Contact />
                   </>
                 }
